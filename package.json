@@ -1,0 +1,23 @@
+{
+  "name": "yiweixin",
+  "version": "0.0.0",
+  "description": "yiliuliang",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/scalaview/yiweixin.git"
+  },
+  "author": "benko",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/scalaview/yiweixin/issues"
+  },
+  "homepage": "https://github.com/scalaview/yiweixin",
+  "dependencies": {
+    "bower": "~1.4.1",
+    "express": "~4.13.1"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "yiweixin",
+  "version": "0.0.0",
+  "homepage": "https://github.com/scalaview/yiweixin",
+  "authors": [
+    "benko"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
