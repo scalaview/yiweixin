@@ -1,5 +1,12 @@
 var express = require('express');
+var config = require("./config")
 var app = express();
+var wechat = require('wechat');
+var config = {
+  token: config.token,
+  appid: config.appId,
+  encodingAESKey: config.aesKey
+};
 
 app.set('port', process.env.PORT || 3000)
 
