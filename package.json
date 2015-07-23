@@ -19,6 +19,7 @@
   "homepage": "https://github.com/scalaview/yiweixin",
   "dependencies": {
     "express": "~4.13.1",
-    "wechat": "^2.0.1"
+    "wechat": "^2.0.1",
+    "request": "^2.60.0"
   }
 }
