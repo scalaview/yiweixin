@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/scalaview/yiweixin",
   "dependencies": {
+    "async": "^1.4.0",
     "express": "~4.13.1",
     "lodash": "^3.10.0",
     "request": "^2.60.0",

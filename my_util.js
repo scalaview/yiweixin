@@ -6,6 +6,16 @@ var weixinApi = {
   'get_access_token': 'https://api.weixin.qq.com/cgi-bin/token'
 }
 
+
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+
 exports.addQueryParams = function(url, params){
   var subfix = []
   _.forEach(params, function(n, key) {
@@ -21,11 +31,12 @@ exports.getAccessToken = function(callback){
     'secret': config.appSecret
   }
 
+  var time = 0, accessToken = null;
   request.get({url:weixinApi.get_access_token, qs:options, json:true}, function (error, res, data){
           if(data.errcode){
-            var accessToken = new AccessToken(data)
+            accessToken = new AccessToken(data)
           }else{
-            var accessToken = new AccessToken(data.access_token, data.expires_in)
+            accessToken = new AccessToken(data.access_token, data.expires_in)
           }
           callback(accessToken)
         }).on("error", function(error){
