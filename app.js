@@ -24,6 +24,7 @@ app.get('/', function (req, res) {
   async.waterfall([token,
     function(callback){
       console.log(assceToken)
+      res.send(assceToken)
       callback()
     }], function(error, callback){
       // ?
