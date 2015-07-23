@@ -1,19 +1,9 @@
 var config = require("./config")
 var request = require("request")
-var _ = require('lodash');
+var _ = require('lodash')
 
 var weixinApi = {
   'get_access_token': 'https://api.weixin.qq.com/cgi-bin/token'
-}
-
-
-function sleep(milliseconds) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
-      break;
-    }
-  }
 }
 
 exports.addQueryParams = function(url, params){
@@ -32,7 +22,8 @@ exports.getAccessToken = function(callback){
   }
 
   var time = 0, accessToken = null;
-  request.get({url:weixinApi.get_access_token, qs:options, json:true}, function (error, res, data){
+
+  request.get({url: weixinApi.get_access_token, qs: options, json: true}, function (error, res, data){
           if(data.errcode){
             accessToken = new AccessToken(data)
           }else{
@@ -48,12 +39,16 @@ function AccessToken(access_token, expires_in){
   if(arguments.length == 2){
     this.accessToken = access_token
     this.expiresIn = expires_in
-    this.createdAt = new Date()
+    this.exporesAt = new Date((new Date()).getTime() + this.expiresIn * 1000)
   }else if(arguments.length == 1){
     this.errorcode = arguments[0]
   }
 }
 
 AccessToken.prototype.isExpired = function(){
-  return new Date() > new Date(this.createdAt.getTime() + this.expiresIn * 1000)
+  return new Date() > this.exporesAt
+}
+
+AccessToken.prototype.getToken = function(){
+  return this.accessToken
 }

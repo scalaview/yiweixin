@@ -1,35 +1,62 @@
-var express = require('express');
+var express = require('express')
 var config = require("./config")
 var myUtil = require("./my_util")
-var app = express();
-var async = require("async");
-var assceToken = null;
-var wechat = require('wechat');
+var menu = require("./menu")
+var app = express()
+var async = require("async")
+var accessToken = null
+// var wechat = require('wechat')
 
-var config = {
-  token: config.token,
-  appid: config.appId,
-  encodingAESKey: config.aesKey
-};
+// var config = {
+//   token: config.token,
+//   appid: config.appId,
+//   encodingAESKey: config.aesKey
+// };
 
 var token = function(callback){
+    if(accessToken != null && !accessToken.isExpired()){
+      callback()
+    }else{
       myUtil.getAccessToken(function(data){
-        assceToken = data
+        accessToken = data
+        console.log(accessToken)
         callback()
       })
     }
+  }
+
 app.set('port', process.env.PORT || 3000)
 
 app.get('/', function (req, res) {
+  res.send(req.query.echostr)
+});
+
+app.get('/token', function(req, res) {
   async.waterfall([token,
     function(callback){
-      console.log(assceToken)
-      res.send(assceToken)
+      console.log(accessToken)
+      res.send(accessToken)
       callback()
     }], function(error, callback){
-      // ?
+      console.log(error)
   })
-});
+})
+
+
+app.get('/create-menus', function(req, res) {
+  async.waterfall([token,
+    function(callback){
+      menu.createMenus(accessToken.getToken(), config.menus, function(status, error){
+        if(status){
+          res.send("create success")
+        }else{
+          res.send("create fail: code [" + error.errcode + "], mesg: [" + error.errmsg + "] ")
+        }
+    })}], function(error, callback){
+      console.log(error)
+    })
+})
+
 
 var server = app.listen(app.get('port'), function () {
   var host = server.address().address;
