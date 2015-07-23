@@ -1,5 +1,6 @@
 var express = require('express');
 var config = require("./config")
+var myUtil = require("./my_util")
 var app = express();
 var wechat = require('wechat');
 var config = {
@@ -11,7 +12,9 @@ var config = {
 app.set('port', process.env.PORT || 3000)
 
 app.get('/', function (req, res) {
-  res.send(req.query.echostr);
+  myUtil.getAccessToken(function(data){
+    res.send(data)
+  })
 });
 
 var server = app.listen(app.get('port'), function () {
