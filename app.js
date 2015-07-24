@@ -10,13 +10,13 @@ var app = express()
 var async = require("async")
 var parseString = require('xml2js').parseString;
 var accessToken = null
-// var wechat = require('wechat')
+var wechat = require('wechat')
 
-// var config = {
-//   token: config.token,
-//   appid: config.appId,
-//   encodingAESKey: config.aesKey
-// };
+var wechatConfig = {
+  token: config.token,
+  appid: config.appId,
+  encodingAESKey: config.aesKey
+};
 
 var token = function(callback){
     if(accessToken != null && !accessToken.isExpired()){
@@ -30,26 +30,33 @@ var token = function(callback){
     }
   }
 
-app.use(function(req, res, next) {
-  var contentType = req.headers['content-type'] || ''
-    , mime = contentType.split(';')[0];
-  if (mime != 'text/xml') {
-    return next();
-  }
+// app.use(function(req, res, next) {
+//   var contentType = req.headers['content-type'] || ''
+//     , mime = contentType.split(';')[0];
+//   if (mime != 'text/xml') {
+//     return next();
+//   }
 
-  var data = '';
-  req.setEncoding('utf8');
-  req.on('data', function(chunk) {
-    data += chunk;
-  });
-  req.on('end', function() {
-    parseString(data, function (err, result) {
-      req.body = result
-      next();
-    });
-  });
-});
-app.use(urlencodedParser)
+//   var data = '';
+//   req.setEncoding('utf8');
+//   req.on('data', function(chunk) {
+//     data += chunk;
+//   });
+//   req.on('end', function() {
+//     parseString(data, function (err, result) {
+//       req.body = result
+//       next();
+//     });
+//   });
+// });
+// app.use(urlencodedParser)
+
+app.use(express.query());
+app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
+  // 微信输入信息都在req.weixin上
+  var message = req.weixin;
+  console.log(message)
+}));
 
 app.set('port', process.env.PORT || 3000)
 
