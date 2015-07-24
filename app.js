@@ -29,13 +29,13 @@ var token = function(callback){
 app.set('port', process.env.PORT || 3000)
 
 app.get('/', function (req, res) {
-  console.log(req.body)
   res.send(req.query.echostr)
 });
 
+//8a531117c3122a8191a3059617ff2b52329326ab
 app.post('/', function(req, res) {
   console.log(req.body)
-  console.log(sign.sha(req.token, req.timestamp, req.nonce))
+  console.log(sign.sha(config.token, req.query.timestamp, req.query.nonce))
   console.log(req.query.signature)
 })
 
