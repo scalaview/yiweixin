@@ -32,11 +32,10 @@ app.get('/', function (req, res) {
   res.send(req.query.echostr)
 });
 
-//8a531117c3122a8191a3059617ff2b52329326ab
 app.post('/', function(req, res) {
   console.log(req.body)
   console.log(sign.sha(config.token, req.query.timestamp, req.query.nonce))
-  console.log(req.query.signature)
+  res.send("ok")
 })
 
 app.get('/token', function(req, res) {
