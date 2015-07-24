@@ -8,6 +8,7 @@ var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 var app = express()
 var async = require("async")
+var parseString = require('xml2js').parseString;
 var accessToken = null
 // var wechat = require('wechat')
 
@@ -29,14 +30,38 @@ var token = function(callback){
     }
   }
 
+// app.use(urlencodedParser)
+app.use(function(req, res, next) {
+  console.log("qqq")
+  var contentType = req.headers['content-type'] || ''
+    , mime = contentType.split(';')[0];
+    console.log(mime)
+  if (mime != 'text/plain') {
+    return next();
+  }
+
+  var data = '';
+  req.setEncoding('utf8');
+  req.on('data', function(chunk) {
+    data += chunk;
+  });
+  req.on('end', function() {
+    console.log(data)
+    parseString(data, function (err, result) {
+      req.body = result
+        console.log(result);
+        next();
+    });
+  });
+});
+
 app.set('port', process.env.PORT || 3000)
 
 app.get('/', function (req, res) {
   res.send(req.query.echostr)
 });
 
-app.post('/', urlencodedParser, function(req, res) {
-  console.log(req.body)
+app.post('/', function(req, res) {
   console.log(sign.sha(config.token, req.query.timestamp, req.query.nonce))
   res.send("ok")
 })
@@ -51,9 +76,6 @@ app.get('/token', function(req, res) {
       console.log(error)
   })
 })
-
-
-
 
 app.get('/create-menus', function(req, res) {
   async.waterfall([token,
