@@ -3,9 +3,9 @@ var config = require("./config")
 var myUtil = require("./my_util")
 var menu = require("./menu")
 var sign = require("./sign")
-// var bodyParser = require('body-parser')
-// var jsonParser = bodyParser.json()
-// var urlencodedParser = bodyParser.urlencoded({ extended: false })
+var bodyParser = require('body-parser')
+var jsonParser = bodyParser.json()
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
 var app = express()
 var async = require("async")
 var parseString = require('xml2js').parseString;
@@ -49,6 +49,7 @@ app.use(function(req, res, next) {
     });
   });
 });
+app.use(urlencodedParser)
 
 app.set('port', process.env.PORT || 3000)
 
@@ -57,7 +58,7 @@ app.get('/', function (req, res) {
 });
 
 app.post('/', function(req, res) {
-  console.log(req.body)
+  console.log(req.body.xml)
   console.log(sign.sha(config.token, req.query.timestamp, req.query.nonce))
   res.send("ok")
 })
