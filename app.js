@@ -36,6 +36,15 @@ app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
   var message = req.weixin;
   if (message.EventKey === menusKeys.button1) {
     res.reply('hehe');
+  }else{
+    res.reply([
+      {
+        title: '你来我家接我吧',
+        description: '这是女神与高富帅之间的对话',
+        picurl: 'http://nodeapi.cloudfoundry.com/qrcode.jpg',
+        url: 'http://nodeapi.cloudfoundry.com/'
+      }
+    ])
   }
 }));
 
