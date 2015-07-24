@@ -58,7 +58,7 @@ app.get('/', function (req, res) {
 });
 
 app.post('/', function(req, res) {
-  console.log(req.body.xml)
+  console.log(JSON.stringify(req.body.xml))
   console.log(sign.sha(config.token, req.query.timestamp, req.query.nonce))
   res.send("ok")
 })
