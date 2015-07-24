@@ -57,6 +57,7 @@ app.get('/', function (req, res) {
 });
 
 app.post('/', function(req, res) {
+  console.log(req.body)
   console.log(sign.sha(config.token, req.query.timestamp, req.query.nonce))
   res.send("ok")
 })
