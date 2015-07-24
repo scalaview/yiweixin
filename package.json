@@ -21,6 +21,7 @@
     "async": "^1.4.0",
     "body-parser": "^1.13.2",
     "express": "~4.13.1",
+    "express-handlebars": "^2.0.1",
     "lodash": "^3.10.0",
     "request": "^2.60.0",
     "wechat": "^2.0.1",
