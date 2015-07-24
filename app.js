@@ -32,6 +32,10 @@ app.get('/', function (req, res) {
   res.send(req.query.echostr)
 });
 
+app.post('/', function(req, res) {
+  console.log(req.body)
+})
+
 app.get('/token', function(req, res) {
   async.waterfall([token,
     function(callback){
@@ -42,6 +46,8 @@ app.get('/token', function(req, res) {
       console.log(error)
   })
 })
+
+
 
 
 app.get('/create-menus', function(req, res) {
