@@ -52,7 +52,7 @@ var token = function(callback){
 // app.use(urlencodedParser)
 
 app.use(express.query());
-app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
+app.use('/', wechat(wechatConfig, function (req, res, next) {
   // 微信输入信息都在req.weixin上
   var message = req.weixin;
   console.log(message)
@@ -64,11 +64,11 @@ app.get('/', function (req, res) {
   res.send(req.query.echostr)
 });
 
-app.post('/', function(req, res) {
-  console.log(JSON.stringify(req.body.xml))
-  console.log(sign.sha(config.token, req.query.timestamp, req.query.nonce))
-  res.send("ok")
-})
+// app.post('/', function(req, res) {
+//   console.log(JSON.stringify(req.body.xml))
+//   console.log(sign.sha(config.token, req.query.timestamp, req.query.nonce))
+//   res.send("ok")
+// })
 
 app.get('/token', function(req, res) {
   async.waterfall([token,
