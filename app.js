@@ -36,7 +36,7 @@ app.get('/', function (req, res) {
 app.post('/', function(req, res) {
   console.log(req.body)
   console.log(sign.sha(req.token, req.timestamp, req.nonce))
-  console.log(req.signature)
+  console.log(req.query.signature)
 })
 
 app.get('/token', function(req, res) {
