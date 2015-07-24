@@ -31,7 +31,7 @@ var token = function(callback){
   }
 
 app.use(express.query());
-app.use('/', wechat(wechatConfig, function (req, res, next) {
+app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
   var menusKeys = config.menus_keys
   var message = req.weixin;
   if (message.EventKey === menusKeys.button1) {
@@ -40,21 +40,6 @@ app.use('/', wechat(wechatConfig, function (req, res, next) {
 }));
 
 app.set('port', process.env.PORT || 3000)
-
-app.get('/', function (req, res) {
-  res.send(req.query.echostr)
-});
-
-app.get('/token', function(req, res) {
-  async.waterfall([token,
-    function(callback){
-      console.log(accessToken)
-      res.send(accessToken)
-      callback()
-    }], function(error, callback){
-      console.log(error)
-  })
-})
 
 app.get('/create-menus', function(req, res) {
   async.waterfall([token,
