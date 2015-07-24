@@ -2,6 +2,7 @@ var express = require('express')
 var config = require("./config")
 var myUtil = require("./my_util")
 var menu = require("./menu")
+var sign = require("./sign")
 var app = express()
 var async = require("async")
 var accessToken = null
@@ -34,6 +35,8 @@ app.get('/', function (req, res) {
 
 app.post('/', function(req, res) {
   console.log(req.body)
+  console.log(sign.sha(req.token, req.timestamp, req.nonce))
+  console.log(req.signature)
 })
 
 app.get('/token', function(req, res) {
