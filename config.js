@@ -29,7 +29,10 @@ var config = {
                                  "key":"V1001_GOOD"
                               }]
                          }]
-                   }
+                   },
+                'menus_keys': {
+                  'button1' :'V1001_TODAY_MUSIC'
+                }
               };
 
 module.exports = config;

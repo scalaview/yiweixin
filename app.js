@@ -30,32 +30,13 @@ var token = function(callback){
     }
   }
 
-// app.use(function(req, res, next) {
-//   var contentType = req.headers['content-type'] || ''
-//     , mime = contentType.split(';')[0];
-//   if (mime != 'text/xml') {
-//     return next();
-//   }
-
-//   var data = '';
-//   req.setEncoding('utf8');
-//   req.on('data', function(chunk) {
-//     data += chunk;
-//   });
-//   req.on('end', function() {
-//     parseString(data, function (err, result) {
-//       req.body = result
-//       next();
-//     });
-//   });
-// });
-// app.use(urlencodedParser)
-
 app.use(express.query());
 app.use('/', wechat(wechatConfig, function (req, res, next) {
-  // 微信输入信息都在req.weixin上
+  var menusKeys = config.menus_keys
   var message = req.weixin;
-  console.log(message)
+  if (message.EventKey === menusKeys.button1) {
+    res.reply('hehe');
+  }
 }));
 
 app.set('port', process.env.PORT || 3000)
@@ -63,12 +44,6 @@ app.set('port', process.env.PORT || 3000)
 app.get('/', function (req, res) {
   res.send(req.query.echostr)
 });
-
-// app.post('/', function(req, res) {
-//   console.log(JSON.stringify(req.body.xml))
-//   console.log(sign.sha(config.token, req.query.timestamp, req.query.nonce))
-//   res.send("ok")
-// })
 
 app.get('/token', function(req, res) {
   async.waterfall([token,
