@@ -12,8 +12,6 @@ var raw = function (args) {
 exports.sha = function (token, timestamp, nonce) {
   var args = [token, timestamp, nonce]
   var string = raw(args);
-      jsSHA = require('jssha');
-      shaObj = new jsSHA(string, 'TEXT');
-  ret.signature = shaObj.getHash('SHA-1', 'HEX');
-  return ret;
+      jsSHA = require('crypto').createHash('sha1');
+  return jsSHA.update(string).digest('hex')
 };
