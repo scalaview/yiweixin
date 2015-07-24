@@ -3,9 +3,9 @@ var config = require("./config")
 var myUtil = require("./my_util")
 var menu = require("./menu")
 var sign = require("./sign")
-var bodyParser = require('body-parser')
-var jsonParser = bodyParser.json()
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+// var bodyParser = require('body-parser')
+// var jsonParser = bodyParser.json()
+// var urlencodedParser = bodyParser.urlencoded({ extended: false })
 var app = express()
 var async = require("async")
 var parseString = require('xml2js').parseString;
@@ -30,13 +30,10 @@ var token = function(callback){
     }
   }
 
-// app.use(urlencodedParser)
 app.use(function(req, res, next) {
-  console.log("qqq")
   var contentType = req.headers['content-type'] || ''
     , mime = contentType.split(';')[0];
-    console.log(mime)
-  if (mime != 'text/plain') {
+  if (mime != 'text/xml') {
     return next();
   }
 
@@ -46,11 +43,9 @@ app.use(function(req, res, next) {
     data += chunk;
   });
   req.on('end', function() {
-    console.log(data)
     parseString(data, function (err, result) {
       req.body = result
-        console.log(result);
-        next();
+      next();
     });
   });
 });
