@@ -11,8 +11,9 @@ var async = require("async")
 var parseString = require('xml2js').parseString;
 var accessToken = null
 var wechat = require('wechat')
-
-var handlebars = require('express-handlebars').create({defaultLayout: 'main'});
+var handlebars = require('express-handlebars').create({defaultLayout: 'main'})
+var cookieParser = require('cookie-parser')
+var session = require('express-session')
 
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
@@ -21,7 +22,7 @@ var wechatConfig = {
   token: config.token,
   appid: config.appId,
   encodingAESKey: config.aesKey
-};
+}
 
 var token = function(callback){
     if(accessToken != null && !accessToken.isExpired()){
@@ -51,8 +52,26 @@ app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
       }
     ])
   }
-}));
+}))
+app.use(cookieParser())
+app.use(urlencodedParser)
+app.use(jsonParser)
+app.use(session({secret: 'yiliuliang', saveUninitialized: true, resave: true}))
+app.use(function(req, res, next){
+  var err = req.session.error,
+      msg = req.session.notice,
+      success = req.session.success;
 
+  delete req.session.error;
+  delete req.session.success;
+  delete req.session.notice;
+
+  if (err) res.locals.error = err;
+  if (msg) res.locals.notice = msg;
+  if (success) res.locals.success = success;
+
+  next();
+});
 app.set('port', process.env.PORT || 3000)
 
 app.get('/', function(req, res){
