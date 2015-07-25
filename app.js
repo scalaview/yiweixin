@@ -11,12 +11,17 @@ var async = require("async")
 var parseString = require('xml2js').parseString;
 var accessToken = null
 var wechat = require('wechat')
-var handlebars = require('express-handlebars').create({defaultLayout: 'main'})
+
 var cookieParser = require('cookie-parser')
 var session = require('express-session')
 
+var handlebars = require('express-handlebars').create({defaultLayout: 'main'});
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
+
+app.set('port', process.env.PORT || 3000);
+
+app.use(express.static(__dirname + '/public'));
 
 var wechatConfig = {
   token: config.token,
@@ -72,7 +77,7 @@ app.use(function(req, res, next){
 
   next();
 });
-app.set('port', process.env.PORT || 3000)
+
 
 app.get('/', function(req, res){
   res.render('home')
