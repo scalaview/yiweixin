@@ -11,9 +11,11 @@ var async = require("async")
 var parseString = require('xml2js').parseString;
 var accessToken = null
 var wechat = require('wechat')
-
+var flash = require('connect-flash');
 var cookieParser = require('cookie-parser')
 var session = require('express-session')
+var _ = require('lodash')
+
 
 var handlebars = require('express-handlebars').create({defaultLayout: 'main'});
 app.engine('handlebars', handlebars.engine);
@@ -62,6 +64,7 @@ app.use(cookieParser())
 app.use(urlencodedParser)
 app.use(jsonParser)
 app.use(session({secret: 'yiliuliang', saveUninitialized: true, resave: true}))
+app.use(flash());
 app.use(function(req, res, next){
   var err = req.session.error,
       msg = req.session.notice,
@@ -76,11 +79,75 @@ app.use(function(req, res, next){
   if (success) res.locals.success = success;
 
   next();
+})
+
+//login filter
+
+var skipUrls = ['/wechat', '/admin/login', '/admin/register']
+app.use(function (req, res, next) {
+    var url = req.originalUrl;
+    if (!_.includes(skipUrls, url) && !req.session.user_id) {
+        return res.redirect("/admin/login");
+    }
+    next();
 });
 
+var models  = require('./models');
+var router  = express.Router();
 
-app.get('/', function(req, res){
+app.get('/', function(req, res) {
   res.render('home')
+})
+
+
+app.get('/admin/login', function(req, res){
+  res.render('login', { layout: 'sign' })
+})
+
+app.post('/admin/login', urlencodedParser, function(req, res) {
+  models.User.findOne({ where: {username: req.body.username} }).then(function(user){
+    if(user && user.verifyPassword(req.body.password)){
+      req.session.user_id = user.id
+      res.redirect('/')
+    }else{
+      var message
+      if(user){
+        message = 'password error'
+        res.render('login', {
+         locals: {message: message},
+         layout: 'sign'
+        })
+      }else{
+        message = 'register new user'
+        res.render('register', {
+          locals: {message: message},
+          layout: 'sign'
+        })
+      }
+    }
+  })
+})
+
+app.get('/admin/register', function(req, res){
+  res.render('register', { layout: 'sign' })
+})
+
+app.post('/admin/register', function(req, res, next){
+  var user = models.User.build({
+    username: req.body.username,
+    password: req.body.password
+  })
+
+  user.save().then(function(result) {
+    req.session.user_id = user.id
+    res.redirect('/')
+  }).catch(function(err) {
+    req.flash('errors', err.errors)
+    res.render('register', {
+      locals: { user: user },
+      layout: 'sign'
+    })
+  })
 })
 
 app.get('/create-menus', function(req, res) {
