@@ -12,17 +12,17 @@ var config = {
                                 {
                                   "type":"view",
                                   "name":"新手攻略",
-                                  "url":"http://www.yiliuliang.net"
+                                  "url":"http://yiliuliang.net"
                                 },
                                 {
                                   "type":"view",
                                   "name":"领取记录",
-                                  "url":"http://www.yiliuliang.net"
+                                  "url":"http://yiliuliang.net"
                                 },
                                 {
                                   "type":"view",
                                   "name":"领取流量",
-                                  "url":"http://www.yiliuliang.net"
+                                  "url":"http://yiliuliang.net"
                                 },
                                 {
                                   "type":"click",
@@ -33,7 +33,7 @@ var config = {
                             {
                                 "type":"view",
                                 "name":"我的钱包",
-                                "url":"http://www.yiliuliang.net"
+                                "url":"http://yiliuliang.net"
                             },
                             {
                               "type":"view",
@@ -42,7 +42,7 @@ var config = {
                               {
                                 "type":"view",
                                 "name":"关于易流量",
-                                "url":"http://www.yiliuliang.net"
+                                "url":"http://yiliuliang.net"
                               }]
                             }]
                         },
