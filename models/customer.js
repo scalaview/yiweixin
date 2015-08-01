@@ -1,13 +1,12 @@
 'use strict';
-
 module.exports = function(sequelize, DataTypes) {
   var concern = require('./concerns/profile_attributes')
-  var User = sequelize.define('User', {
-    username: { type: DataTypes.STRING, allowNull: false},
-    password_hash: { type: DataTypes.STRING, allowNull: false},
+  var Customer = sequelize.define('Customer', {
+    username: {type: DataTypes.STRING, allowNull: false},
+    password_hash: {type: DataTypes.STRING, allowNull: false},
     password: {
       type: DataTypes.VIRTUAL,
-      set: function (val) {
+      set: function(val){
         this.setDataValue('password', val);
         this.setDataValue('salt', this.makeSalt())
         this.setDataValue('password_hash', this.encryptPassword(this.password));
@@ -20,10 +19,12 @@ module.exports = function(sequelize, DataTypes) {
        }
       }
     },
-    salt: { type: DataTypes.STRING, allowNull: false}
+    salt: { type: DataTypes.STRING, allowNull: false},
+    wechat: {type: DataTypes.STRING, allowNull: true},
+    phone: {type: DataTypes.STRING, allowNull: false}
   }, {
     classMethods: concern.classMethods,
     instanceMethods: concern.instanceMethods
   });
-  return User;
+  return Customer;
 };
