@@ -138,7 +138,7 @@ app.post('/admin/register', function(req, res, next){
     password: req.body.password
   })
 
-  user.save().then(function(result) {
+  user.save().then(function(user) {
     req.session.user_id = user.id
     res.redirect('/')
   }).catch(function(err) {
@@ -147,6 +147,26 @@ app.post('/admin/register', function(req, res, next){
       locals: { user: user },
       layout: 'sign'
     })
+  })
+})
+
+app.get('/send-message', function(req, res) {
+  models.MessageQueue.canSendMessage(req.query.phone, req.query.type, function(messageQueue) {
+    console.log(messageQueue)
+    if(messageQueue){
+      res.send("Please try again after 1 minite");
+    }else{
+      if(req.query.type === 'register'){
+        models.MessageQueue.sendRegisterMessage(req.query.phone, function(messageQueue){
+          if(messageQueue){
+            res.send("message had send")
+          }
+        }, function(err){
+          req.flash('errors', err.errors)
+          res.send("try again later")
+        })
+      }
+    }
   })
 })
 
