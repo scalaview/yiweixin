@@ -6,7 +6,6 @@ var sign = require("./sign")
 var bodyParser = require('body-parser')
 var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
-var app = express()
 var async = require("async")
 var parseString = require('xml2js').parseString;
 var accessToken = null
@@ -16,6 +15,8 @@ var cookieParser = require('cookie-parser')
 var session = require('express-session')
 var _ = require('lodash')
 
+var app = express();
+var admin = express();
 
 var handlebars = require('express-handlebars').create({defaultLayout: 'main'});
 app.engine('handlebars', handlebars.engine);
@@ -164,6 +165,16 @@ app.get('/create-menus', function(req, res) {
     })
 })
 
+admin.get('/', function (req, res) {
+  console.log(admin.mountpath);
+  res.render('admin/home');
+});
+
+app.use('/admin', function (req, res, next) {
+  res.locals.layout = 'admin';
+});
+
+app.use('/admin', admin);
 
 var server = app.listen(app.get('port'), function () {
   var host = server.address().address;
