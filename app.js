@@ -185,16 +185,17 @@ app.get('/create-menus', function(req, res) {
     })
 })
 
+app.use('/admin', function (req, res, next) {
+  res.locals.layout = 'admin';
+  next();
+});
+
+app.use('/admin', admin);
+
 admin.get('/', function (req, res) {
   console.log(admin.mountpath);
   res.render('admin/home');
 });
-
-app.use('/admin', function (req, res, next) {
-  res.locals.layout = 'admin';
-});
-
-app.use('/admin', admin);
 
 var server = app.listen(app.get('port'), function () {
   var host = server.address().address;
