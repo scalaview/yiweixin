@@ -3,8 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>Yiweixin admin</title>
+  <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="/bower_components/kindeditor/kindeditor-min.js"></script>
 </head>
 <body>
-  {{{body}}}
+  {{> header}}
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-2">
+        {{> sidebar}}
+      </div>
+
+      <div class="col-md-10">
+        {{{body}}}
+      </div>
+    </div>
+  </div>
 </body>
 </html>

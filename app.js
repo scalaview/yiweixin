@@ -93,6 +93,13 @@ app.use(function (req, res, next) {
     next();
 });
 
+app.use('/admin', function (req, res, next) {
+  res.locals.layout = 'admin';
+  next();
+});
+
+app.use('/admin', admin);
+
 var models  = require('./models');
 var router  = express.Router();
 
@@ -101,15 +108,20 @@ app.get('/', function(req, res) {
 })
 
 
-app.get('/admin/login', function(req, res){
+admin.get('/', function (req, res) {
+  console.log(admin.mountpath);
+  res.render('admin/home');
+});
+
+admin.get('/login', function(req, res){
   res.render('login', { layout: 'sign' })
 })
 
-app.post('/admin/login', urlencodedParser, function(req, res) {
+admin.post('/login', urlencodedParser, function(req, res) {
   models.User.findOne({ where: {username: req.body.username} }).then(function(user){
     if(user && user.verifyPassword(req.body.password)){
       req.session.user_id = user.id
-      res.redirect('/')
+      res.redirect('/admin')
     }else{
       var message
       if(user){
@@ -129,11 +141,11 @@ app.post('/admin/login', urlencodedParser, function(req, res) {
   })
 })
 
-app.get('/admin/register', function(req, res){
+admin.get('/register', function(req, res){
   res.render('register', { layout: 'sign' })
 })
 
-app.post('/admin/register', function(req, res, next){
+admin.post('/register', function(req, res, next){
   var user = models.User.build({
     username: req.body.username,
     password: req.body.password
@@ -149,6 +161,15 @@ app.post('/admin/register', function(req, res, next){
       layout: 'sign'
     })
   })
+})
+
+
+admin.get('/flowtasks', function(req, res) {
+  res.send("flowtask index")
+})
+
+admin.get('/flowtask/new', function(req, res) {
+  res.render('./admin/flowtasks/new')
 })
 
 app.get('/send-message', function(req, res) {
@@ -184,18 +205,6 @@ app.get('/create-menus', function(req, res) {
       console.log(error)
     })
 })
-
-app.use('/admin', function (req, res, next) {
-  res.locals.layout = 'admin';
-  next();
-});
-
-app.use('/admin', admin);
-
-admin.get('/', function (req, res) {
-  console.log(admin.mountpath);
-  res.render('admin/home');
-});
 
 var server = app.listen(app.get('port'), function () {
   var host = server.address().address;
