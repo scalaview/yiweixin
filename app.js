@@ -14,6 +14,10 @@ var flash = require('connect-flash');
 var cookieParser = require('cookie-parser')
 var session = require('express-session')
 var _ = require('lodash')
+var formidable = require('formidable')
+var fs = require('fs')
+var path = require('path')
+var helpers = require("./helpers")
 
 var app = express();
 var admin = express();
@@ -84,14 +88,14 @@ app.use(function(req, res, next){
 
 //login filter
 
-var skipUrls = ['/wechat', '/admin/login', '/admin/register']
-app.use(function (req, res, next) {
-    var url = req.originalUrl;
-    if (!_.includes(skipUrls, url) && !req.session.user_id) {
-        return res.redirect("/admin/login");
-    }
-    next();
-});
+// var skipUrls = ['/wechat', '/admin/login', '/admin/register']
+// app.use(function (req, res, next) {
+//     var url = req.originalUrl;
+//     if (!_.includes(skipUrls, url) && !req.session.user_id) {
+//         return res.redirect("/admin/login");
+//     }
+//     next();
+// });
 
 app.use('/admin', function (req, res, next) {
   res.locals.layout = 'admin';
@@ -153,7 +157,7 @@ admin.post('/register', function(req, res, next){
 
   user.save().then(function(user) {
     req.session.user_id = user.id
-    res.redirect('/')
+    res.redirect('/admin')
   }).catch(function(err) {
     req.flash('errors', err.errors)
     res.render('register', {
@@ -170,6 +174,31 @@ admin.get('/flowtasks', function(req, res) {
 
 admin.get('/flowtask/new', function(req, res) {
   res.render('./admin/flowtasks/new')
+})
+
+admin.post('/flowtask', function(req, res) {
+
+  var form = new formidable.IncomingForm();
+  form.parse(req, function(err, fields, files) {
+    console.log(fields)
+    helpers.fileUpload(files.cover, function(file_name) {
+      models.FlowTask.build({
+        title: fields.title,
+        content: fields.content,
+        expiredAt: new Date(fields.expired_at),
+        isActive: fields.is_active ? true : false,
+        sortNum: fields.sort_num,
+        cover: file_name,
+        seller_id: 1
+      }).save().then(function(flowtask) {
+        res.send('ok')
+      }, function(err) {
+        res.send(err)
+      });
+    }, function(err) {
+      throw new Error(err);
+    });
+  });
 })
 
 app.get('/send-message', function(req, res) {
