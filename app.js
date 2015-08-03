@@ -180,24 +180,21 @@ admin.post('/flowtask', function(req, res) {
 
   var form = new formidable.IncomingForm();
   form.parse(req, function(err, fields, files) {
-    console.log(fields)
-    helpers.fileUpload(files.cover, function(file_name) {
-      models.FlowTask.build({
-        title: fields.title,
-        content: fields.content,
-        expiredAt: new Date(fields.expired_at),
-        isActive: fields.is_active ? true : false,
-        sortNum: fields.sort_num,
-        cover: file_name,
-        seller_id: 1
-      }).save().then(function(flowtask) {
-        res.send('ok')
-      }, function(err) {
-        res.send(err)
-      });
+    models.FlowTask.build({
+      title: fields.title,
+      content: fields.content,
+      expiredAt: new Date(fields.expired_at),
+      isActive: fields.is_active ? true : false,
+      sortNum: fields.sort_num,
+      cover: files.cover,
+      seller_id: 1
+    }).save().then(function(flowtask) {
+      res.send('ok')
     }, function(err) {
-      throw new Error(err);
+      res.send(err)
     });
+
+
   });
 })
 

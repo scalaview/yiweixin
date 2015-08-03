@@ -1,11 +1,15 @@
 'use strict';
-var helper = require('../helpers')
+var helpers = require('../helpers')
 module.exports = function(sequelize, DataTypes) {
   var FlowTask = sequelize.define('FlowTask', {
     title: { type: DataTypes.STRING, allowNull: false },
     cover: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: true,
+      set: function(file) {
+        var filename = helpers.fileUploadSync(file)
+        this.setDataValue('cover', filename);
+      }
     },
     content: { type: DataTypes.TEXT, allowNull: true },
     finishTime: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },

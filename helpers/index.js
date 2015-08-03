@@ -22,4 +22,21 @@ function fileUpload(file, successCallBack, errorCallBack){
       });
   });
 }
+
+function fileUploadSync(file){
+  var origin_this = this,
+      old_path = file.path,
+      file_size = file.size,
+      file_type = file.type,
+      origin_file_name = file.name,
+      file_name = Math.round((new Date().valueOf() * Math.random())) + "_" + origin_file_name,
+      new_path = path.join(process.env.PWD, '/public/uploads/', Math.round((new Date().valueOf() * Math.random())) + "_" + file_name );
+
+  var tmp_file = fs.readFileSync(old_path);
+  fs.writeFileSync(new_path, tmp_file);
+  return file_name
+}
+
+
 exports.fileUpload = fileUpload;
+exports.fileUploadSync = fileUploadSync;
