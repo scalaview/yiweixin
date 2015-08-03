@@ -17,6 +17,7 @@
     "jquery": "~2.1.4",
     "bootstrap": "~3.3.5",
     "kindeditor": "git@github.com:kindsoft/kindeditor.git#~4.1.10",
-    "bootstrap-datepicker": "git@github.com:eternicode/bootstrap-datepicker.git#~1.4.0"
+    "bootstrap-datepicker": "git@github.com:eternicode/bootstrap-datepicker.git#~1.4.0",
+    "requirejs": "jrburke/requirejs#~2.1.20"
   }
 }
