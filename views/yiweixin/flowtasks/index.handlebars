@@ -1,0 +1,16 @@
+
+
+{{#each tasks}}
+  <div class="active">
+    <div class="active_01">
+      <a href="#">
+        <div class="active_02">
+          <img src="{{cover}}">
+          <div class="title">
+            <div class="title-left">{{title}}  {{{expiredStr expiredAt}}}</div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+{{/each}}

@@ -1,5 +1,7 @@
 'use strict';
 var helpers = require('../helpers')
+var config = require("../config")
+
 module.exports = function(sequelize, DataTypes) {
   var FlowTask = sequelize.define('FlowTask', {
     title: { type: DataTypes.STRING, allowNull: false },
@@ -9,6 +11,10 @@ module.exports = function(sequelize, DataTypes) {
       set: function(file) {
         var filename = helpers.fileUploadSync(file)
         this.setDataValue('cover', filename);
+      },
+      get: function(){
+         var cover = this.getDataValue('cover');
+         return '/uploads/' + cover
       }
     },
     content: { type: DataTypes.TEXT, allowNull: true },
@@ -20,6 +26,16 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
+      }
+    },
+    scopes: {
+      active: {
+        where: {
+          isActive: true
+        }
+      },
+      defaultSort: {
+        order: [['sortNum', 'DESC']]
       }
     }
   });

@@ -1,0 +1,62 @@
+body{background:#ececec;}
+/*活动列表*/
+.active{ padding:0 10px; overflow:hidden;}
+.active_01{ background:#dcdce0; padding:1px; width:100%; overflow:hidden; margin:10px 0;}
+.active_02{ background:#fff; padding:5px; overflow:hidden;}
+.active_02 img{width:100%;}
+.active_02 .title{ padding:5px 3px 0; font-size:1.2em; overflow:hidden;}
+.active_02 .title-left{width:70%; float:left; color:#444; height:27px; line-height:27px; font-size:1em;}
+.active_02 .title-right{width:30%; float:left; text-align:right; color:#888;}
+
+/*领取记录*/
+.record{ overflow:hidden;background:#fff; margin-bottom:10px;}
+.record-con{overflow:hidden;padding:0 10px; border-top:1px solid #dcdce0; border-bottom:1px solid #dcdce0; }
+.record-con .left{ width:110px; float:left; margin-right:10px;}
+.record-con .left .img{padding:28px 0;}
+.record-con .left .img img{width:110px; height:55px; display:inline-block; vertical-align:middle;}
+.record-con .right{ padding:16px 0; color:#444; text-align:left;}
+.record-con .right .con{vertical-align:middle;}
+.record-con .right .con li{ height:20px; line-height:20px; overflow:hidden;white-space: nowrap;
+text-overflow: ellipsis;font-size:1.7em;!important}
+.record-btn{ height:44px; border-bottom:1px solid #dcdce0; position:relative; z-index:0; background:#fff;}
+.record-btn .text{ line-height:44px; padding-left:10px;font-size:1.3em;!important}
+
+.btn-share{ width:68px; height:32px; position:absolute; top:6px; right:118px; z-index:10;}
+.btn-share a{filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#ff7800, endColorstr=#ff6400);
+background: linear-gradient(top, #ff7800, #ff6800 ,#ff6e00,#ff7100,#ff6400);
+background: -webkit-gradient(linear, 0 0, 0 100% , from(#ff7800),to(#ff6400));color:#fff; text-align:center; border:1px solid #ff5000; border-radius:3px;height:30px; line-height:30px;display:block;box-shadow:0px 1px 2px #fccea0;box-shadow: inset 0px 0px 1px #fccea0;font-size:1.4em;!important}
+.btn-flow{width:98px;height:32px; overflow:hidden; position:absolute; top:6px; right:10px; z-index:10;}
+.btn-flow a{color:#444; text-align:center; border:1px solid #96a0ac; border-radius:3px;
+filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#f0f4fa, endColorstr=#e4e8ec);
+background: linear-gradient(top, #f0f4fa, #eef2f8 ,#eaeef2,#e6eaee,#e4e8ec);
+background: -webkit-gradient(linear, 0 0, 0 100% , from(#f0f4fa),to(#e4e8ec));box-shadow:0px 1px 2px #e8e8ee;box-shadow: inset 0px 0px 1px #fff;height:30px; line-height:30px;display:block;font-size:1.4em;!important}
+
+/*分享*/
+.tips{ height:60px; border-radius:5px; border:2px solid #e8ba32; background:#fcf2a6; display:table;}
+.tips .text{ display:table-cell; vertical-align:middle; line-height:18px; color:#f50000; padding:0 10px; font-size:1em;}
+
+.form-group{margin-bottom:10px; width:100%; float:left;}
+
+.form-share{ border:1px solid #dcdce0; background:#fff; height:92px; padding:10px; margin-top:10px; position:relative;}
+.form-con{ position:relative; overflow:hidden;}
+.mask{ height:164px; background:#000; opacity:0.5; filter:alpha(opacity=50); position:absolute; top:10px; left:0; z-index:100; width:100%; display:block;}
+.form-share .tel-input{ border:2px solid #c8c8d4;background-color: #fff;border-radius:4px;}
+.form-control{display: block;width: 100%;height:36px;padding: 6px;line-height: 1.42857143;color:#888;border:none; font-size:1.5em;}
+
+.col-6{float:left; width:60%;}
+.col-3{float:left; width:40%; height:48px;}
+.btn-code{ width:98px;height:40px; overflow:hidden; position:absolute; bottom:12px; right:10px;color:#444;}
+.btn-code a{color:#444; text-align:center; border:1px solid #96a0ac; border-radius:3px;
+filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#f0f4fa, endColorstr=#e4e8ec);
+background: linear-gradient(top, #f0f4fa, #eef2f8 ,#eaeef2,#e6eaee,#e4e8ec);
+background: -webkit-gradient(linear, 0 0, 0 100% , from(#f0f4fa),to(#e4e8ec));box-shadow:0px 1px 2px #e8e8ee;box-shadow: inset 0px 0px 1px #fff;height:38px; line-height:38px;display:block;font-size:1.4em;!important}
+.btn-gray a{ color:#888;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#eef2f7, endColorstr=#edeff0);background: linear-gradient(top, #eef2f7, #eef2f8 ,#eaeef2,#e6eaee,#edeff0);
+background: -webkit-gradient(linear, 0 0, 0 100% , from(#eef2f7),to(#edeff0));box-shadow: inset 0px 0px 1px #fff;height:38px; line-height:38px;display:block;font-size:1.4em;!important}
+
+.btn-submit{ height:40px; width:100%; overflow:hidden; margin:10px 0;}
+.btn-submit a{ background:#ff6428; color:#fff; text-align:center; height:40px; display:block; line-height:40px; border-radius:5px;font-size:1.3em;!important}
+.btn-submit a:hover{ background:#ff763e;}
+
+.mask01{width:68px; height:32px; overflow:hidden; background:#000; opacity:0.5; filter:alpha(opacity=50); position:absolute; top:6px; right:118px; z-index:10; }
+.mask02{width:98px;height:32px; position:absolute; top:6px; right:10px; z-index:10;overflow:hidden; background:#000; opacity:0.5; filter:alpha(opacity=50);}
+

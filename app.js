@@ -22,7 +22,11 @@ var helpers = require("./helpers")
 var app = express();
 var admin = express();
 
-var handlebars = require('express-handlebars').create({defaultLayout: 'main'});
+var handlebars = require('express-handlebars').create({
+  defaultLayout: 'main',
+  helpers: helpers
+});
+
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
@@ -84,7 +88,9 @@ app.use(function(req, res, next){
   if (success) res.locals.success = success;
 
   next();
-})
+});
+
+
 
 //login filter
 
@@ -111,7 +117,7 @@ app.get('/', function(req, res) {
   res.render('home')
 })
 
-
+// -------------- adming ---------------------
 admin.get('/', function (req, res) {
   console.log(admin.mountpath);
   res.render('admin/home');
@@ -197,7 +203,10 @@ admin.post('/flowtask', function(req, res) {
 
   });
 })
+// -------------- adming ---------------------
 
+
+// --------------- app -----------------------
 app.get('/send-message', function(req, res) {
   models.MessageQueue.canSendMessage(req.query.phone, req.query.type, function(messageQueue) {
     console.log(messageQueue)
@@ -231,6 +240,19 @@ app.get('/create-menus', function(req, res) {
       console.log(error)
     })
 })
+
+app.get('/tasks', function(req, res) {
+  console.log(helpers)
+  var tasks = models.FlowTask.scope('active', 'defaultSort').findAll().then(function(tasks) {
+    res.render('yiweixin/flowtasks/index', { tasks: tasks })
+  })
+})
+
+app.get('/tasks/:id', function(req, res) {
+  req.params.id
+})
+
+// --------------- app -----------------------
 
 var server = app.listen(app.get('port'), function () {
   var host = server.address().address;
