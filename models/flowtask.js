@@ -21,7 +21,8 @@ module.exports = function(sequelize, DataTypes) {
     finishTime: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
     expiredAt: { type: DataTypes.DATE, allowNull: false },
     sortNum: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
-    isActive: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false }
+    isActive: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    actionUrl: { type: DataTypes.STRING, allowNull: true }
   }, {
     classMethods: {
       associate: function(models) {
