@@ -249,7 +249,9 @@ app.get('/tasks', function(req, res) {
 })
 
 app.get('/tasks/:id', function(req, res) {
-  req.params.id
+  models.FlowTask.findById(req.params.id).then(function(flowtask) {
+    res.render('yiweixin/flowtasks/show', { task: flowtask})
+  })
 })
 
 // --------------- app -----------------------
