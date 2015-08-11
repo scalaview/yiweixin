@@ -682,7 +682,7 @@ a:hover.btn-gray {
 }
 
     .list-con .tit {
-        background: url(../images/icon-02.png) no-repeat;
+        background: url(/images/icon-02.png) no-repeat;
         background-size: 24px 24px;
         line-height: 24px;
         padding-left: 34px;
