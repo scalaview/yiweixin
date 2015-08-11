@@ -124,7 +124,7 @@ admin.get('/', function (req, res) {
 });
 
 admin.get('/login', function(req, res){
-  res.render('login', { layout: 'sign' })
+  res.render('admin/login', { layout: 'sign' })
 })
 
 admin.post('/login', urlencodedParser, function(req, res) {
@@ -152,7 +152,7 @@ admin.post('/login', urlencodedParser, function(req, res) {
 })
 
 admin.get('/register', function(req, res){
-  res.render('register', { layout: 'sign' })
+  res.render('admin/register', { layout: 'sign' })
 })
 
 admin.post('/register', function(req, res, next){
@@ -202,16 +202,86 @@ admin.post('/flowtask', function(req, res) {
 
 
   });
+});
+
+admin.get('/customers', function(req, res) {
+  models.Customer.findAll().then(function (customers){
+    res.render('admin/customers/index', { customers: customers })
+  })
 })
+
 // -------------- adming ---------------------
 
 
 // --------------- app -----------------------
+app.get('/register', function(req, res){
+  res.render('register', { layout: false })
+})
+
+app.post('/register', function(req, res){
+  models.MessageQueue.verifyCode(req.body.phone, req.body.code, 'register', function(messageQueue){
+    console.log(messageQueue)
+    if(messageQueue){
+      models.Customer.build({
+        username: req.body.phone,
+        password: '1234567',
+        phone: req.body.phone
+      }).save().then(function(customer){
+        if(customer){
+          customer.updateAttributes({
+            lastLoginAt: new Date()
+          }).then(function(customer){
+          })
+          req.session.customer_id = customer.id
+          res.json({ msg: 'create success', code: 1 })
+        }else{
+          res.json({ msg: 'create fail', code: 0, err: err.errors })
+        }
+      }).catch(function(err){
+        res.json({ msg: 'create fail', code: 0, err: err.errors })
+      })
+    }else{
+      res.json({ msg: '没有找到验证码或者验证码已经过期', code: 0 })
+    }
+  }, function(err) {
+    res.json({ msg: 'server error', code: 0, err: err.errors })
+  })
+})
+
+app.get('/getcode', function(req, res) {
+  models.MessageQueue.canSendMessage(req.query.phone, 'register', function(messageQueue) {
+    if(messageQueue){
+      res.json({ msg: "Please try again after 1 minite" });
+    }else{
+      models.MessageQueue.sendRegisterMessage(req.query.phone, function(messageQueue){
+        if(messageQueue){
+          res.json({ msg: "message had send", code: messageQueue.verificationCode })
+        }
+      }, function(err){
+        res.json({ msg: "try again later", err: err.errors })
+      })
+    }
+  })
+})
+
+app.get('/profile', function(req, res) {
+  req.session.customer_id = 1
+  models.Customer.findById(req.session.customer_id).then(function(customer) {
+    if(customer){
+      res.render('yiweixin/customer/show', { customer: customer })
+    }else{
+
+    }
+  }).catch(function(err) {
+
+  })
+})
+
 app.get('/send-message', function(req, res) {
   models.MessageQueue.canSendMessage(req.query.phone, req.query.type, function(messageQueue) {
     console.log(messageQueue)
     if(messageQueue){
-      res.send("Please try again after 1 minite");
+      res.json({ msg: "Please try again after 1 minite" });
     }else{
       if(req.query.type === 'register'){
         models.MessageQueue.sendRegisterMessage(req.query.phone, function(messageQueue){

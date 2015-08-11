@@ -1,0 +1,117 @@
+<div class="content">
+  <div class="liuliang">
+      <div class="name-img">
+          <a href="#">
+              <img src="res/images/name-img.jpg" id="WxHeadLogo"/></a>
+      </div>
+      <div class="name-con">
+          <li><span class="orange" id="WxNickName"></span></li>
+          <li><span class="tel" id="Mobile"></span></li>
+      </div>
+  </div>
+    <div class="ll-shuzi">
+      <div class="yue">
+        <div class="help">
+            <a href="Help.html">帮助</a>
+        </div>
+        <div class="tit">
+            当前流量币余额
+        </div>
+        <div class="miane">
+            <span class="shuzi" id="Balance">0</span>
+            <span class="zhao">流量币</span>
+            <!--<div class="zhuanqu"><a href="/list.html">领取流量</a></div>-->
+        </div>
+      </div>
+      <div class="list-con" onclick="javascript:window.location.href='../bank/List_FlowIn.html'">
+        <div class="tit">
+            最近收入
+        </div>
+        <div class="con" id="GetRec">
+            <div class="img">
+                {{!-- <img id="Face" src="res/images/img-01.png" /> --}}
+            </div>
+            <div class="text">
+                <div class="over">
+                    <span class="gray">收入来源：</span>
+                    <span id="SourceName"></span>
+                </div>
+                <div class="over">
+                    <span class="gray">收入数量：</span>
+                    <span id="FlowPrice">0</span>流量币
+                </div>
+                <div class="over">
+                    <span class="gray">收入备注：</span>
+                    <span id="Remark"></span>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="add">
+        <li>
+          <a href="../list.html">
+            <img src="/images/pro-03.png">
+            <div class="con">
+              <div class="text">领取流量</div>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a id="buy" href="javascript:void(0)">
+            <img src="/images/pro-04.png">
+            <div class="con">
+              <div class="text">购买流量币</div>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="List_FlowIn.html">
+            <img src="/images/pro.png" style=" margin-top:3px;"/>
+            <div class="con">
+              <div>累计收入<br /><span  class="gray">(流量币)</span></div>
+              <div class="">
+                  <span class="box-02" id="Get">0</span>
+              </div>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="List_FlowOut.html">
+            <img src="/images/pro-02.png"  style=" margin-top:3px;"/>
+            <div class="con">
+              <div>累计支出<br /><span  class="gray">(流量币)</span></div>
+              <div class="">
+                <span class="box-02" id="Give">0</span>
+              </div>
+            </div>
+          </a>
+          </li>
+      </div>
+        <div class="m-btn" style="display:none;">
+          <ul>
+            <li>
+              <a href="RechargeFlow.html">提取</a>
+            </li>
+            <li>
+              <a href="GiveFlow.html">转赠</a>
+            </li>
+            <li>
+              <a href="CreateHBNew.html">发红包</a>
+            </li>
+            <li><a href="ToExchange.html">兑换</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div id="bottomWrap" style="height: 60px;"></div>
+    <div class="bottom">
+        <li><a href="RechargeFlow.html">
+            <img src="/images/iphone.png" />提取流量</a></li>
+        <li><a href="GiveFlow.html">
+            <img src="/images/gift.png" />转赠</a></li>
+        <li><a href="CreateHBNew.html">
+            <img src="/images/hb.png" />发红包</a></li>
+        <li><a href="ToExchange.html">
+            <img src="/images/dh.png" />兑换</a></li>
+    </div>

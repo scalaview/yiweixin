@@ -43,11 +43,30 @@ module.exports = function(sequelize, DataTypes) {
           type: "register",
           verificationCode: num
         }).save().then(successCallBack).catch(errorCallBack)
+      },
+      verifyCode: function(phone, code, type, successCallBack, errorCallBack){
+        if (MessageQueue.messageType[type] !== undefined){
+          MessageQueue.findOne({ where: {
+            phone: phone,
+            type: MessageQueue.messageType[type],
+            verificationCode: code,
+            sendAt: {gt: new Date((new Date()).getTime() - 30 * 60 * 1000)}
+          } }).then(successCallBack).catch(errorCallBack)
+        }else{
+          throw new Error("Please input a correct message type");
+        }
       }
     }
   });
   MessageQueue.messageType = {
     register: 0
   }
+
+  MessageQueue.stateType = {
+    onHold: 0,
+    send: 1,
+    fail: 2
+  }
+
   return MessageQueue;
 };

@@ -19,12 +19,17 @@ module.exports = function(sequelize, DataTypes) {
        }
       }
     },
-    salt: { type: DataTypes.STRING, allowNull: false},
-    wechat: {type: DataTypes.STRING, allowNull: true},
-    phone: {type: DataTypes.STRING, allowNull: false}
+    salt: { type: DataTypes.STRING, allowNull: false },
+    wechat: { type: DataTypes.STRING, allowNull: true },
+    phone: { type: DataTypes.STRING, allowNull: false },
+    lastLoginAt: { type: DataTypes.DATE, allowNull: true },
+    remainingTraffic: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 }
   }, {
     classMethods: concern.classMethods,
-    instanceMethods: concern.instanceMethods
+    instanceMethods: concern.instanceMethods,
+    scopes: {
+
+    }
   });
   return Customer;
 };

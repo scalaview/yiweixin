@@ -53,9 +53,8 @@ background: -webkit-gradient(linear, 0 0, 0 100% , from(#f0f4fa),to(#e4e8ec));bo
 .btn-gray a{ color:#888;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#eef2f7, endColorstr=#edeff0);background: linear-gradient(top, #eef2f7, #eef2f8 ,#eaeef2,#e6eaee,#edeff0);
 background: -webkit-gradient(linear, 0 0, 0 100% , from(#eef2f7),to(#edeff0));box-shadow: inset 0px 0px 1px #fff;height:38px; line-height:38px;display:block;font-size:1.4em;!important}
 
-.btn-submit{ height:40px; width:100%; overflow:hidden; margin:10px 0;}
-.btn-submit a{ background:#ff6428; color:#fff; text-align:center; height:40px; display:block; line-height:40px; border-radius:5px;font-size:1.3em;!important}
-.btn-submit a:hover{ background:#ff763e;}
+.btn-submit{ height:40px; width:100%; overflow:hidden; margin:10px 0; background:#ff6428; color:#fff; text-align:center; height:40px; display:block; line-height:40px; border-radius:5px;font-size:1.3em;!important}
+.btn-submit:hover{ background:#ff763e;}
 
 .mask01{width:68px; height:32px; overflow:hidden; background:#000; opacity:0.5; filter:alpha(opacity=50); position:absolute; top:6px; right:118px; z-index:10; }
 .mask02{width:98px;height:32px; position:absolute; top:6px; right:10px; z-index:10;overflow:hidden; background:#000; opacity:0.5; filter:alpha(opacity=50);}
