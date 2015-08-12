@@ -1,0 +1,49 @@
+'use strict';
+module.exports = {
+  up: function(queryInterface, Sequelize) {
+    return queryInterface.createTable('Orders', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      state: {
+        type: Sequelize.INTEGER
+      },
+      customerId: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      dataPlanId: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      paymentMethodId: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      discount: {
+        type: Sequelize.DECIMAL,
+        allowNull: true,
+        defaultValue: 0
+      },
+      total: {
+        type: Sequelize.DECIMAL,
+        allowNull: false,
+        defaultValue: 0
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      }
+    });
+  },
+  down: function(queryInterface, Sequelize) {
+    return queryInterface.dropTable('Orders');
+  }
+};

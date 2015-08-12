@@ -3,9 +3,6 @@ var crypto = require('crypto');
 
 module.exports = {
   classMethods: {
-    associate: function(models) {
-        // associations can be defined here
-    },
     authorization: function(username, password, callback) {
       this.find({ where: {username: username} }).on('success', function(user) {
         if(user.verifyPassword(password)){

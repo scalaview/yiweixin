@@ -1,4 +1,6 @@
 'use strict';
+var _ = require('lodash')
+
 module.exports = function(sequelize, DataTypes) {
   var concern = require('./concerns/profile_attributes')
   var Customer = sequelize.define('Customer', {
@@ -25,7 +27,11 @@ module.exports = function(sequelize, DataTypes) {
     lastLoginAt: { type: DataTypes.DATE, allowNull: true },
     remainingTraffic: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 }
   }, {
-    classMethods: concern.classMethods,
+    classMethods: _.merge(concern.classMethods, {
+      associate: function(models) {
+        models.Customer.hasMany(models.FlowHistory, { foreignKey: 'customerId' })
+      }
+    }),
     instanceMethods: concern.instanceMethods,
     scopes: {
 

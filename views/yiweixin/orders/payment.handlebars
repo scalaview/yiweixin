@@ -1,0 +1,32 @@
+<div class="content">
+  <div class="buy-red">
+      <div class="zd-list"><a href="http://www.liuliangwan.net/bank/BuyFlowList.html">账单</a></div>
+      <div class="name-img">
+          <a href="http://www.liuliangwan.net/bank/BuyFlow.html#">
+              <img id="userhead" src="./购买流量币_files/0"></a>
+      </div>
+      <div class="name-con"><span class="orange" id="username"> {{ customer.username }} </span></div>
+  </div>
+  <div class="form-group">
+      <div class="buy-tel">流量玩账号：</div>
+      <div class="buy-text" id="usermobile">{{ customer.phone }}</div>
+  </div>
+  <div class="form-group">
+      <div class="tel-name">购买流量玩流量币数量：</div>
+      <div class="llb" id="buylist">
+        {{#each dataPlans }}
+          <a href="javascript:void(0);" {{#if @index == 0 }}class="selected"{{/if}} data-value="{{ value }}">{{ name }} {{#if @index == 0 }}<div class="an"></div>{{/if}}
+          </a>
+        {{/each}}
+      </div>
+      <input type="hidden" id="txtFlowCount" value="100">
+  </div>
+  <div class="sale-price">
+      <div class="left">注：1流量币=0.01元</div>
+      <div class="right">售价：<span class="orange" id="txtPayMoney">1.00</span>元</div>
+  </div>
+  <div class="ml">
+      <div class="btn-submit"><a href="javascript:void(0);">立即支付</a></div>
+  </div>
+    <div class="zw-tips"><a href="http://www.liuliangwan.net/about/goumai.html">购买规则说明  </a></div>
+</div>

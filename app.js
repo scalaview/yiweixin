@@ -266,9 +266,32 @@ app.get('/getcode', function(req, res) {
 
 app.get('/profile', function(req, res) {
   req.session.customer_id = 1
-  models.Customer.findById(req.session.customer_id).then(function(customer) {
+  models.Customer.findOne({ where: { id: req.session.customer_id },
+                            include: [{ model: models.FlowHistory }]
+                          }).then(function(customer) {
     if(customer){
       res.render('yiweixin/customer/show', { customer: customer })
+    }else{
+
+    }
+  }).catch(function(err) {
+
+  })
+})
+
+app.get('/payment', function(req, res) {
+  req.session.customer_id = 1
+  models.Customer.findOne({ where: { id: req.session.customer_id },
+                            include: [{ model: models.FlowHistory }]
+                          }).then(function(customer) {
+    if(customer){
+      models.DataPlan.allOptions(function(dataPlans){
+        console.log(1)
+        res.render('yiweixin/orders/payment', { customer: customer, dataPlans: dataPlans  })
+      }, function(err) {
+        console.log(err)
+
+      })
     }else{
 
     }

@@ -18,7 +18,7 @@
             当前流量币余额
         </div>
         <div class="miane">
-            <span class="shuzi" id="Balance">0</span>
+            <span class="shuzi"> {{ customer.remainingTraffic }} </span>
             <span class="zhao">流量币</span>
             <!--<div class="zhuanqu"><a href="/list.html">领取流量</a></div>-->
         </div>
@@ -70,7 +70,7 @@
             <div class="con">
               <div>累计收入<br /><span  class="gray">(流量币)</span></div>
               <div class="">
-                  <span class="box-02" id="Get">0</span>
+                  <span class="box-02" id="Get"> {{ customer.income }} </span>
               </div>
             </div>
           </a>
@@ -79,9 +79,9 @@
           <a href="List_FlowOut.html">
             <img src="/images/pro-02.png"  style=" margin-top:3px;"/>
             <div class="con">
-              <div>累计支出<br /><span  class="gray">(流量币)</span></div>
+              <div>累计支出<br/><span class="gray">(流量币)</span></div>
               <div class="">
-                <span class="box-02" id="Give">0</span>
+                <span class="box-02" id="Give"> {{ customer.expenditure }}</span>
               </div>
             </div>
           </a>
