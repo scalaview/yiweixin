@@ -9,7 +9,9 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       state: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
       },
       customerId: {
         type: Sequelize.INTEGER,

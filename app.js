@@ -95,13 +95,33 @@ app.use(function(req, res, next){
 //login filter
 
 // var skipUrls = ['/wechat', '/admin/login', '/admin/register']
-// app.use(function (req, res, next) {
+// admin.use(function (req, res, next) {
 //     var url = req.originalUrl;
 //     if (!_.includes(skipUrls, url) && !req.session.user_id) {
 //         return res.redirect("/admin/login");
 //     }
 //     next();
 // });
+
+function requireLogin(req, res, next) {
+  req.session.customer_id = 1
+
+  if (req.session.customer_id) {
+    models.Customer.findOne({ where: { id: req.session.customer_id } }).then(function(customer) {
+      if(customer){
+        req.customer = customer
+        next();
+      }else{
+        res.redirect("/register");
+      }
+    }).catch(function(err){
+      console.log(err)
+    })
+  } else {
+    res.redirect("/register");
+  }
+}
+
 
 app.use('/admin', function (req, res, next) {
   res.locals.layout = 'admin';
@@ -264,41 +284,91 @@ app.get('/getcode', function(req, res) {
   })
 })
 
-app.get('/profile', function(req, res) {
-  req.session.customer_id = 1
-  models.Customer.findOne({ where: { id: req.session.customer_id },
-                            include: [{ model: models.FlowHistory }]
-                          }).then(function(customer) {
-    if(customer){
-      res.render('yiweixin/customer/show', { customer: customer })
-    }else{
-
-    }
-  }).catch(function(err) {
-
-  })
+app.get('/profile', requireLogin, function(req, res) {
+  res.render('yiweixin/customer/show', { customer: req.customer })
 })
 
-app.get('/payment', function(req, res) {
-  req.session.customer_id = 1
-  models.Customer.findOne({ where: { id: req.session.customer_id },
-                            include: [{ model: models.FlowHistory }]
-                          }).then(function(customer) {
-    if(customer){
-      models.DataPlan.allOptions(function(dataPlans){
-        console.log(1)
-        res.render('yiweixin/orders/payment', { customer: customer, dataPlans: dataPlans  })
-      }, function(err) {
+app.get('/payment', requireLogin, function(req, res) {
+  var customer = req.customer
+
+  models.DataPlan.allOptions(function(dataPlans){
+    console.log(1)
+    res.render('yiweixin/orders/payment', { customer: customer, dataPlans: dataPlans  })
+  }, function(err) {
+    console.log(err)
+  })
+
+})
+
+app.post('/pay', requireLogin, function(req, res) {
+
+    var customer = req.customer
+    var paymentMethod, dataPlan, order;
+    async.waterfall([function(next) {
+      models.PaymentMethod.findOne({ where: { code: req.body.paymentMethod.toLowerCase() } }).then(function(payment) {
+        if(payment){
+          paymentMethod = payment;
+          next();
+        }else{
+          res.json({ err: 1, msg: "找不到支付方式" })
+        }
+      }).catch(function(err){
         console.log(err)
-
+        res.json({ err: 1, meg: "server error" })
       })
-    }else{
-
-    }
-  }).catch(function(err) {
-
-  })
+    }, function(next){
+      models.DataPlan.findById(req.body.dataPlanId).then(function(plan){
+        if(plan){
+          dataPlan = plan
+          next()
+        }else{
+          res.json({ err: 1, msg: "请选择合适的套餐" })
+        }
+      }).catch(function(err) {
+        console.log(err)
+        res.json({ err: 1, meg: "server error" })
+      })
+    }, function(next){
+      models.Order.build({
+        state: models.Order.STATE.INIT,
+        customerId: customer.id,
+        dataPlanId: dataPlan.id,
+        paymentMethodId: paymentMethod.id,
+        total: dataPlan.price
+      }).save().then(function(obj){
+        // do payment
+        order = obj
+        next()
+      }).catch(function(err){
+        console.log(err)
+        res.json({ err: 1, meg: "server error" })
+      })
+    }, function(next){
+      if(true){
+        order.updateAttributes({
+          state: models.Order.STATE.PAID
+        }).then(function(order){
+          next()
+        })
+      }else{
+        order.updateAttributes({
+          state: models.Order.STATE.FAIL
+        }).then(function(order){
+          res.json({ err: 1, msg: "支付失败，请稍候重试" })
+        })
+      }
+    }, function(next){
+      customer.addTraffic(order, function(obj){
+          res.json({ msg: "充值成功" })
+        }, function(err) {
+          res.json({ err: 1, msg: "server error" })
+        })
+    }], function(error, callback){
+      console.log(error)
+      res.json({ err: 1, msg: "server error" })
+    })
 })
+
 
 app.get('/send-message', function(req, res) {
   models.MessageQueue.canSendMessage(req.query.phone, req.query.type, function(messageQueue) {

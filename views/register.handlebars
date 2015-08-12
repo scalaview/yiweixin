@@ -10,6 +10,7 @@
 
   <script data-main="/javascript/main" src="/bower_components/jquery/dist/jquery.min.js"></script>
   <script data-main="/javascript/main" src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script data-main="/javascript/main" src="/javascript/register.js"></script>
 
 </head>
 <body>
@@ -38,125 +39,7 @@
           </div>
       </div>
   </div>
-  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h4 class="modal-title" id="my_title">Notice</h4>
-            </div>
-            <div id="popup_message" class="modal-body">
-
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-  </div>
+  {{> alertmodal }}
 </body>
-<script type="text/javascript">
-function phoneValidateTip(){
-  var $modal = $("#myModal"),
-      $title = $("#my_title"),
-      $msg = $("#popup_message")
-
-  $title.html("易流量提醒")
-  $msg.html('请输入正确的手机号码')
-  $modal.modal('show')
-}
-
-function validatePhone(phone){
-  if(phone === undefined || phone === ''){
-    return true
-  }else {
-    return false
-  }
-}
-
-function showDialog(msg){
-  var $modal = $("#myModal"),
-      $title = $("#my_title"),
-      $msg = $("#popup_message")
-
-  $title.html("易流量提醒")
-  $msg.html(msg)
-  $modal.modal('show')
-}
-
-function sendMsgSuccess(){
-  showDialog('验证码已经发送成功，请注意查收')
-}
-
-function sendMsgFail(){
-  showDialog('验证码发送失败')
-}
-
-function codeEmptyTip(){
-  showDialog('请输入验证码')
-}
-
-$(function(){
-  $("#get_code").click(function(){
-    var $this = $(this),
-        phone = $("#phone").val()
-
-    if(validatePhone(phone)){
-      phoneValidateTip()
-    }else{
-      $.ajax({
-        url: 'getcode',
-        method: "GET",
-        data: {
-          phone: phone
-        },
-        dataType: 'json'
-      }).done(function(data) {
-        console.log(data.code)
-        sendMsgSuccess()
-      }).fail(function(data) {
-        console.log(data)
-        sendMsgFail()
-      })
-    }
-  })
-
-  $("#submit-btn").click(function(){
-    var $this = $(this),
-        url = '/register',
-        method = 'POST',
-        phone = $("#phone").val(),
-        code = $("#code").val()
-        data = {
-          phone: phone,
-          code: code
-        }
-    if(code === undefined || code === ''){
-      codeEmptyTip()
-      return
-    }
-    if(validatePhone(phone)){
-      phoneValidateTip()
-    }else{
-      $.ajax({
-        url: url,
-        method: method,
-        dataType: "json",
-        data: data
-      }).done(function(data){
-        console.log(data)
-        if(data.code !== undefined && data.code){
-          window.location.href = '/profile'
-        }else{
-          showDialog('创建用户失败' + data.msg)
-        }
-      }).fail(function(err){
-        console.log(err)
-        showDialog('创建用户失败')
-      })
-    }
-  })
-})
-</script>
 </html>
 

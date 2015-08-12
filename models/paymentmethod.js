@@ -1,13 +1,14 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
-  var PayMentMethod = sequelize.define('PayMentMethod', {
-    name: DataTypes.STRING
+  var PaymentMethod = sequelize.define('PaymentMethod', {
+    name: DataTypes.STRING,
+    code: DataTypes.STRING
   }, {
     classMethods: {
       associate: function(models) {
-        models.PayMentMethod.hasMany(models.Order, { foreignKey: 'paymentMethodId' } );
+        models.PaymentMethod.hasMany(models.Order, { foreignKey: 'paymentMethodId' } );
       }
     }
   });
-  return PayMentMethod;
+  return PaymentMethod;
 };

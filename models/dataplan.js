@@ -1,7 +1,9 @@
 'use strict';
 module.exports = function(sequelize, DataTypes) {
   var DataPlan = sequelize.define('DataPlan', {
-    name: DataTypes.STRING
+    name: { type: DataTypes.STRING, allowNull: false },
+    value: { type: DataTypes.INTEGER, allowNull: false },
+    price: { type: DataTypes.DECIMAL, allowNull: true, defaultValue: 0 }
   }, {
     classMethods: {
       associate: function(models) {

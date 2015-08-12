@@ -32,7 +32,20 @@ module.exports = function(sequelize, DataTypes) {
         models.Customer.hasMany(models.FlowHistory, { foreignKey: 'customerId' })
       }
     }),
-    instanceMethods: concern.instanceMethods,
+    instanceMethods: _.merge(concern.instanceMethods, {
+      addTraffic: function(order, successCallBack, errCallBack) {
+        var customer = this
+        if(order.isPaid()){
+          order.getDataPlan().then(function(dataPlan) {
+            customer.updateAttributes({
+              remainingTraffic: customer.remainingTraffic + dataPlan.value
+            }).then(successCallBack).catch(errCallBack)
+          })
+        }else{
+          errCallBack()
+        }
+      }
+    }),
     scopes: {
 
     }

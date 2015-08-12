@@ -15,18 +15,77 @@
       <div class="tel-name">购买流量玩流量币数量：</div>
       <div class="llb" id="buylist">
         {{#each dataPlans }}
-          <a href="javascript:void(0);" {{#if @index == 0 }}class="selected"{{/if}} data-value="{{ value }}">{{ name }} {{#if @index == 0 }}<div class="an"></div>{{/if}}
-          </a>
+          <a href="javascript:void(0);" data-value="{{ id }}">{{ name }}</a>
         {{/each}}
       </div>
-      <input type="hidden" id="txtFlowCount" value="100">
+      <input type="hidden" id="txtFlowCount" value="">
   </div>
   <div class="sale-price">
       <div class="left">注：1流量币=0.01元</div>
       <div class="right">售价：<span class="orange" id="txtPayMoney">1.00</span>元</div>
   </div>
   <div class="ml">
-      <div class="btn-submit"><a href="javascript:void(0);">立即支付</a></div>
+      <div id='pay-now' class="btn-submit"><a href="javascript:void(0);">立即支付</a></div>
   </div>
     <div class="zw-tips"><a href="http://www.liuliangwan.net/about/goumai.html">购买规则说明  </a></div>
 </div>
+{{> alertmodal }}
+{{> confirm }}
+<script type="text/javascript">
+function submitIsEnable(isEnable) {
+    if (!isEnable) {
+        $(".btn-submit").data("enable", false);
+        $(".btn-submit a").addClass("btn-gray");
+    } else {
+        $(".btn-submit").data("enable", true);
+        $(".btn-submit a").removeClass("btn-gray");
+    }
+}
+
+function PayNow() {
+  $("#pay-now").click(function(){
+    var $this = $(this),
+        dataPlanId = $("#txtFlowCount").val()
+
+    $.ajax({
+      url: '/pay',
+      method: 'POST',
+      dataType: "JSON",
+      data: {
+        dataPlanId: dataPlanId,
+        paymentMethod: 'WechatPay'
+      }
+    }).done(function(data) {
+      debugger
+    }).fail(function(err) {
+
+    })
+  })
+}
+
+
+function RegistEvent() {
+    // 选择流量币大小
+    $("#buylist").on("click", "a", function (e) {
+        var target = e.target;
+        $(target).siblings().each(function () {
+            $(this).removeClass("selected");
+            if ($(this).children(".an").length > 0) {
+                $(this).children(".an").remove();
+            }
+        });
+        $(target).addClass("selected");
+        $(target).append("<div class=\"an\"></div>");
+
+        var flowcount=$(target).data("value");
+        $("#txtFlowCount").val(flowcount);
+        $("#txtPayMoney").html((parseInt(flowcount) * 0.01).toFixed(2));
+    });
+    $("#buylist a:eq(0)").click()
+}
+
+$(function() {
+  RegistEvent()
+  PayNow()
+})
+</script>
