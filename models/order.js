@@ -16,6 +16,9 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     instanceMethods: {
+      className: function(){
+        return "Order"
+      },
       isPaid: function(){
         return (this.state === Order.STATE.PAID)
       }

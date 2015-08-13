@@ -9,7 +9,8 @@ module.exports = function(sequelize, DataTypes) {
     type: { type: DataTypes.STRING, allowNull: true },
     typeId: { type: DataTypes.INTEGER, allowNull: true },
     amount: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
-    comment: { type: DataTypes.STRING, allowNull: false }
+    comment: { type: DataTypes.STRING, allowNull: false },
+    source: { type: DataTypes.VIRTUAL }
   }, {
     classMethods: {
       associate: function(models) {
@@ -17,5 +18,9 @@ module.exports = function(sequelize, DataTypes) {
       }
     }
   });
+  FlowHistory.STATE = {
+    ADD: 1,
+    REDUCE: 0
+  }
   return FlowHistory;
 };

@@ -285,7 +285,13 @@ app.get('/getcode', function(req, res) {
 })
 
 app.get('/profile', requireLogin, function(req, res) {
-  res.render('yiweixin/customer/show', { customer: req.customer })
+  var customer = req.customer
+  customer.getLastFlowHistory(models, models.FlowHistory.STATE.ADD, function(customer, flowHistory){
+    console.log(customer.lastFlowHistory.source)
+    res.render('yiweixin/customer/show', { customer: customer, flowHistory: customer.lastFlowHistory })
+  }, function(err){
+    console.log(err)
+  })
 })
 
 app.get('/payment', requireLogin, function(req, res) {
@@ -358,9 +364,10 @@ app.post('/pay', requireLogin, function(req, res) {
         })
       }
     }, function(next){
-      customer.addTraffic(order, function(obj){
-          res.json({ msg: "充值成功" })
+      customer.addTraffic(models, order, function(customer, order, flowHistory){
+          res.json({ err: 0, url: '/profile', msg: "充值成功" })
         }, function(err) {
+          console.log(err)
           res.json({ err: 1, msg: "server error" })
         })
     }], function(error, callback){
@@ -369,6 +376,25 @@ app.post('/pay', requireLogin, function(req, res) {
     })
 })
 
+app.get('/extractflow', requireLogin, function(req, res){
+  res.render('yiweixin/orders/extractflow')
+})
+
+app.get('/getTrafficplans', function(req, res){
+  console.log(req.query.catName)
+  if(models.TrafficPlan.Provider[req.query.catName] !== undefined){
+    var providerId = models.TrafficPlan.Provider[req.query.catName]
+    models.TrafficPlan.findAll({ where: { providerId: providerId },
+                                 order: [
+                                  'sortNum'
+                                 ]}).then(function(trafficPlans){
+                                    res.json(trafficPlans)
+                                 })
+
+  }else{
+    res.json({ err: 1, msg: "phone err" })
+  }
+})
 
 app.get('/send-message', function(req, res) {
   models.MessageQueue.canSendMessage(req.query.phone, req.query.type, function(messageQueue) {

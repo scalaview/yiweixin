@@ -55,8 +55,17 @@ function expiredStr(expiredAt){
   }
 }
 
+function flowSource(obj){
+  if(obj.className() === 'Order'){
+    return "购买流量币"
+  }else{
+    return "其他来源"
+  }
+}
+
 
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
 exports.expiredStr = expiredStr;
+exports.flowSource = flowSource;

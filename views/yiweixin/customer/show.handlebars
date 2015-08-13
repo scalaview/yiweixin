@@ -27,25 +27,27 @@
         <div class="tit">
             最近收入
         </div>
-        <div class="con" id="GetRec">
-            <div class="img">
-                {{!-- <img id="Face" src="res/images/img-01.png" /> --}}
-            </div>
-            <div class="text">
-                <div class="over">
-                    <span class="gray">收入来源：</span>
-                    <span id="SourceName"></span>
-                </div>
-                <div class="over">
-                    <span class="gray">收入数量：</span>
-                    <span id="FlowPrice">0</span>流量币
-                </div>
-                <div class="over">
-                    <span class="gray">收入备注：</span>
-                    <span id="Remark"></span>
-                </div>
-            </div>
-        </div>
+        {{#if flowHistory.source}}
+          <div class="con" id="GetRec">
+              <div class="img">
+                  {{!-- <img id="Face" src="res/images/img-01.png" /> --}}
+              </div>
+              <div class="text">
+                  <div class="over">
+                      <span class="gray">收入来源：</span>
+                      <span id="SourceName">{{ flowSource flowHistory.source }}</span>
+                  </div>
+                  <div class="over">
+                      <span class="gray">收入数量：</span>
+                      <span id="FlowPrice"> {{ flowHistory.amount }} </span>流量币
+                  </div>
+                  <div class="over">
+                      <span class="gray">收入备注：</span>
+                      <span id="Remark"> {{ flowHistory.comment }} </span>
+                  </div>
+              </div>
+          </div>
+        {{/if}}
       </div>
       <div class="add">
         <li>
@@ -57,7 +59,7 @@
           </a>
         </li>
         <li>
-          <a id="buy" href="javascript:void(0)">
+          <a id="buy" href="/payment">
             <img src="/images/pro-04.png">
             <div class="con">
               <div class="text">购买流量币</div>

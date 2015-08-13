@@ -235,7 +235,7 @@ body {
 .tel-name {
     height: 21px;
     line-height: 21px;
-    font-size: 1em;
+    font-size: 1.5em;
     margin-bottom: 5px;
 }
 
@@ -275,7 +275,7 @@ body {
 
 .correct {
     padding: 3px 0 3px 20px;
-    background: url(../images/arrow-02.png) no-repeat left center;
+    background: url(/images/arrow-02.png) no-repeat left center;
     color: #28a000;
     background-size: 16px 16px;
     font-size: 1em;
@@ -325,7 +325,7 @@ body {
         position: absolute;
         right: 0px;
         bottom: 0px;
-        background: url(../images/correct.png) no-repeat;
+        background: url(/images/correct.png) no-repeat;
         width: 13px;
         height: 13px;
         display: none;

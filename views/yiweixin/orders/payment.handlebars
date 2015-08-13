@@ -56,7 +56,12 @@ function PayNow() {
         paymentMethod: 'WechatPay'
       }
     }).done(function(data) {
-      debugger
+      if(!data.err){
+        showDialog(data.msg)
+        window.location.href = data.url
+      }else{
+        showDialog(data.msg)
+      }
     }).fail(function(err) {
 
     })
