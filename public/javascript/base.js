@@ -7,3 +7,8 @@ window.showDialog = function(msg){
   $msg.html(msg)
   $modal.modal('show')
 }
+
+
+window.doDelay = function(callback, second) {
+  window.setTimeout(callback, second * 1000);
+}

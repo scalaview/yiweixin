@@ -111,25 +111,6 @@ function getCustomerBalance() {
 }
 
 
-///提取流量事件
-$(".btn-submit").bind("click", function () {
-
-    ///转赠流量
-    var selectedFlow = $(".llb a.selected");
-    //if (selectedFlow.attr('class', 'mask01')) {
-    //    alertMsg("您的余额不足，无法完成此项操作", false);
-    //    return;
-    //}
-    var flow = selectedFlow.data("value");
-    if (!flow || flow == "") {
-        alertMsg("请选择流量包", false);
-        return;
-    }
-    var dbkey = selectedFlow.data("dbkey");
-    var mobile = $("#mobile").val();
-    maskShow(mobile, flow, dbkey, true);
-});
-
 ///选择流量点击事件
 function regFlowClickEvent(obj) {
     $(obj).bind("click", function () {

@@ -240,7 +240,6 @@ app.get('/register', function(req, res){
 
 app.post('/register', function(req, res){
   models.MessageQueue.verifyCode(req.body.phone, req.body.code, 'register', function(messageQueue){
-    console.log(messageQueue)
     if(messageQueue){
       models.Customer.build({
         username: req.body.phone,
@@ -287,7 +286,7 @@ app.get('/getcode', function(req, res) {
 app.get('/profile', requireLogin, function(req, res) {
   var customer = req.customer
   customer.getLastFlowHistory(models, models.FlowHistory.STATE.ADD, function(customer, flowHistory){
-    console.log(customer.lastFlowHistory.source)
+    // console.log(customer.lastFlowHistory.source)
     res.render('yiweixin/customer/show', { customer: customer, flowHistory: customer.lastFlowHistory })
   }, function(err){
     console.log(err)
@@ -296,10 +295,8 @@ app.get('/profile', requireLogin, function(req, res) {
 
 app.get('/payment', requireLogin, function(req, res) {
   var customer = req.customer
-
   models.DataPlan.allOptions(function(dataPlans){
-    console.log(1)
-    res.render('yiweixin/orders/payment', { customer: customer, dataPlans: dataPlans  })
+    res.render('yiweixin/orders/payment', { customer: customer, dataPlans: dataPlans })
   }, function(err) {
     console.log(err)
   })
@@ -377,16 +374,62 @@ app.post('/pay', requireLogin, function(req, res) {
 })
 
 app.get('/extractflow', requireLogin, function(req, res){
-  res.render('yiweixin/orders/extractflow')
+  res.render('yiweixin/orders/extractflow', { customer: req.customer })
+})
+
+app.post("/extractFlow", requireLogin, function(req, res){
+  var customer = req.customer
+  async.waterfall([function(next){
+    models.TrafficPlan.findById(req.body.flowId).then(function(trafficPlan){
+      if(trafficPlan){
+        next(null, trafficPlan)
+      }else{
+        res.json({ err: 1, msg: "请选择正确的流量包" })
+      }
+    })
+  }, function(trafficPlan, next) {
+    if(customer.remainingTraffic > trafficPlan.cost){
+      next(null, trafficPlan)
+    }else{
+      next(new Error("没有足够流量币"))
+    }
+  }, function(trafficPlan, next){
+    models.ExtractOrder.build({
+      exchanger: trafficPlan.className(),
+      exchangerId: trafficPlan.id,
+      phone: req.phone,
+      cost: trafficPlan.cost,
+    }).save().then(function(extractOrder) {
+      next(null, trafficPlan, extractOrder)
+    })
+  }, function(trafficPlan, extractOrder, next){
+    //
+    customer.updateAttributes({
+      remainingTraffic: customer.remainingTraffic - extractOrder.cost
+    }).then(function(customer){
+      next(null, customer, extractOrder)
+    })
+  }, function(customer, extractOrder, next) {
+    extractOrder.updateAttributes({
+      state: models.ExtractOrder.STATE.SUCCESS
+    }).then(function(extractOrder) {
+      next(null, customer, extractOrder)
+    })
+  }], function(err, result){
+    if(err){
+      res.json({ err: 1, msg: err.message })
+    }else{
+      res.json({ err: 0, msg: "充值成功，请注意查收短信", url: "/profile" })
+    }
+  })
 })
 
 app.get('/getTrafficplans', function(req, res){
-  console.log(req.query.catName)
   if(models.TrafficPlan.Provider[req.query.catName] !== undefined){
     var providerId = models.TrafficPlan.Provider[req.query.catName]
     models.TrafficPlan.findAll({ where: { providerId: providerId },
                                  order: [
-                                  'sortNum'
+                                  'sortNum', 'id'
                                  ]}).then(function(trafficPlans){
                                     res.json(trafficPlans)
                                  })

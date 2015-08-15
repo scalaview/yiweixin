@@ -7,27 +7,9 @@
       <div id="phone-detail" class="correct" style="display: none" >   </div>
   </div>
   <div class="form-group">
-      <div class="tel-name" id="balance">选择流量包（您当前可提取流量<span style="color:orange;">0</span>流量币）</div>
+      <div class="tel-name" id="balance">选择流量包（您当前可提取流量<span style="color:orange;"> {{customer.remainingTraffic}}  </span>流量币）</div>
       <div class="llb">
-        <a class="mask01" data-value="30" data-needflow="500" data-dbkey="fa1b89ef-2977-49b2-90ac-406200ac0011">30M<div class="an"></div></a>
-        <a class="mask01" data-value="70" data-needflow="1000" data-dbkey="f56df42f-33ce-42d7-8c59-406200ac3172">70M<div class="an"></div></a>
-        <a class="mask01" data-value="150" data-needflow="2000" data-dbkey="ad88391a-5a4c-4133-a9be-406200ac69f9">150M<div class="an"></div></a>
-        <a class="mask01" data-value="500" data-needflow="3000" data-dbkey="a39a03f1-5d16-4016-bf36-406200ac9af2">500M<div class="an"></div></a>
-        <a class="mask01" data-value="1024" data-needflow="5000" data-dbkey="72caff2a-1267-43f8-98c0-406200accba6">1024M<div class="an"></div></a>
-        <a class="mask01" data-value="3072" data-needflow="10000" data-dbkey="75a99716-b0f7-4205-ae95-406200ad0140">3072M<div class="an"></div></a>
-        <a class="mask01" data-value="10" data-needflow="300" data-dbkey="6efb917b-a3f4-4a62-9009-409a0092dc85">10M<div class="an"></div></a>
-        <a class="mask01" data-value="10" data-needflow="200" data-dbkey="b31fca22-6b20-49e6-a7a5-409a0093439c">10M<div class="an"></div></a>
-        <a class="mask01" data-value="30" data-needflow="500" data-dbkey="d6910640-407c-42f1-8e86-40ab00f59036">30M<div class="an"></div></a>
-        <a class="mask01" data-value="200" data-needflow="1400" data-dbkey="138a69c7-b577-4618-9247-40ab00fdd84f">200M<div class="an"></div></a>
-        <a class="mask01" data-value="50" data-needflow="600" data-dbkey="566841b4-4e14-4db7-bc58-40ab00fe7c1c">50M<div class="an"></div></a>
-        <a class="mask01" data-value="100" data-needflow="1000" data-dbkey="786ed52c-1d5c-47bc-bef1-40ab014a514c">100M<div class="an"></div></a>
-        <a class="mask01" data-value="10" data-needflow="300" data-dbkey="b672229f-a7b5-4734-816b-40f50142a12a">10M<div class="an"></div></a>
-        <a class="mask01" data-value="70" data-needflow="1000" data-dbkey="90965f4e-2cf1-4532-b7fa-40ff00fa2e02">70M<div class="an"></div></a>
-        <a class="mask01" data-value="150" data-needflow="2000" data-dbkey="bbb43073-4b1e-43e3-a5ad-40ff00fadfec">150M<div class="an"></div></a>
-        <a class="mask01" data-value="500" data-needflow="3000" data-dbkey="e1c4854e-80ac-4813-aa10-40ff00fb5f24">500M<div class="an"></div></a>
-        <a class="mask01" data-value="1024" data-needflow="5000" data-dbkey="2794488c-ad12-4999-ba03-40ff00fbf26f">1024M<div class="an"></div></a>
-        <a class="mask01" data-value="2048" data-needflow="7000" data-dbkey="ad90e2a4-b577-46b1-b528-40ff00fcb065">2048M<div class="an"></div></a>
-        <a class="mask01" data-value="2048" data-needflow="7000" data-dbkey="fe6ddf64-9751-4195-9c82-40ff00fd00f1">2048M<div class="an"></div></a></div>
+      </div>
       <div class="error" style="display: none;"></div>
   </div>
   <div class="sale-price">
@@ -50,18 +32,25 @@
 </div>
 
 {{> alertmodal }}
-{{> confirm }}
+{{> extractConfirm }}
 
 <script type="text/javascript" src='/javascript/rechargeflow.js'></script>
+<script id="trafficplans-template" type="text/x-handlebars-template">
+\{{#each trafficplans}}
+  <a class="mask01" /{{#if @first}} selected {{/if}} data-value="\{{id}}" data-flow='\{{name}}' data-cost="\{{cost}}" >\{{name}}<div class="an"></div></a>
+\{{/each}}
+</script>
+
 
 <script type="text/javascript">
 ///手机验证
 function isMobile(mobile) {
     var reg = /^1\d{10}$/;
-    return reg.test(mobile);
+    return (mobile !== undefined && mobile !== '' && reg.test(mobile))
 }
 
 function getCarrier(phone){
+  var source   = $("#trafficplans-template").html();
   $.ajax({
     url: 'https://tcc.taobao.com/cc/json/mobile_tel_segment.htm',
     method: 'GET',
@@ -73,7 +62,7 @@ function getCarrier(phone){
     // areaVid: "30517"carrier: "广东移动"catName: "中国移动"ispVid: "3236139"mts: "1382846"province: "广东"
     if(result.catName){
       $("#phone-detail").html(result.catName + ' ' + result.carrier).data("provider", result.carrier).show()
-      getTrafficplan(result.catName)
+      getTrafficplan(source, result.catName)
       submitIsEnable(true);
     }else{
       showDialog("请输入正确的手机号码");
@@ -81,22 +70,88 @@ function getCarrier(phone){
   })
 }
 
-function getTrafficplan(catName){
+function getTrafficplan(source, catName){
+  var template = Handlebars.compile(source);
   $.ajax({
-    url: 'getTrafficplans',
+    url: '/getTrafficplans',
     dataType: 'JSON',
     data: {
       catName: catName
     },
     method: "GET"
   }).done(function(data){
-    debugger
+    var html = template({trafficplans: data})
+    $(".llb").html(html)
   }).fail(function(err){
     console.log(err)
   })
 }
 
+function extractConfirm(){
+
+  ///提取流量事件
+  $(".btn-submit").click(function() {
+      ///转赠流量
+      var selectedFlow = $(".llb a.selected");
+      //if (selectedFlow.attr('class', 'mask01')) {
+      //    alertMsg("您的余额不足，无法完成此项操作", false);
+      //    return;
+      //}
+      var flowId = selectedFlow.data("value");
+      if (!flowId || flowId == "") {
+          showDialog("请选择流量包");
+          return;
+      }
+
+      var flow = selectedFlow.data("flow"),
+          phone = $.trim($("#mobile").val())
+      $("#maskflow").html(flow)
+      $("#maskmobile").html(phone)
+      $("#mask").show()
+  });
+
+
+  $(".sure").click(function(){
+    var selectedFlow = $(".llb a.selected"),
+        phone = $.trim($("#mobile").val()),
+        flowId = selectedFlow.data("value");
+
+    if(isMobile(phone) && flowId !== undefined && flowId !== '' ){
+       $.ajax({
+        url: '/extractFlow',
+        dataType: "JSON",
+        data: {
+          phone: phone,
+          flowId: flowId
+        },
+        method: "POST"
+       }).done(function(data){
+        showDialog(data.msg)
+        if(!data.err){
+          doDelay(function(){
+            window.location.href = data.url
+          }, 1)
+        }
+       }).fail(function(err){
+        console.log(err)
+        showDialog("服务器繁忙")
+       })
+    }else{
+      showDialog("请输入电话好吗和选择正确的套餐")
+    }
+  })
+
+}
+
 $(function() {
+  extractConfirm()
+  $(".llb").on('click', 'a', function(){
+    var $this = $(this)
+    $this.parent().children().removeClass("selected");
+    $(this).addClass("selected");
+    var cost = $this.data("cost");
+    $("#needmyflow").html(cost);
+  })
 
   //手机号码失去焦点事件
   $("#mobile").bind("blur", function () {

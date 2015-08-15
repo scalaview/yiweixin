@@ -63,9 +63,15 @@ function flowSource(obj){
   }
 }
 
+function renderTemplate(template){
+  console.log(template)
+  console.log(template['main'])
+  return template.main();
+}
 
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
 exports.expiredStr = expiredStr;
 exports.flowSource = flowSource;
+exports.renderTemplate = renderTemplate;
