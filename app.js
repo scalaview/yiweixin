@@ -379,6 +379,10 @@ app.get('/extractflow', requireLogin, function(req, res){
 
 app.post("/extractFlow", requireLogin, function(req, res){
   var customer = req.customer
+  if(!req.body.phone){
+    res.json({ err: 1, msg: "请输入手机号码" })
+    return
+  }
   async.waterfall([function(next){
     models.TrafficPlan.findById(req.body.flowId).then(function(trafficPlan){
       if(trafficPlan){
@@ -397,7 +401,7 @@ app.post("/extractFlow", requireLogin, function(req, res){
     models.ExtractOrder.build({
       exchanger: trafficPlan.className(),
       exchangerId: trafficPlan.id,
-      phone: req.phone,
+      phone: req.body.phone,
       cost: trafficPlan.cost,
     }).save().then(function(extractOrder) {
       next(null, trafficPlan, extractOrder)

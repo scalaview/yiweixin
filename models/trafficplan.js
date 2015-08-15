@@ -15,7 +15,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     instanceMethods: {
       className: function(){
-        return "Order"
+        return "TrafficPlan"
       }
     }
   });
