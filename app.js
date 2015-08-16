@@ -304,7 +304,6 @@ app.get('/payment', requireLogin, function(req, res) {
 })
 
 app.post('/pay', requireLogin, function(req, res) {
-
     var customer = req.customer
     var paymentMethod, dataPlan, order;
     async.waterfall([function(next) {
@@ -339,7 +338,7 @@ app.post('/pay', requireLogin, function(req, res) {
         paymentMethodId: paymentMethod.id,
         total: dataPlan.price
       }).save().then(function(obj){
-        // do payment
+        //TODO do payment
         order = obj
         next()
       }).catch(function(err){
@@ -403,15 +402,16 @@ app.post("/extractFlow", requireLogin, function(req, res){
       exchangerId: trafficPlan.id,
       phone: req.body.phone,
       cost: trafficPlan.cost,
+      value: trafficPlan.value
     }).save().then(function(extractOrder) {
       next(null, trafficPlan, extractOrder)
     })
   }, function(trafficPlan, extractOrder, next){
     //
-    customer.updateAttributes({
-      remainingTraffic: customer.remainingTraffic - extractOrder.cost
-    }).then(function(customer){
+    customer.reduceTraffic(models, extractOrder, function(customer, extractOrder, trafficPlan, flowHistory) {
       next(null, customer, extractOrder)
+    }, function(err) {
+      next(err)
     })
   }, function(customer, extractOrder, next) {
     extractOrder.updateAttributes({
@@ -437,11 +437,28 @@ app.get('/getTrafficplans', function(req, res){
                                  ]}).then(function(trafficPlans){
                                     res.json(trafficPlans)
                                  })
-
   }else{
     res.json({ err: 1, msg: "phone err" })
   }
 })
+
+app.get("/income", function(req, res){
+  models.FlowHistory.incomeHistories(function(flowHistories){
+    res.render('yiweixin/flowHistories/income', { flowHistories: flowHistories })
+  }, function(err){
+    console.log(err)
+  })
+})
+
+
+app.get("/spend", function(req, res){
+  models.FlowHistory.reduceHistories(function(flowHistories){
+    res.render('yiweixin/flowHistories/spend', { flowHistories: flowHistories })
+  }, function(err){
+    console.log(err)
+  })
+})
+
 
 app.get('/send-message', function(req, res) {
   models.MessageQueue.canSendMessage(req.query.phone, req.query.type, function(messageQueue) {

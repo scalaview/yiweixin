@@ -1,6 +1,7 @@
 var fs = require('fs')
 var path = require('path')
 var config = require("../config")
+var moment = require('moment')
 
 function fileUpload(file, successCallBack, errorCallBack){
   var origin_this = this,
@@ -63,10 +64,16 @@ function flowSource(obj){
   }
 }
 
-function renderTemplate(template){
-  console.log(template)
-  console.log(template['main'])
-  return template.main();
+function strftime(dateTime, format){
+  var  result = moment()
+  if(dateTime){
+    result = moment(dateTime)
+  }
+  if( typeof format === 'string'){
+    return result.format(format)
+  }else{
+    return result.format('YYYY-MM-DD HH:mm:ss')
+  }
 }
 
 exports.fileUpload = fileUpload;
@@ -74,4 +81,5 @@ exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
 exports.expiredStr = expiredStr;
 exports.flowSource = flowSource;
-exports.renderTemplate = renderTemplate;
+exports.strftime = strftime;
+

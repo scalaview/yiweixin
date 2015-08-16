@@ -10,7 +10,8 @@ module.exports = function(sequelize, DataTypes) {
         models.DataPlan.hasMany(models.Order, { foreignKey: 'dataPlanId' })
       },
       allOptions: function(successCallBack, errCallBack) {
-        DataPlan.findAll().then(successCallBack).catch(errCallBack)
+        DataPlan.findAll({ order: [ 'value'
+          ] }).then(successCallBack).catch(errCallBack)
       }
     }
   });

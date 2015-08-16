@@ -56,18 +56,57 @@ module.exports = function(sequelize, DataTypes) {
               next(null, customer, order)
             }).catch(errCallBack)
         }, function(customer, order, next){
-          customer.takeFlowHistory(models, order, order.dataPlan.value, "购买流量币", function(flowHistory){
+          customer.takeFlowHistory(models, order, order.dataPlan.value, "购买流量币", models.FlowHistory.STATE.ADD, function(flowHistory){
               successCallBack(customer, order, flowHistory)
             }, errCallBack)
         }], function(err){
           errCallBack(err)
         })
       },
-      takeFlowHistory: function(models, obj, amount, comment, successCallBack, errCallBack){
+      reduceTraffic: function(models, extractOrder, successCallBack, errCallBack) {
         var customer = this
+        async.waterfall([function(next){
+          extractOrder.getTrafficPlan().then(function(trafficPlan) {
+            extractOrder.trafficPlan = trafficPlan
+            next(null, extractOrder, trafficPlan)
+          }).catch(function(err) {
+            next(err)
+          })
+        }, function(extractOrder, trafficPlan, next){
+          if(customer.remainingTraffic > trafficPlan.cost){
+            customer.updateAttributes({
+                remainingTraffic: customer.remainingTraffic - extractOrder.cost
+              }).then(function(customer){
+                next(null, customer, extractOrder, trafficPlan)
+              }).catch(function(err) {
+                next(err)
+              })
+          }else{
+            next(new Error("剩余流量币不足"))
+          }
+        }, function(customer, extractOrder, trafficPlan, next){
+          customer.takeFlowHistory(models, extractOrder, trafficPlan.cost, "提取流量", models.FlowHistory.STATE.REDUCE, function(flowHistory){
+              next(null, customer, extractOrder, trafficPlan, flowHistory)
+            }, function(err){
+              next(err)
+            })
+        }], function(err, customer, extractOrder, trafficPlan, flowHistory){
+          if(err){
+            errCallBack(err)
+          }else{
+            successCallBack(customer, extractOrder, trafficPlan, flowHistory)
+          }
+        })
+      },
+      takeFlowHistory: function(models, obj, amount, comment, type, successCallBack, errCallBack){
+        var customer = this
+        if(type !== models.FlowHistory.STATE.ADD && type !== models.FlowHistory.STATE.REDUCE){
+          return errCallBack(new Error("Type Error"))
+        }
+
         models.FlowHistory.build({
           customerId: customer.id,
-          state: models.FlowHistory.STATE.ADD,
+          state: type,
           type: obj.className(),
           typeId: obj.id,
           amount: amount,

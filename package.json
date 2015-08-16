@@ -28,6 +28,7 @@
     "express-session": "^1.11.3",
     "formidable": "^1.0.17",
     "lodash": "^3.10.0",
+    "moment": "^2.10.6",
     "mysql": "^2.8.0",
     "request": "^2.60.0",
     "sequelize": "^3.4.1",
