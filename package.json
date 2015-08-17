@@ -4,10 +4,9 @@
   "description": "yiliuliang",
   "main": "index.js",
   "scripts": {
-    "preinstall": "echo here it comes!",
-    "postinstall": "echo there it goes!",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node_modules/sequelize-cli/bin/sequelize init  --env production ; node_modules/sequelize-cli/bin/sequelize db:migrate --env production ; node app.js"
+    "start": "node app.js",
+    "postinstall": "bower install"
   },
   "repository": {
     "type": "git",
