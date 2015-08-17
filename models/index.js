@@ -8,11 +8,7 @@ var basename  = path.basename(module.filename);
 var env       = process.env.NODE_ENV || 'development';
 var config    = require(__dirname + '/../config/config.json')[env];
 
-if(env === 'production'){
-  var sequelize = new Sequelize(process.env.DB_CONNECTION_STRING);
-}else{
-  var sequelize = new Sequelize(config.database, config.username, config.password, config);
-}
+var sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 var db        = {};
 

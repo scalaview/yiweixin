@@ -4,3 +4,4 @@ bower_components
 .DS_Store
 .idea/
 public/uploads
+config/config.json
