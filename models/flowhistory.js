@@ -67,12 +67,18 @@ module.exports = function(sequelize, DataTypes) {
       income: {
         where: {
           state: 1
-        }
+        },
+        order: [
+          ['createdAt', 'DESC']
+        ]
       },
       reduce: {
         where: {
           state: 0
-        }
+        },
+        order: [
+          ['createdAt', 'DESC']
+        ]
       }
     }
   });
