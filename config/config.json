@@ -1,0 +1,21 @@
+{
+  "development": {
+    "username": "root",
+    "password": "qazwsx",
+    "database": "yiliuliang",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "timezone": "+08:00"
+  },
+  "test": {
+    "username": "root",
+    "password": "qazwsx",
+    "database": "yiliuliang",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "timezone": "+08:00"
+  },
+  "production": {
+      "use_env_variable": "DB_CONNECTION_STRING"
+  }
+}
