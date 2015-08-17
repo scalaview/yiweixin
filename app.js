@@ -277,6 +277,7 @@ app.get('/getcode', function(req, res) {
           res.json({ msg: "message had send", code: messageQueue.verificationCode })
         }
       }, function(err){
+        console.log(err)
         res.json({ msg: "try again later", err: err.errors })
       })
     }
