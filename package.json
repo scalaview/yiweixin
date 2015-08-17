@@ -4,8 +4,9 @@
   "description": "yiliuliang",
   "main": "index.js",
   "scripts": {
+    "postinstall": "bower install",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node_modules/bower/bin/bower install ; node_modules/sequelize-cli/bin/sequelize init  --env production ; node_modules/sequelize-cli/bin/sequelize db:migrate --env production ; node app.js"
+    "start": "node_modules/sequelize-cli/bin/sequelize init  --env production ; node_modules/sequelize-cli/bin/sequelize db:migrate --env production ; node app.js"
   },
   "repository": {
     "type": "git",
