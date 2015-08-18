@@ -508,6 +508,14 @@ app.get('/tasks/:id', function(req, res) {
   })
 })
 
+app.get('/apkcenter', function(req, res) {
+  res.render("yiweixin/apkcenter/index")
+})
+
+app.get('/apkcenter/:id', function(req, res) {
+  res.render('yiweixin/apkcenter/show')
+})
+
 // --------------- app -----------------------
 
 var server = app.listen(app.get('port'), function () {
