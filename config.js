@@ -17,12 +17,12 @@ var config = {
                                 {
                                   "type":"view",
                                   "name":"领取记录",
-                                  "url":"http://yiliuliang.net"
+                                  "url":"http://yiliuliang.net/income"
                                 },
                                 {
                                   "type":"view",
                                   "name":"领取流量",
-                                  "url":"http://yiliuliang.net"
+                                  "url":"http://yiliuliang.net/tasks"
                                 },
                                 {
                                   "type":"click",
@@ -33,7 +33,7 @@ var config = {
                             {
                                 "type":"view",
                                 "name":"我的钱包",
-                                "url":"http://yiliuliang.net"
+                                "url":"http://yiliuliang.net/profile"
                             },
                             {
                               "type":"view",
