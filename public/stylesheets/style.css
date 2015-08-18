@@ -28,7 +28,7 @@ body {
 .liuliang {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffb400, endColorstr=#ff7800);
     background: linear-gradient(top, #ffb400, #ffa800, #ff9800, #ff8700, #ff7800);
-    background: -webkit-gradient(linear, 0 0, 0 100%, from(#ffb400), to(#ff7800));
+    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FF6B00), to(#FF0000));
     background: -moz-linear-gradient(top, #ffb400, #ffa800, #ff9800, #ff8700, #ff7800);
     padding: 10px;
     overflow: hidden;

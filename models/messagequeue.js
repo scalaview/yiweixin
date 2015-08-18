@@ -41,7 +41,7 @@ module.exports = function(sequelize, DataTypes) {
           phone: phone,
           content: "xxxxxxxxxx  xxxx   xxx" + num + "xxxxxx",
           type: "register",
-          verificationCode: num
+          verificationCode: num + ''
         }).save().then(successCallBack).catch(errorCallBack)
       },
       verifyCode: function(phone, code, type, successCallBack, errorCallBack){
