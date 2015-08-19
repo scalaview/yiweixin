@@ -484,8 +484,13 @@ app.get('/getTrafficplans', function(req, res){
   }
 })
 
-app.get("/income", function(req, res){
-  models.FlowHistory.incomeHistories(function(flowHistories){
+app.get("/income", requireLogin, function(req, res){
+  var customer = req.customer
+  models.FlowHistory.incomeHistories({
+    where: {
+      customerId: customer.id
+    }
+  }, function(flowHistories){
     res.render('yiweixin/flowhistories/income', { flowHistories: flowHistories })
   }, function(err){
     console.log(err)
@@ -493,8 +498,13 @@ app.get("/income", function(req, res){
 })
 
 
-app.get("/spend", function(req, res){
-  models.FlowHistory.reduceHistories(function(flowHistories){
+app.get("/spend", requireLogin, function(req, res){
+  var customer = req.customer
+  models.FlowHistory.reduceHistories({
+    where: {
+      customerId: customer.id
+    }
+  }, function(flowHistories){
     res.render('yiweixin/flowhistories/spend', { flowHistories: flowHistories })
   }, function(err){
     console.log(err)
@@ -537,7 +547,6 @@ app.get('/create-menus', function(req, res) {
 })
 
 app.get('/tasks', function(req, res) {
-  console.log(helpers)
   var tasks = models.FlowTask.scope('active', 'defaultSort').findAll().then(function(tasks) {
     res.render('yiweixin/flowtasks/index', { tasks: tasks })
   })
@@ -653,4 +662,3 @@ var server = app.listen(app.get('port'), function () {
 
   console.log('Example app listening at http://%s:%s', host, port);
 });
-

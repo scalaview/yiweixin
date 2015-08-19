@@ -29,8 +29,8 @@ module.exports = function(sequelize, DataTypes) {
           }
         })
       },
-      histories: function(state, successCallBack, errCallBack){
-        FlowHistory.scope(state).findAll().then(function(flowHistories) {
+      histories: function(options, state, successCallBack, errCallBack){
+        FlowHistory.scope(state).findAll(options || {}).then(function(flowHistories) {
           async.map(flowHistories, function(flowHistory, next){
             if( state === 'income' ){
               flowHistory.getOrder().then(function(order) {
@@ -56,11 +56,11 @@ module.exports = function(sequelize, DataTypes) {
           })
         })
       },
-      incomeHistories: function(successCallBack, errCallBack){
-        this.histories('income', successCallBack, errCallBack)
+      incomeHistories: function(options, successCallBack, errCallBack){
+        this.histories(options, 'income', successCallBack, errCallBack)
       },
-      reduceHistories: function(successCallBack, errCallBack){
-        this.histories('reduce', successCallBack, errCallBack)
+      reduceHistories: function(options, successCallBack, errCallBack){
+        this.histories(options, 'reduce', successCallBack, errCallBack)
       }
     },
     scopes: {
