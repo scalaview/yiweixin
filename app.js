@@ -230,6 +230,47 @@ admin.get('/customers', function(req, res) {
   })
 })
 
+admin.get('/apks/new', function(req, res) {
+  models.Seller.findAll().then(function(sellers) {
+    if(sellers){
+      res.render('admin/apks/new', { apk: models.Apk.build(), sellers: sellers })
+    }
+  })
+})
+
+admin.post("/apks", function(req, res) {
+  var form = new formidable.IncomingForm();
+  form.parse(req, function(err, fields, files) {
+    models.Apk.build({
+      name: fields.name,
+      isActive: fields.isActive ? true : false,
+      version: fields.version,
+      sellerId: fields.sellerId,
+      reward: fields.reward,
+      apk: files.apk,
+      icon: files.icon,
+      image01: files.image01,
+      image02: files.image02,
+      image03: files.image03,
+      description: fields.description,
+      digest: fields.digest
+    }).save().then(function(apk) {
+      res.redirect("/admin/apks")
+    }).catch(function(err, apk) {
+      console.log(err)
+      res.send(err)
+    })
+  })
+})
+
+admin.get("/apks", function(req, res){
+  models.Apk.listAll(function(apks) {
+    res.render("admin/apks/index", { apks: apks })
+  }, function(err) {
+    console.log(err)
+  })
+})
+
 // -------------- adming ---------------------
 
 
@@ -508,12 +549,100 @@ app.get('/tasks/:id', function(req, res) {
   })
 })
 
-app.get('/apkcenter', function(req, res) {
-  res.render("yiweixin/apkcenter/index")
+app.get('/apkcenter', requireLogin, function(req, res) {
+  var customer = req.customer
+  console.log(customer)
+  models.Apk.activeList(function(apks) {
+    res.render("yiweixin/apkcenter/index", { apks: apks, customer: customer  })
+  }, function(err) {
+    console.log(err)
+  })
 })
 
 app.get('/apkcenter/:id', function(req, res) {
-  res.render('yiweixin/apkcenter/show')
+  async.waterfall([function(next){
+    if(req.query.c){
+      models.Customer.findById(req.query.c).then(function(customer){
+        next(null, customer)
+      }).catch()
+    }else{
+      next(null, null)
+    }
+  }, function(customer, next){
+     models.Apk.findById(req.params.id).then(function(apk){
+      next(null, apk, customer)
+    }).catch(function(err){
+      next(err)
+    })
+  }], function(err, apk, customer) {
+    if(err){
+      console.log(err)
+      res.redirect('/apkcenter')
+    }else{
+      res.render('yiweixin/apkcenter/show', { apk: apk, customer: customer })
+    }
+  })
+})
+
+app.get('/apkcenter/download/:id', function(req, res) {
+  async.waterfall([function(next){
+    models.Customer.findById(req.query.c).then(function(customer) {
+      next(null, customer)
+    }).catch()
+  }, function(customer, next) {
+    models.Apk.findById(req.params.id).then(function(apk){
+      next(null, customer, apk)
+    }).catch(function(err){
+      next(err)
+    })
+  }, function(customer, apk, next){
+    res.download( helpers.fullPath(apk.apkPath), apk.apk, function(err){
+      if (err) {
+        next(err)
+      } else {
+        next(null, customer, apk)
+      }
+    });
+  }, function(customer, apk, next){
+    if(customer){
+      customer.getFlowHistories({
+        where: {
+          state:  models.FlowHistory.STATE.ADD,
+          type: "Apk",
+          typeId: apk.id
+        }
+      }).then(function(existFlowHistories){
+        if(existFlowHistories instanceof Array && existFlowHistories[0] ){  // no update
+          next(null, customer, apk, existFlowHistories[0])
+        }else{
+          next(null, customer, apk, null)
+        }
+      })
+    }else{
+      next(null, customer, apk, null)
+    }
+  }, function(customer, apk, existFlowHistory, next) {
+    if(customer && !existFlowHistory){
+      customer.updateAttributes({
+        remainingTraffic: customer.remainingTraffic + apk.reward
+      }).then(function(customer) {
+        next(null, customer, apk, true)
+      })
+    }else{
+      next(null, customer, apk, false)
+    }
+  }, function(customer, apk, isUpdated, next){
+    if(customer && isUpdated){
+      customer.takeFlowHistory(models, apk, apk.reward, "首次下载app" + app.name, models.FlowHistory.STATE.ADD, function(flowHistory){
+        next(null, customer. apk, flowHistory)
+      }, function(err){})
+    }
+  }], function(err, customer, apk, flowHistory){
+    if(err){
+      console.log(err)
+      res.send(404);
+    }
+  })
 })
 
 // --------------- app -----------------------

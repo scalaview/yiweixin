@@ -2,6 +2,8 @@ var fs = require('fs')
 var path = require('path')
 var config = require("../config")
 var moment = require('moment')
+var _ = require('lodash')
+var handlebars = require('handlebars')
 
 function fileUpload(file, successCallBack, errorCallBack){
   var origin_this = this,
@@ -31,7 +33,7 @@ function fileUploadSync(file){
       file_size = file.size,
       file_type = file.type,
       origin_file_name = file.name,
-      file_name = Math.round((new Date().valueOf() * Math.random())) + "_" + origin_file_name,
+      file_name = Math.round((new Date().valueOf() * Math.random())) + "_" + _.trim(origin_file_name, ' '),
       new_path = path.join(process.env.PWD, config.upload_path, file_name );
 
   var tmp_file = fs.readFileSync(old_path);
@@ -76,10 +78,64 @@ function strftime(dateTime, format){
   }
 }
 
+function sizeFormat(apkSize){
+  if(apkSize){
+    if(apkSize > 1024000){  // MB
+      return _.round(apkSize/ 1000000, 2) + "MB"
+    }else if(apkSize > 1000) { //KB
+      return _.round(apkSize/ 1000, 2) + "KB"
+    }
+  }
+}
+
+function imgDiv(images){
+  if(images instanceof Array){
+    var length = images.length,
+        source = ['<div class="col-xs-{{interval}} col-md-{{interval}}">',
+          '<img class="img-responsive" src="{{img}}">',
+        '</div>'].join(''),
+        template = handlebars.compile(source),
+        html = []
+
+    if(length === 3){
+      var interval = 4
+    }else if(length === 2){
+      var interval = 5
+    }else{
+      var interval = 12
+    }
+
+    for (var i = 0; i < images.length; i++) {
+      html.push( template({ img: images[i], interval: interval }) )
+    };
+    return new handlebars.SafeString( html.join('') )
+  }
+}
+
+function apkImages(apk) {
+  var fields = ['image01', 'image02', 'image03'],
+      images = []
+  for (var i = 0; i < fields.length; i++) {
+    if(apk[fields[i]]){
+      images.push( apk[fields[i]] )
+    }
+  };
+
+  return imgDiv(images)
+}
+
+
+function fullPath(filePath){
+  return process.env.PWD + "/public" + filePath
+}
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
 exports.expiredStr = expiredStr;
 exports.flowSource = flowSource;
 exports.strftime = strftime;
-
+exports.sizeFormat = sizeFormat;
+exports.imgDiv = imgDiv;
+exports.apkImages = apkImages;
+exports.fullPath = fullPath;
