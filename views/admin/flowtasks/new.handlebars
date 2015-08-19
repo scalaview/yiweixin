@@ -60,20 +60,22 @@
 
 </div>
 
-<script type="text/javascript">
-$(document).ready(function(){
-  $('#expired_at').datepicker({
-    format: "yyyy-mm-dd"
-  });
-  KindEditor.ready(function(K) {
-      return K.create("#content", {
-          "class": ["kindeditor", "optional"],
-          width: "100%",
-          height: 300,
-          allowFileManager: true,
-          uploadJson: '',
-          fileManagerJson: ''
+{{#section 'javascript'}}
+    <script type="text/javascript">
+    $(document).ready(function(){
+      $('#expired_at').datepicker({
+        format: "yyyy-mm-dd"
       });
-  });
-})
-</script>
+      KindEditor.ready(function(K) {
+          return K.create("#content", {
+              "class": ["kindeditor", "optional"],
+              width: "100%",
+              height: 300,
+              allowFileManager: true,
+              uploadJson: '',
+              fileManagerJson: ''
+          });
+      });
+    })
+  </script>
+{{/section}}
