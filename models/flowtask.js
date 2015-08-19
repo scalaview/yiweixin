@@ -14,7 +14,8 @@ module.exports = function(sequelize, DataTypes) {
       },
       get: function(){
          var cover = this.getDataValue('cover');
-         return '/uploads/' + cover
+        if(cover) return '/uploads/' + cover
+        return
       }
     },
     content: { type: DataTypes.TEXT, allowNull: true },
@@ -32,7 +33,7 @@ module.exports = function(sequelize, DataTypes) {
     scopes: {
       active: {
         where: {
-          isActive: true
+          isActive: 0
         }
       },
       defaultSort: {

@@ -98,15 +98,15 @@ module.exports = function(sequelize, DataTypes) {
           }
         })
       },
-      takeFlowHistory: function(models, obj, amount, comment, type, successCallBack, errCallBack){
+      takeFlowHistory: function(models, obj, amount, comment, state, successCallBack, errCallBack){
         var customer = this
-        if(type !== models.FlowHistory.STATE.ADD && type !== models.FlowHistory.STATE.REDUCE){
+        if(state !== models.FlowHistory.STATE.ADD && state !== models.FlowHistory.STATE.REDUCE){
           return errCallBack(new Error("Type Error"))
         }
 
         models.FlowHistory.build({
           customerId: customer.id,
-          state: type,
+          state: state,
           type: obj.className(),
           typeId: obj.id,
           amount: amount,

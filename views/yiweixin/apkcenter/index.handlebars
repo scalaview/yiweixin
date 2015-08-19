@@ -6,75 +6,59 @@
             Primary Panel
         </div>
         <div class="panel-body" style="min-height: 600px">
-          <div class="row">
-            <div class="col-xs-12 col-md-12">
-                <a href="#">
-                  <div class="col-xs-3">
-                      <img class="img-responsive" src="http://img.wdjimg.com/mms/icon/v1/6/2a/4764bbc6717fe399db4eb2e5e41342a6_68_68.png">
-                  </div>
-                  <div class="col-xs-7">
-                    <div class="row">
-                      <p class="col-xs-12">暴风影音</p>
-                     <small class="col-xs-6  text-muted">
-                      74 次安装
-                      </small>
-                      <small class="col-xs-6  text-muted">
-                      20.21 M
-                      </small>
+          {{#each apks}}
+            <div class="row">
+              <div class="col-xs-12 col-md-12">
+                {{ customer.id}}
+                  <a href="/apkcenter/{{id}}">
+                    <div class="col-xs-3">
+                        <img class="img-responsive" src="{{ icon }}">
                     </div>
+                    <div class="col-xs-7">
+                      <div class="row">
+                        <p class="col-xs-12">{{ name }}</p>
+                       <small class="col-xs-6  text-muted">
+                        {{ downloadTime }} 次安装
+                        </small>
+                        <small class="col-xs-6  text-muted">
+                        {{ sizeFormat apkSize }}
+                        </small>
+                      </div>
 
-                  </div>
-                </a>
-                <a href="#">
-                  <div class="col-xs-2">
-                    <i class="glyphicon glyphicon-download-alt btn-lg orange"></i>
-                  </div>
-                </a>
-            </div>
-
-            <div class="col-xs-12 col-md-12">
-              <small class="col-xs-10 col-offset-2 text-muted">
-                好厉害的播放器
-              </small>
-            </div>
-          </div>
-          <hr>
-          <div class="row">
-            <div class="col-xs-12 col-md-12">
-                <a href="#">
-                  <div class="col-xs-3">
-                      <img class="img-responsive" src="http://img.wdjimg.com/mms/icon/v1/6/2a/4764bbc6717fe399db4eb2e5e41342a6_68_68.png">
-                  </div>
-                  <div class="col-xs-7">
-                    <div class="row">
-                      <p class="col-xs-12">暴风影音</p>
-                     <small class="col-xs-6  text-muted">
-                      74 次安装
-                      </small>
-                      <small class="col-xs-6  text-muted">
-                      20.21 M
-                      </small>
                     </div>
+                  </a>
+                  <a href="#">
+                    <div class="col-xs-2">
+                      <i class="glyphicon glyphicon-download-alt btn-lg orange"></i>
+                    </div>
+                  </a>
+              </div>
 
-                  </div>
-                </a>
-                <a href="#">
-                  <div class="col-xs-2">
-                    <i class="glyphicon glyphicon-download-alt btn-lg orange"></i>
-                  </div>
-                </a>
+              <div class="col-xs-12 col-md-12">
+                <small class="col-xs-10 col-offset-2 text-muted">
+                  {{ digest }}
+                </small>
+              </div>
             </div>
-
-            <div class="col-xs-12 col-md-12">
-              <small class="col-xs-10 col-offset-2 text-muted">
-                好厉害的播放器
-              </small>
-            </div>
-          </div>
-          <hr>
-
+            <hr>
+          {{/each}}
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<script type="text/javascript">
+$(function () {
+  $('a').click(function(){
+    var $this = $(this),
+        href = $this.attr("href")
+
+    if(href.indexOf('?') !== -1 ){
+      $this.attr("href", href + "&c=" + {{ customer.id }})
+    }else{
+      $this.attr("href", href + "?c=" + {{ customer.id }})
+    }
+  })
+})
+</script>

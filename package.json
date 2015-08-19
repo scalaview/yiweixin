@@ -29,6 +29,7 @@
     "express-handlebars": "^2.0.1",
     "express-session": "^1.11.3",
     "formidable": "^1.0.17",
+    "handlebars": "^3.0.3",
     "lodash": "^3.10.0",
     "moment": "^2.10.6",
     "mysql": "^2.8.0",
