@@ -48,7 +48,9 @@ var config = {
                         },
                 'menus_keys': {
                   'button1' :'V1001_TODAY_TASKS'
-                }
+                },
+                'upload_path': '/public/uploads/',
+                'hostname': 'yiliuliang.net'
               };
 
 module.exports = config;

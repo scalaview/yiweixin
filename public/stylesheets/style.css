@@ -819,6 +819,8 @@ a:hover.btn-gray {
 
             .bottom li a img{ width:24px; height:24px; display:block; margin:5px auto;
             }
+            .bottom li a i{ width:24px; height:24px; display:block; margin:5px auto;
+            }
 .icon-correct {
     height: 18px;
     display: inline-block;

@@ -447,6 +447,8 @@ app.post("/extractFlow", requireLogin, function(req, res){
       value: trafficPlan.value
     }).save().then(function(extractOrder) {
       next(null, trafficPlan, extractOrder)
+    }).catch(function(err) {
+      next(err)
     })
   }, function(trafficPlan, extractOrder, next){
     //
@@ -463,6 +465,7 @@ app.post("/extractFlow", requireLogin, function(req, res){
     })
   }], function(err, result){
     if(err){
+      console.log(err)
       res.json({ err: 1, msg: err.message })
     }else{
       res.json({ err: 0, msg: "充值成功，请注意查收短信", url: "/profile" })
@@ -643,6 +646,77 @@ app.get('/apkcenter/download/:id', function(req, res) {
       res.send(404);
     }
   })
+})
+
+app.get("/taskconfirm/:id", function(req, res) {
+  var id = req.params.id,
+      token = req.query.token,
+      phone = req.query.phone
+
+  if(!(id && token && phone)) {
+    res.json({ err: 1 , code: 1001, msg: "参数缺失"})
+  }
+
+  async.waterfall([function(next){
+    models.Seller.findOne({
+      where: {
+        accessToken: token
+      }
+    }).then(function(seller) {
+      next(err, seller)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(seller, next) {
+    models.FlowTask.findOne({
+      id: id,
+      seller_id: seller.id
+    }).then(function(flowtask) {
+      if(flowtask){
+        next(null, seller, flowtask)
+      }else{
+        next(new Error("没有找到对应的任务"))
+      }
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(seller, flowtask, next) {
+    models.TrafficPlan.findById(flowtask.trafficPlanId).then(function(trafficPlan) {
+      next(seller, flowtask, trafficPlan)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(seller, flowtask, trafficPlan, next){
+    models.ExtractOrder.build({
+      exchanger: trafficPlan.className(),
+      exchangerId: trafficPlan.id,
+      phone: phone,
+      cost: 0,
+      value: trafficPlan.value
+    }).save().then(function(extractOrder) {
+      next(null, seller, flowtask, trafficPlan, extractOrder)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(seller, flowtask, trafficPlan, extractOrder, next) {
+    extractOrder.updateAttributes({
+      finishTime: extractOrder.finishTime + 1
+    }).then(function(extractOrder) {
+      next(null, seller, flowtask, trafficPlan, extractOrder)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, seller, flowtask, trafficPlan, extractOrder){
+    if(err){
+      console.log(err)
+      res.json({ err: 1, code: 1003, msg: "参数错误"})
+    }else{
+      res.json({
+        err: 0, msg: "confirm success"
+      })
+    }
+  })
+
 })
 
 // --------------- app -----------------------

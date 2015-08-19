@@ -136,6 +136,23 @@ function section (name, options) {
   return null;
 }
 
+
+function hostname(){
+  return config.hostname
+}
+
+function hostUrl(){
+  return "http://" + config.hostname
+}
+
+function taskLink(task) {
+  if(task.actionUrl){
+    return task.actionUrl
+  }else{
+    return "/tasks/" + task.id
+  }
+}
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -146,4 +163,7 @@ exports.sizeFormat = sizeFormat;
 exports.imgDiv = imgDiv;
 exports.apkImages = apkImages;
 exports.fullPath = fullPath;
-exports.section = section
+exports.section = section;
+exports.hostname = hostname;
+exports.hostUrl = hostUrl;
+exports.taskLink = taskLink;

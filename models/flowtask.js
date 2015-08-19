@@ -23,11 +23,14 @@ module.exports = function(sequelize, DataTypes) {
     expiredAt: { type: DataTypes.DATE, allowNull: false },
     sortNum: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
     isActive: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
-    actionUrl: { type: DataTypes.STRING, allowNull: true }
+    actionUrl: { type: DataTypes.STRING, allowNull: true },
+    seller_id: { type: DataTypes.INTEGER, allowNull: false },
+    trafficPlanId: { type: DataTypes.INTEGER, allowNull: false }
   }, {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
+        models.FlowTask.belongsTo(models.Seller, { foreignKey: 'seller_id' });
       }
     },
     scopes: {
