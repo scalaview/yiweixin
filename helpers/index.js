@@ -67,7 +67,7 @@ function flowSource(obj){
 }
 
 function strftime(dateTime, format){
-  var  result = moment()
+  var result = moment()
   if(dateTime){
     result = moment(dateTime)
   }
@@ -124,9 +124,16 @@ function apkImages(apk) {
   return imgDiv(images)
 }
 
-
 function fullPath(filePath){
   return process.env.PWD + "/public" + filePath
+}
+
+function section (name, options) {
+  if (!this._sections) {
+    this._sections = {};
+  }
+  this._sections[name] = options.fn(this);
+  return null;
 }
 
 exports.fileUpload = fileUpload;
@@ -139,3 +146,4 @@ exports.sizeFormat = sizeFormat;
 exports.imgDiv = imgDiv;
 exports.apkImages = apkImages;
 exports.fullPath = fullPath;
+exports.section = section
