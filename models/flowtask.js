@@ -9,8 +9,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: true,
       set: function(file) {
-        var filename = helpers.fileUploadSync(file)
-        this.setDataValue('cover', filename);
+        if(file.size > 0){
+          var filename = helpers.fileUploadSync(file)
+          this.setDataValue('cover', filename);
+        }
       },
       get: function(){
          var cover = this.getDataValue('cover');

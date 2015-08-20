@@ -138,20 +138,62 @@ app.get('/', function(req, res) {
 })
 
 // -------------- adming ---------------------
+
+//login filter
+
+// var skipUrls = ['/wechat', '/admin/login', '/admin/register']
+// admin.use(function (req, res, next) {
+//     var url = req.originalUrl;
+//     if (!_.includes(skipUrls, url) && !req.session.user_id) {
+//         return res.redirect("/admin/login");
+//     }
+//     next();
+// });
+
+var skipUrls = [ '^\/admin\/login*', '^\/admin\/register*']
+
+admin.all("*", function(req, res, next) {
+  var url = req.originalUrl
+
+  if(req.session.user_id){
+    next()
+    return
+  }else{
+    for (var i = skipUrls.length - 1; i >= 0; i--) {
+      var match = req.originalUrl.match(skipUrls[i]);
+      if(match !== null){
+        next()
+        return
+      }
+    };
+    var encodeUrl = new Buffer(url).toString('base64');
+    console.log(encodeUrl)
+    return res.redirect("/admin/login?to=" + encodeUrl);
+  }
+})
+
 admin.get('/', function (req, res) {
   console.log(admin.mountpath);
   res.render('admin/home');
 });
 
 admin.get('/login', function(req, res){
-  res.render('admin/login', { layout: 'sign' })
+  if(req.query.to){
+    backTo = new Buffer(req.query.to, "base64").toString()
+  }
+  res.render('admin/login', { layout: 'sign', backTo: req.query.to })
 })
 
 admin.post('/login', urlencodedParser, function(req, res) {
   models.User.findOne({ where: {username: req.body.username} }).then(function(user){
     if(user && user.verifyPassword(req.body.password)){
       req.session.user_id = user.id
-      res.redirect('/admin')
+      if(req.body.to){
+        var backTo = new Buffer(req.body.to, "base64").toString()
+        res.redirect(backTo)
+      }else{
+        res.redirect('/admin')
+      }
     }else{
       var message
       if(user){
@@ -195,11 +237,140 @@ admin.post('/register', function(req, res, next){
 
 
 admin.get('/flowtasks', function(req, res) {
-  res.send("flowtask index")
+  var result;
+  async.waterfall([function(next) {
+    models.FlowTask.findAndCountAll({
+      where: {},
+      limit: req.query.perPage || 15,
+      offset: helpers.offset(req.query.page, req.query.perPage || 15)
+    }).then(function(flowtasks) {
+      result = flowtasks
+      next(null, flowtasks.rows)
+    })
+  }], function(err, flowtasks, next) {
+    async.map(flowtasks, function(flowtask, mapnext) {
+      async.waterfall([function(next) {
+        models.Seller.findById(flowtask.seller_id).then(function(seller) {
+          flowtask.seller = seller
+          next(null, flowtask)
+        }).catch(function(err) {
+          next(err)
+        })
+      }, function(flowtask, next) {
+        models.TrafficPlan.findById(flowtask.trafficPlanId).then(function(trafficPlan) {
+          flowtask.trafficPlan = trafficPlan
+          next(null, flowtask)
+        }).catch(function(err) {
+          next(err)
+        })
+      }], function(err, flowtask) {
+        if(err){
+          console.log(err)
+          mapnext(err)
+        }else{
+          mapnext(null, flowtask)
+        }
+      })
+    }, function(err, flowtasks) {
+      if(err){
+        console.log(err)
+        res.send(500)
+      }else{
+        result.rows = flowtasks
+        result = helpers.setPagination(result, req)
+        res.render("admin/flowtasks/index", { flowtasks: result })
+      }
+    })
+  })
 })
 
-admin.get('/flowtask/new', function(req, res) {
-  res.render('./admin/flowtasks/new')
+admin.get('/flowtasks/new', function(req, res) {
+  async.waterfall([function(next) {
+    models.Seller.findAll().then(function(sellers) {
+      next(null, sellers)
+    })
+  }, function(sellers, outnext) {
+    models.TrafficPlan.scope('forSelect').findAll().then(function(trafficPlans) {
+      if(trafficPlans){
+        async.map(trafficPlans, function(trafficPlan, next){
+          next(null, [trafficPlan.id, trafficPlan.name])
+        }, function(err, trafficPlanCollection){
+          outnext(null, sellers, trafficPlanCollection)
+        })
+      }else{
+        outnext(new Error("no trafficPlans found"))
+      }
+    }).catch(function(err) {
+      outnext(err)
+    })
+  }, function(sellers, trafficPlanCollection, outnext) {
+    async.map(sellers, function(seller, next){
+      next(null, [seller.id, seller.name])
+    }, function(err, sellerCollection){
+      outnext(null, sellerCollection, trafficPlanCollection)
+    })
+  }], function(err, sellerCollection, trafficPlanCollection) {
+    if(err){
+      console.log(err)
+    }else{
+      var sellerOptions = { name: 'seller_id', id: 'seller_id', class: 'select2 col-lg-12 col-xs-12' },
+          trafficPlanOptions = { name: 'trafficPlanId', id: 'trafficPlanId', class: 'select2 col-lg-12 col-xs-12' }
+      res.render('./admin/flowtasks/new', {
+        sellerOptions: sellerOptions,
+        sellerCollection: sellerCollection,
+        trafficPlanOptions: trafficPlanOptions,
+        trafficPlanCollection: trafficPlanCollection
+      })
+    }
+  })
+})
+
+admin.get('/flowtasks/:id/edit', function(req, res) {
+  async.waterfall([function(next){
+    models.FlowTask.findById(req.params.id).then(function(flowtask) {
+      next(null, flowtask)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(flowtask, outnext) {
+    models.Seller.findAll().then(function(sellers) {
+      async.map(sellers, function(seller, next){
+        next(null, [seller.id, seller.name])
+      }, function(err, sellerCollection){
+        outnext(null, flowtask, sellerCollection)
+      })
+    })
+  }, function(flowtask, sellerCollection, outnext){
+    models.TrafficPlan.scope('forSelect').findAll().then(function(trafficPlans) {
+      if(trafficPlans){
+        async.map(trafficPlans, function(trafficPlan, next){
+          next(null, [trafficPlan.id, trafficPlan.name])
+        }, function(err, trafficPlanCollection){
+          outnext(null, flowtask, sellerCollection, trafficPlanCollection)
+        })
+      }else{
+        outnext(new Error("no trafficPlans found"))
+      }
+    }).catch(function(err) {
+      outnext(err)
+    })
+  }], function(err, flowtask, sellerCollection, trafficPlanCollection){
+    if(err){
+      console.log(err)
+      res.redirect("/admin/flowtasks")
+    }else{
+      var sellerOptions = { name: 'seller_id', id: 'seller_id', class: 'select2 col-lg-12 col-xs-12' },
+            trafficPlanOptions = { name: 'trafficPlanId', id: 'trafficPlanId', class: 'select2 col-lg-12 col-xs-12' }
+      res.render('./admin/flowtasks/edit', {
+        sellerOptions: sellerOptions,
+        sellerCollection: sellerCollection,
+        trafficPlanOptions: trafficPlanOptions,
+        trafficPlanCollection: trafficPlanCollection,
+        flowtask: flowtask,
+        path: '/admin/flowtask/'+flowtask.id
+      })
+    }
+  })
 })
 
 admin.post('/flowtask', function(req, res) {
@@ -210,19 +381,49 @@ admin.post('/flowtask', function(req, res) {
       title: fields.title,
       content: fields.content,
       expiredAt: new Date(fields.expired_at),
-      isActive: fields.is_active ? true : false,
+      isActive: fields.is_active ? 1 : 0,
       sortNum: fields.sort_num,
       cover: files.cover,
-      seller_id: 1
+      seller_id: fields.seller_id,
+      trafficPlanId: fields.trafficPlanId,
+      actionUrl: fields.actionUrl
     }).save().then(function(flowtask) {
-      res.send('ok')
-    }, function(err) {
+      res.redirect("/admin/flowtasks/" + flowtask.id + "/edit")
+    }).catch(function(err) {
       res.send(err)
     });
-
-
   });
 });
+
+
+admin.post("/flowtask/:id", function(req, res) {
+  var form = new formidable.IncomingForm();
+  form.parse(req, function(err, fields, files) {
+    async.waterfall([function(next) {
+      models.FlowTask.findById(req.params.id).then(function(flowtask) {
+        next(null, flowtask)
+      }).catch(function(err) {
+        next(err)
+      })
+    }, function(flowtask, next){
+      attributes = _.merge(fields, { cover: files.cover })
+      attributes['isActive'] = fields.is_active ? 1 : 0
+      console.log(attributes)
+      flowtask.updateAttributes(attributes).then(function(flowtask) {
+        next(null, flowtask)
+      }).catch(function(err) {
+        next(err)
+      })
+    }], function(err, flowtask) {
+      if(err){
+        console.log(err)
+        res.redirect("/admin/flowtasks/" + flowtask.id + "/edit")
+      }else{
+        res.redirect("/admin/flowtasks")
+      }
+    })
+  })
+})
 
 admin.get('/customers', function(req, res) {
   models.Customer.findAll().then(function (customers){
@@ -233,17 +434,17 @@ admin.get('/customers', function(req, res) {
 admin.get('/apks/new', function(req, res) {
   models.Seller.findAll().then(function(sellers) {
     if(sellers){
-      res.render('admin/apks/new', { apk: models.Apk.build(), sellers: sellers })
+      res.render('admin/apks/new', { apk: models.Apk.build(), sellers: sellers, path: "/admin/apk" })
     }
   })
 })
 
-admin.post("/apks", function(req, res) {
+admin.post("/apk", function(req, res) {
   var form = new formidable.IncomingForm();
   form.parse(req, function(err, fields, files) {
     models.Apk.build({
       name: fields.name,
-      isActive: fields.isActive ? true : false,
+      isActive: fields.isActive ? 1 : 0,
       version: fields.version,
       sellerId: fields.sellerId,
       reward: fields.reward,
@@ -270,6 +471,40 @@ admin.get("/apks", function(req, res){
     console.log(err)
   })
 })
+
+admin.get("/apks/:id/edit", function(req, res) {
+  async.waterfall([function(next) {
+    models.Apk.findById(req.params.id).then(function(apk) {
+      next(null, apk)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(apk, outnext) {
+    models.Seller.findAll().then(function(sellers) {
+      async.map(sellers, function(seller, next){
+        next(null, [seller.id, seller.name])
+      }, function(err, sellerCollection){
+        outnext(null, apk, sellerCollection)
+      })
+    })
+  }], function(err, apk, sellerCollection) {
+    if(err){
+      console.log(err)
+      res.redirect("/admin/apks")
+    }else{
+      var sellerOptions = { name: 'seller_id', id: 'seller_id', class: 'select2 col-lg-12 col-xs-12' },
+            trafficPlanOptions = { name: 'trafficPlanId', id: 'trafficPlanId', class: 'select2 col-lg-12 col-xs-12' }
+
+      res.render('admin/apks/edit', {
+        sellerOptions: sellerOptions,
+        sellerCollection: sellerCollection,
+        apk: apk,
+        path: '/admin/apks/'+apk.id
+      })
+    }
+  })
+})
+
 
 // -------------- adming ---------------------
 
