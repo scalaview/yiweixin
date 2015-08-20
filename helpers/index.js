@@ -5,6 +5,10 @@ var moment = require('moment')
 var _ = require('lodash')
 var handlebars = require('handlebars')
 
+String.prototype.htmlSafe = function(){
+  return new handlebars.SafeString(this.toString())
+}
+
 function fileUpload(file, successCallBack, errorCallBack){
   var origin_this = this,
       old_path = file.path,
@@ -108,7 +112,7 @@ function imgDiv(images){
     for (var i = 0; i < images.length; i++) {
       html.push( template({ img: images[i], interval: interval }) )
     };
-    return new handlebars.SafeString( html.join('') )
+    return html.join('').htmlSafe()
   }
 }
 
@@ -153,6 +157,130 @@ function taskLink(task) {
   }
 }
 
+function selectTag(options, collection, selected) {
+
+  var source = [
+        '<select {{#if options.class}} class="{{options.class}}" {{/if}} {{#if options.id}} id="{{options.id}}" {{/if}} {{#if options.name}} name="{{options.name}}" {{/if}} {{#if options.disabled}} disabled {{/if}} >',
+        '{{items}}',
+        '</select>'
+      ].join(""),
+      optionSource = '<option {{#if value}} value="{{value}}" {{/if}} {{selected}}>{{name}}</option>',
+      template = handlebars.compile(source),
+      optionSourceTemplate = handlebars.compile(optionSource)
+
+  optionHtml = []
+
+  if(collection instanceof Array){
+    if(options.includeBlank){
+      optionHtml.push(optionSourceTemplate())
+    }
+    for (var i = 0; i < collection.length ; i++) {
+      if(collection[i] instanceof Array){
+        var data = { value: collection[i][0], name: collection[i][1], selected: selected === collection[i][0] ? "selected" : null }
+      }else if(collection[i] instanceof Object){
+        var data = { value: collection[i].value, name: collection[i].name, selected: selected ===  collection[i].value ? "selected" : null }
+      }
+      optionHtml.push(optionSourceTemplate(data))
+    };
+
+    var html = template({ options: options,  items: optionHtml.join("").htmlSafe() })
+    return html.htmlSafe()
+  }
+}
+
+function offset(page, prePage){
+  if(page > 0){
+    return (page - 1) * prePage
+  }
+  return 0
+}
+
+function addParams(href, params){
+  var subFix = '';
+  for(var key in params){
+    subFix = subFix + '&' + key + '=' + params[key]
+  }
+
+  if(href.indexOf('?') !== -1 ){
+    return href + subFix
+  }else{
+    return (subFix.length > 0) ? href + "?" + subFix.substring(1, subFix.length) : href
+  }
+}
+
+
+
+
+function pagination(result, href){
+
+  function isFirst(){
+    return (currentPage == 1)
+  }
+
+  function isLast(){
+    return currentPage == totalpages
+  }
+
+  var source = [
+  '<div class="row">',
+    '<div class="col-sm-12">',
+      '<div class="pull-right dataTables_paginate paging_simple_numbers" id="dataTables-example_paginate">',
+        '<ul class="pagination">',
+          '{{items}}',
+        '</ul>',
+      '</div>',
+    '</div>',
+  '</div>'].join(""),
+    item = ['<li class="paginate_button {{ status }} {{disabled}}" tabindex="0">',
+              '<a href="{{link}}">{{text}}</a>',
+            '</li>'].join(''),
+    template = handlebars.compile(source),
+    itemTemplate = handlebars.compile(item),
+
+    total = result.count,
+    page = result.page,
+    perPage = result.perPage,
+    totalpages = (total % perPage) == 0 ? (total / perPage) : parseInt(total / perPage) + 1,
+    currentPage = result.currentPage,
+    items = []
+
+  for (var i = 0; i < totalpages ; i++) {
+    var data;
+    if(i == 0){
+      data = { status: 'previous', disabled: isFirst() ? 'disabled' : null, link: isFirst() ? "#" : addParams(href, {page: 1}), text: "上一页"  }
+      items.push(itemTemplate(data))
+    }
+
+    data = { status: (currentPage == (i + 1)) ? "active" : null, link: addParams(href, {page: i+1}), text: (i+1)}
+    items.push(itemTemplate(data))
+
+    if(i == (totalpages-1)){
+      data = { status: 'next', disabled: isLast() ? 'disabled' : null, link: isLast() ? "#" : addParams(href, {page: totalpages}), text: "下一页"  }
+      items.push(itemTemplate(data))
+    }
+  };
+
+  return template({ items: items.join("").htmlSafe() }).htmlSafe()
+}
+
+function setPagination(result, req){
+  result.page = req.query.page || 1,
+  result.perPage = req.query.perPage || 15,
+  result.currentPage = req.query.page || 1
+  return result
+}
+
+function isChecked(checked){
+  if(typeof checked === 'boolean'){
+    return checked ? "checked" : ""
+  }else if(typeof checked === 'string'){
+    try{
+      return (parseInt(checked) === 1) ? "checked" : ''
+    }catch(e){
+    }
+  }
+}
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -167,3 +295,9 @@ exports.section = section;
 exports.hostname = hostname;
 exports.hostUrl = hostUrl;
 exports.taskLink = taskLink;
+exports.selectTag = selectTag;
+exports.offset = offset;
+exports.addParams = addParams;
+exports.pagination = pagination;
+exports.setPagination = setPagination;
+exports.isChecked = isChecked;

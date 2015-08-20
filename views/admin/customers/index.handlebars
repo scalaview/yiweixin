@@ -1,43 +1,43 @@
 <div class="row">
   <div class="col-lg-12">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Customers
-                        </div>
-                        <!-- /.panel-heading -->
-                        <div class="panel-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Phone</th>
-                                            <th>Name</th>
-                                            <th>Remaining Traffic</th>
-                                            <th>Last Login</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                      {{#each customers}}
-                                        <tr>
-                                            <td>{{ phone }}</td>
-                                            <td>{{ name }}</td>
-                                            <td>{{ lastLoginAt }}</td>
-                                            <td>{{ remainingTraffic }}</td>
-                                            <td>
-                                              <a href="#" class="list-group-item">
-                                                <i class="fa fa-eye fa-fw"></i>
-                                              </a>
-                                            </td>
-                                        </tr>
-                                      {{/each}}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- /.table-responsive -->
-                        </div>
-                        <!-- /.panel-body -->
-                    </div>
-                    <!-- /.panel -->
-                </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+          Customers
+      </div>
+      <!-- /.panel-heading -->
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                  <th>Phone</th>
+                  <th>Name</th>
+                  <th>Remaining Traffic</th>
+                  <th>Last Login</th>
+                  <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each customers}}
+                <tr>
+                    <td>{{ phone }}</td>
+                    <td>{{ name }}</td>
+                    <td>{{ lastLoginAt }}</td>
+                    <td>{{ remainingTraffic }}</td>
+                    <td>
+                      <a href="#" class="list-group-item">
+                        <i class="glyphicon glyphicon-pencil"></i>
+                      </a>
+                    </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+        <!-- /.table-responsive -->
+      </div>
+      <!-- /.panel-body -->
+    </div>
+    <!-- /.panel -->
+  </div>
 </div>

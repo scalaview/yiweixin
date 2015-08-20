@@ -17,6 +17,16 @@ module.exports = function(sequelize, DataTypes) {
       className: function(){
         return "TrafficPlan"
       }
+    },
+    scopes: {
+      forSelect: {
+        where: {
+          providerId: 0
+        },
+        order: [
+          ['sortNum']
+        ]
+      }
     }
   });
 
