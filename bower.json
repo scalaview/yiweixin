@@ -19,6 +19,7 @@
     "kindeditor": "git@github.com:kindsoft/kindeditor.git#~4.1.10",
     "bootstrap-datepicker": "git@github.com:eternicode/bootstrap-datepicker.git#~1.4.0",
     "requirejs": "jrburke/requirejs#~2.1.20",
-    "handlebars": "~3.0.3"
+    "handlebars": "~3.0.3",
+    "select2": "~4.0.0"
   }
 }

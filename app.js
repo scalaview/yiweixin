@@ -91,18 +91,6 @@ app.use(function(req, res, next){
 });
 
 
-
-//login filter
-
-// var skipUrls = ['/wechat', '/admin/login', '/admin/register']
-// admin.use(function (req, res, next) {
-//     var url = req.originalUrl;
-//     if (!_.includes(skipUrls, url) && !req.session.user_id) {
-//         return res.redirect("/admin/login");
-//     }
-//     next();
-// });
-
 function requireLogin(req, res, next) {
   req.session.customer_id = 1
 
@@ -137,20 +125,7 @@ app.get('/', function(req, res) {
   res.render('home')
 })
 
-// -------------- adming ---------------------
-
-//login filter
-
-// var skipUrls = ['/wechat', '/admin/login', '/admin/register']
-// admin.use(function (req, res, next) {
-//     var url = req.originalUrl;
-//     if (!_.includes(skipUrls, url) && !req.session.user_id) {
-//         return res.redirect("/admin/login");
-//     }
-//     next();
-// });
-
-var skipUrls = [ '^\/admin\/login*', '^\/admin\/register*']
+var skipUrls = [ '^\/wechat[]*', '^\/admin\/login*', '^\/admin\/register*']
 
 admin.all("*", function(req, res, next) {
   var url = req.originalUrl
@@ -408,7 +383,6 @@ admin.post("/flowtask/:id", function(req, res) {
     }, function(flowtask, next){
       attributes = _.merge(fields, { cover: files.cover })
       attributes['isActive'] = fields.is_active ? 1 : 0
-      console.log(attributes)
       flowtask.updateAttributes(attributes).then(function(flowtask) {
         next(null, flowtask)
       }).catch(function(err) {
@@ -426,15 +400,30 @@ admin.post("/flowtask/:id", function(req, res) {
 })
 
 admin.get('/customers', function(req, res) {
-  models.Customer.findAll().then(function (customers){
-    res.render('admin/customers/index', { customers: customers })
+  models.Customer.findAndCountAll({
+    where: {},
+    limit: req.query.perPage || 15,
+    offset: helpers.offset(req.query.page, req.query.perPage || 15)
+  }).then(function(customers) {
+    var result = helpers.setPagination(customers, req)
+    res.render('admin/customers/index', { customers: result })
   })
 })
 
 admin.get('/apks/new', function(req, res) {
   models.Seller.findAll().then(function(sellers) {
     if(sellers){
-      res.render('admin/apks/new', { apk: models.Apk.build(), sellers: sellers, path: "/admin/apk" })
+      async.map(sellers, function(seller, next){
+        next(null, [seller.id, seller.name])
+      }, function(err, sellerCollection){
+        var sellerOptions = { name: 'sellerId', id: 'sellerId', class: 'select2 col-lg-12 col-xs-12' }
+        res.render('admin/apks/new', {
+          apk: models.Apk.build(),
+          sellerCollection: sellerCollection,
+          sellerOptions: sellerOptions,
+          path: "/admin/apk"
+        })
+      })
     }
   })
 })
@@ -456,7 +445,7 @@ admin.post("/apk", function(req, res) {
       description: fields.description,
       digest: fields.digest
     }).save().then(function(apk) {
-      res.redirect("/admin/apks")
+      res.redirect("/admin/apks/"+apk.id+'/edit')
     }).catch(function(err, apk) {
       console.log(err)
       res.send(err)
@@ -465,10 +454,41 @@ admin.post("/apk", function(req, res) {
 })
 
 admin.get("/apks", function(req, res){
-  models.Apk.listAll(function(apks) {
-    res.render("admin/apks/index", { apks: apks })
-  }, function(err) {
-    console.log(err)
+  var result
+  async.waterfall([function(next) {
+    models.Apk.findAndCountAll({
+        where: {},
+        limit: req.query.perPage || 15,
+        offset: helpers.offset(req.query.page, req.query.perPage || 15)
+      }).then(function(apks) {
+        result = apks
+        next(null, apks.rows)
+      })
+  }, function(apks, outnext) {
+    async.map(apks, function(apk, next){
+      models.Seller.findById(apk.sellerId).then(function(seller) {
+        apk.seller = seller
+        next(null, apk)
+      }).catch(function(err){
+        next(err)
+      })
+    }, function(err, apks){
+      if(err){
+        outnext(err)
+      }else{
+        outnext(null, apks)
+      }
+    })
+  }], function(err, apks) {
+    if(err){
+      console.log(err)
+      res.send(500)
+    }else{
+      result.rows = apks
+      result = helpers.setPagination(result, req)
+      res.render('admin/apks/index', { apks: result })
+
+    }
   })
 })
 
@@ -492,18 +512,54 @@ admin.get("/apks/:id/edit", function(req, res) {
       console.log(err)
       res.redirect("/admin/apks")
     }else{
-      var sellerOptions = { name: 'seller_id', id: 'seller_id', class: 'select2 col-lg-12 col-xs-12' },
-            trafficPlanOptions = { name: 'trafficPlanId', id: 'trafficPlanId', class: 'select2 col-lg-12 col-xs-12' }
+      var sellerOptions = { name: 'sellerId', id: 'sellerId', class: 'select2 col-lg-12 col-xs-12' },
+          trafficPlanOptions = { name: 'trafficPlanId', id: 'trafficPlanId', class: 'select2 col-lg-12 col-xs-12' }
 
       res.render('admin/apks/edit', {
         sellerOptions: sellerOptions,
         sellerCollection: sellerCollection,
         apk: apk,
-        path: '/admin/apks/'+apk.id
+        path: '/admin/apk/'+apk.id
       })
     }
   })
 })
+
+
+admin.post("/apk/:id", function(req, res) {
+  var form = new formidable.IncomingForm();
+  form.parse(req, function(err, fields, files) {
+    async.waterfall([function(next) {
+      models.Apk.findById(req.params.id).then(function(apk) {
+        next(null, apk)
+      }).catch(function(err) {
+        next(err)
+      })
+    }, function(apk, next){
+      attributes = _.merge(fields, {
+        icon: files.icon,
+        apk: files.apk,
+        image01: files.image01,
+        image02: files.image02,
+        image03: files.image03
+      })
+      attributes['isActive'] = fields.isActive ? 1 : 0
+      apk.updateAttributes(attributes).then(function(apk) {
+        next(null, apk)
+      }).catch(function(err) {
+        next(err)
+      })
+    }], function(err, apk) {
+      if(err){
+        console.log(err)
+        res.redirect("/admin/apk/" + apk.id + "/edit")
+      }else{
+        res.redirect("/admin/apks")
+      }
+    })
+  })
+})
+
 
 
 // -------------- adming ---------------------

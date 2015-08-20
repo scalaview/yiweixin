@@ -1,4 +1,14 @@
 <div class="row">
+  <div class='col-lg-2 pull-right'>
+    <a href="/admin/apks/new">
+      <button class="btn btn-primary col-lg-12 btn-large">
+        <i class="glyphicon glyphicon-plus"></i> 新建
+      </button>
+    </a>
+  </div>
+</div>
+<hr>
+<div class="row">
   <div class="col-lg-12">
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -19,7 +29,7 @@
               </tr>
             </thead>
             <tbody>
-              {{#each apks}}
+              {{#each apks.rows}}
                 <tr>
                   <td>{{ name }}</td>
                   <td>{{ seller.name }}</td>
@@ -27,7 +37,7 @@
                   <td>{{ downloadTime }}</td>
                   <td>{{ isActive }}</td>
                   <td>
-                    <a href="#" class="list-group-item">
+                    <a href="/admin/apks/{{id}}/edit" class="list-group-item">
                       <i class="glyphicon glyphicon-pencil"></i>
                     </a>
                   </td>
@@ -39,6 +49,9 @@
         <!-- /.table-responsive -->
       </div>
       <!-- /.panel-body -->
+      <div class="panel-footer">
+          {{pagination apks '/admin/apks'}}
+      </div>
     </div>
       <!-- /.panel -->
   </div>

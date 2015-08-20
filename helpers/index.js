@@ -158,7 +158,7 @@ function taskLink(task) {
 }
 
 function selectTag(options, collection, selected) {
-
+  console.log(collection)
   var source = [
         '<select {{#if options.class}} class="{{options.class}}" {{/if}} {{#if options.id}} id="{{options.id}}" {{/if}} {{#if options.name}} name="{{options.name}}" {{/if}} {{#if options.disabled}} disabled {{/if}} >',
         '{{items}}',
@@ -185,6 +185,8 @@ function selectTag(options, collection, selected) {
 
     var html = template({ options: options,  items: optionHtml.join("").htmlSafe() })
     return html.htmlSafe()
+  }else{
+    return template({ options: options }).htmlSafe()
   }
 }
 
