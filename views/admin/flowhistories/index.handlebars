@@ -10,24 +10,22 @@
           <table class="table table-striped">
             <thead>
               <tr>
-                <th>Phone</th>
-                <th>Name</th>
-                <th>Remaining Traffic</th>
-                <th>Last Login</th>
-                <th>Action</th>
+                <th>Customer</th>
+                <th>State</th>
+                <th>Amount</th>
+                <th>Comment</th>
+                <th>创建时间</th>
               </tr>
             </thead>
             <tbody>
-              {{#each customers.rows}}
+              {{#each flowhistories.rows}}
                 <tr>
-                    <td>{{ phone }}</td>
-                    <td>{{ name }}</td>
-                    <td>{{ strftime lastLoginAt "YYYY-MM-DD" }}</td>
-                    <td>{{ remainingTraffic }}</td>
+                    <td>{{ customer.phone }}</td>
+                    <td>{{ flowhistorySourceLink source }}</td>
+                    <td>{{ amountType state amount }}</td>
+                    <td>{{ comment }}</td>
                     <td>
-                      <a href="/admin/customers/{{id}}/edit" class="list-group-item">
-                        <i class="glyphicon glyphicon-pencil"></i>
-                      </a>
+                      {{ strftime createdAt }}
                     </td>
                 </tr>
               {{/each}}
@@ -38,7 +36,7 @@
       </div>
 
       <div class="panel-footer">
-          {{pagination customers '/admin/customers'}}
+          {{pagination flowhistories (addParams '/admin/flowhistories' query)}}
       </div>
       <!-- /.panel-body -->
     </div>

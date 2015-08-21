@@ -11,7 +11,13 @@ module.exports = function(sequelize, DataTypes) {
     type: { type: DataTypes.STRING, allowNull: true },
     typeId: { type: DataTypes.INTEGER, allowNull: true },
     amount: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
-    comment: { type: DataTypes.STRING, allowNull: false }
+    comment: { type: DataTypes.STRING, allowNull: false },
+    source: {
+      type: DataTypes.VIRTUAL,
+      get: function(){
+        return this.order || this.extractOrder
+      }
+    }
   }, {
     classMethods: {
       associate: function(models) {
@@ -79,6 +85,19 @@ module.exports = function(sequelize, DataTypes) {
         order: [
           ['createdAt', 'DESC']
         ]
+      }
+    },
+    instanceMethods: {
+      getSource: function(){
+        return this['get' + this.type].call(this)
+      },
+      stateName: function(){
+        switch(this.state){
+          case 1:
+            return "增加"
+          case 0:
+            return "减少"
+        }
       }
     }
   });

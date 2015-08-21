@@ -9,6 +9,21 @@ String.prototype.htmlSafe = function(){
   return new handlebars.SafeString(this.toString())
 }
 
+String.prototype.renderTemplate = function(options){
+  if(!this.compileTemplate){
+    this.compileTemplate = handlebars.compile(this.toString())
+  }
+  return this.compileTemplate(options)
+}
+
+String.prototype.toI = function(){
+  try{
+    return parseInt(this.toString())
+  }catch(e){
+    return this.toString()
+  }
+}
+
 function fileUpload(file, successCallBack, errorCallBack){
   var origin_this = this,
       old_path = file.path,
@@ -285,6 +300,40 @@ function isChecked(checked){
   }
 }
 
+
+// FlowHistory.STATE = {
+//     ADD: 1,
+//     REDUCE: 0
+//   };
+function amountType(type, amount){
+  console.log(type + ": " + amount)
+  if(type === 1 ){
+    return ['<span class="btn-warning">+ ', amount, ' </span> '].join("").htmlSafe()
+  }else if(type ===  0){
+    return ['<span class="btn-info">- ', amount, ' </span> '].join("").htmlSafe()
+  }
+}
+
+function flowhistorySourceLink(source, options){
+  if(!source){
+    return
+  }
+  var link = ['<a  {{#if class}} class="{{class}}" {{/if}} {{#if id}} id="{{id}}" {{/if}} {{#if href}} href="{{href}}" {{/if}}>',
+                '{{#if text}} {{text}} {{/if}}',
+              '</a>'].join("")
+  options.text =  source.className() + ": " + source.id
+
+  if(source.className() === "Order"){
+    options.href = "/admin/orders/" + source.id + "/edit"
+    options.text =  source.className() + ": " + source.id
+    return link.renderTemplate(options).htmlSafe()
+  }else if(source.className() === "ExtractOrder"){
+    options.href = "/admin/extractorder/" + source.id + "/edit"
+    return link.renderTemplate(options).htmlSafe()
+  }
+}
+
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -305,3 +354,5 @@ exports.addParams = addParams;
 exports.pagination = pagination;
 exports.setPagination = setPagination;
 exports.isChecked = isChecked;
+exports.amountType = amountType;
+exports.flowhistorySourceLink = flowhistorySourceLink;
