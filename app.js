@@ -561,6 +561,137 @@ admin.post("/apk/:id", function(req, res) {
 })
 
 
+// -----------------customer ------------------
+admin.get("/customers/:id", function(req, res) {
+  models.Customer.findById(req.params.id).then(function(customer) {
+    if(customer){
+      res.render("admin/customers/show", { customer: customer })
+    }else{
+      res.send(404)
+    }
+  }).catch(function(err) {
+    console.log(err)
+    res.send(500)
+  })
+})
+
+
+
+admin.get("/flowhistories", function(req, res){
+  async.waterfall([function(next) {
+    var params = {}
+    if(req.query.customerId !== undefined){
+      params = _.merge(params, { customerId: req.query.customerId })
+    }
+    if(req.query.type !== undefined){
+      params = _.merge(params, { type: req.query.type })
+    }
+    if(req.query.typeId !== undefined){
+      params = _.merge(params, { typeId: req.query.typeId })
+    }
+    if(req.query.state !== undefined){
+      params = _.merge(params, { state: req.query.state })
+    }
+    models.FlowHistory.findAndCountAll({
+      where: params,
+      limit: req.query.perPage || 15,
+      offset: helpers.offset(req.query.page, req.query.perPage || 15)
+    }).then(function(result){
+      next(null, result)
+    })
+  }], function(err, result) {
+    if(err){
+      console.log(err)
+    }else{
+      result = helpers.setPagination(result, req)
+      res.render('admin/flowhistories/index', { flowhistories: result })
+    }
+  })
+})
+
+
+admin.get("/customer/:id/:type", function(req, res) {
+
+  switch(req.params.type){
+  case "income":
+
+    async.waterfall([function(next){
+      models.Customer.findById(req.params.id).then(function(customer){
+        if(customer){
+          next(null, customer)
+        }else{
+          next(new Error("Not Found"))
+        }
+      })
+    }, function(customer, next) {
+      customer.getFlowHistories({
+        where: {
+          state: models.FlowHistory.STATE.ADD
+        }
+      }).then(function(flowhistories){
+        next(null, customer, flowhistories)
+      }).catch(function(err){
+        next(err)
+      })
+    }], function(err, customer, flowhistories) {
+      if(err){
+        console.log(err)
+        res.send(404)
+      }else{
+        res.render("admin/customers/income")
+      }
+    })
+
+    break;
+  case "spend":
+    async.waterfall([function(next){
+      models.Customer.findById(req.params.id).then(function(customer){
+        if(customer){
+          next(null, customer)
+        }else{
+          next(new Error("Not Found"))
+        }
+      })
+    }, function(customer, next) {
+      customer.getFlowHistories({
+        where: {
+          state: models.FlowHistory.STATE.ADD
+        }
+      }).then(function(flowhistories){
+        next(null, customer, flowhistories)
+      }).catch(function(err){
+        next(err)
+      })
+    }], function(err, customer, flowhistories) {
+      if(err){
+        console.log(err)
+        res.send(404)
+      }else{
+        res.render("admin/customers/income")
+      }
+    })
+
+    break;
+  case "tasks":
+    async.waterfall([], function(err) {
+
+    })
+    break;
+  case "apks":
+    async.waterfall([], function(err) {
+
+    })
+
+    break;
+  default:
+  }
+
+
+})
+
+
+// ---------------------customer--------------
+
 
 // -------------- adming ---------------------
 
@@ -1000,7 +1131,8 @@ app.get("/taskconfirm/:id", function(req, res) {
     })
   }, function(seller, flowtask, trafficPlan, extractOrder, next) {
     extractOrder.updateAttributes({
-      finishTime: extractOrder.finishTime + 1
+      finishTime: extractOrder.finishTime + 1,
+      state: models.ExtractOrder.STATE.SUCCESS
     }).then(function(extractOrder) {
       next(null, seller, flowtask, trafficPlan, extractOrder)
     }).catch(function(err) {

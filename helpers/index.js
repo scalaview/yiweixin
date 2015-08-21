@@ -246,6 +246,8 @@ function pagination(result, href){
     currentPage = result.currentPage,
     items = []
 
+  if(total <= perPage){ return }
+
   for (var i = 0; i < totalpages ; i++) {
     var data;
     if(i == 0){
