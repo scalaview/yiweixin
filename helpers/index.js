@@ -344,11 +344,12 @@ function extractOrderLink(exchanger, options){
   var link = ['<a  {{#if class}} class="{{class}}" {{/if}} {{#if id}} id="{{id}}" {{/if}} {{#if href}} href="{{href}}" {{/if}}>',
               '{{#if text}} {{text}} {{/if}}',
             '</a>'].join("")
-  options.text =  exchanger.className() + ": " + exchanger.id
   if(exchanger.className() === "TrafficPlan"){
+    options.text =  "充值: " + exchanger.id
     options.href = "/admin/trafficplans/" + exchanger.id + "/edit"
     return link.renderTemplate(options).htmlSafe()
   }else if(exchanger.className() === 'FlowTask'){
+    options.text =  "流量任务: " + exchanger.id
     options.href = "/admin/flowtasks/" + exchanger.id + "/edit"
     return link.renderTemplate(options).htmlSafe()
   }

@@ -6,7 +6,22 @@ module.exports = function(sequelize, DataTypes) {
     dataPlanId: { type: DataTypes.INTEGER, allowNull: false },
     paymentMethodId: { type: DataTypes.INTEGER, allowNull: false },
     discount: { type: DataTypes.DECIMAL, allowNull: true, defaultValue: 0 },
-    total: { type: DataTypes.DECIMAL, allowNull: false, defaultValue: 0 }
+    total: { type: DataTypes.DECIMAL, allowNull: false, defaultValue: 0 },
+    stateName: {
+      type: DataTypes.VIRTUAL,
+      get: function(){
+        switch(this.state){
+          case 0:
+            return "初始化"
+          case 1:
+            return "待处理"
+          case 2:
+            return "付款成功"
+          case 3:
+            return "付款失败"
+        }
+      }
+    }
   }, {
     classMethods: {
       associate: function(models) {

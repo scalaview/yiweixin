@@ -125,7 +125,7 @@ app.get('/', function(req, res) {
   res.render('home')
 })
 
-var skipUrls = [ '^\/wechat[]*', '^\/admin\/login*', '^\/admin\/register*']
+var skipUrls = [ '^\/wechat[\/|\?|\#]\?.*', '^\/admin\/login[\/|\?|\#]\?.*', '^\/admin\/register[\/|\?|\#]\?.*']
 
 admin.all("*", function(req, res, next) {
   var url = req.originalUrl
@@ -159,6 +159,7 @@ admin.get('/login', function(req, res){
 })
 
 admin.post('/login', urlencodedParser, function(req, res) {
+  console.log(111)
   models.User.findOne({ where: {username: req.body.username} }).then(function(user){
     if(user && user.verifyPassword(req.body.password)){
       req.session.user_id = user.id
@@ -312,6 +313,12 @@ admin.get('/flowtasks/:id/edit', function(req, res) {
     })
   }, function(flowtask, outnext) {
     models.Seller.findAll().then(function(sellers) {
+      for (var i = sellers.length - 1; i >= 0; i--) {
+        if(sellers[i].id == flowtask.seller_id){
+          flowtask.seller = sellers[i]
+          break;
+        }
+      };
       async.map(sellers, function(seller, next){
         next(null, [seller.id, seller.name])
       }, function(err, sellerCollection){
@@ -942,6 +949,151 @@ admin.get("/sellers/:id/reset", function(req, res){
 })
 
 // --------------------seller-----------------------
+
+
+// ------------------orders------------------------
+
+admin.get("/orders", function(req, res) {
+  var result,
+      paymentMethodCollection = [],
+      dataPlanCollection = []
+  async.waterfall([function(next) {
+    var params
+    models.Order.findAndCountAll({
+      where: params,
+      limit: req.query.perPage || 15,
+      offset: helpers.offset(req.query.page, req.query.perPage || 15)
+    }).then(function(orders){
+      result = orders
+      next(null, orders.rows)
+    }).catch(function(err){
+      next(err)
+    })
+  }, function(orders, next) {
+    models.PaymentMethod.findAll().then(function(paymentMethods) {
+      for (var i = 0; i < paymentMethods.length; i++) {
+        paymentMethodCollection.push([paymentMethods[i].id, paymentMethods[i].name])
+      };
+      next(null, orders, paymentMethods)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(orders, paymentMethods, outnext){
+    async.map(orders, function(order, next) {
+      for (var i = paymentMethods.length - 1; i >= 0; i--) {
+
+        if(paymentMethods[i].id == order.paymentMethodId){
+          order.paymentMethod = paymentMethods[i]
+          break;
+        }
+      };
+      next(null, order)
+    }, function(err, orders){
+      if(err){
+        outnext(err)
+      }else{
+        outnext(null, orders)
+      }
+    })
+  }, function(orders, next){
+    models.DataPlan.findAll().then(function(dataPlans) {
+      for (var i = 0; i < dataPlans.length; i++) {
+        dataPlanCollection.push([dataPlans[i].id, dataPlans[i].name])
+      };
+      next(null, orders, dataPlans)
+    })
+  }, function(orders, dataPlans, outnext) {
+    async.map(orders, function(order, next) {
+      for (var i = dataPlans.length - 1; i >= 0; i--) {
+        if(dataPlans[i].id == order.dataPlanId){
+          order.dataPlan = dataPlans[i]
+          break;
+        }
+      };
+      next(null, order)
+    }, function(err, orders) {
+      if(err){
+        outnext(err)
+      }else{
+        outnext(null, orders)
+      }
+    })
+  }, function(orders, outnext) {
+    async.map(orders, function(order, next){
+      models.Customer.findById(order.customerId).then(function(customer) {
+        order.customer = customer
+        next(null, order)
+      }).catch(function(err){
+        next(err)
+      })
+    }, function(err, orders) {
+      if(err){
+        outnext(err)
+      }else{
+        outnext(null, orders)
+      }
+    })
+  }], function(err, orders) {
+    if(err){
+      console.log(err)
+      res.send(500)
+    }else{
+      var dataPlanOptions = { name: 'dataPlanId', id: 'dataPlanId', class: 'select2 col-lg-12 col-xs-12' },
+          paymentMethodOptions = { name: 'paymentMethodId', id: 'paymentMethodId', class: 'select2 col-lg-12 col-xs-12' }
+
+      result.rows = orders
+      result = helpers.setPagination(result, req)
+      res.render("admin/orders/index", {
+        orders: result,
+        dataPlanCollection: dataPlanCollection,
+        paymentMethodCollection: paymentMethodCollection,
+        dataPlanOptions: dataPlanOptions,
+        paymentMethodOptions: paymentMethodOptions
+      })
+    }
+  })
+})
+
+
+admin.get("/orders/:id", function(req, res) {
+  async.waterfall([function(next) {
+    models.Order.findById(req.params.id).then(function(order) {
+      next(null, order)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(order, next) {
+    models.Customer.findById(order.customerId).then(function(customer) {
+      order.customer = customer
+      next(null, order)
+    }).catch(function(err){
+      next(err)
+    })
+  }, function(order, next) {
+    models.DataPlan.findById(order.dataPlanId).then(function(dataPlan) {
+      order.dataPlan = dataPlan
+      next(null, order)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(order, next) {
+    models.PaymentMethod.findById(order.paymentMethodId).then(function(paymentMethod) {
+      order.paymentMethod = paymentMethod
+      next(null, order)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, order){
+    if(err){
+      console.log(err)
+    }else{
+      console.log(order)
+      res.render("admin/orders/show", { order: order })
+    }
+  })
+})
+
+// ------------------orders------------------------
 
 
 // -------------- adming ---------------------

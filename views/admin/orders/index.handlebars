@@ -1,18 +1,9 @@
-<div class="row">
-  <div class='col-lg-2 pull-right'>
-    <a href="/admin/extractorders/new">
-      <button class="btn btn-primary col-lg-12 btn-large">
-        <i class="glyphicon glyphicon-plus"></i> 新建
-      </button>
-    </a>
-  </div>
-</div>
 <hr>
 <div class="row">
   <div class="col-lg-12">
     <div class="panel panel-default">
       <div class="panel-heading">
-          Extract Orders
+          商家
       </div>
       <!-- /.panel-heading -->
       <div class="panel-body">
@@ -20,25 +11,32 @@
           <table class="table table-striped">
             <thead>
               <tr>
-                <th>手机号码</th>
-                <th>状 态</th>
-                <th>转 换</th>
-                <th>花 费</th>
-                <th>获得流量</th>
+                <th>用户</th>
+                <th>电话</th>
+                <th>状态</th>
+                <th>获得</th>
+                <th>支付方式</th>
+                <th>金额</th>
                 <th>创建时间</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {{#each extractOrders.rows}}
+              {{#each orders.rows }}
                 <tr>
-                    <td>{{ phone }}</td>
+                    <td>{{ customer.name }}</td>
+                    <td>{{ customer.phone }}</td>
                     <td>{{ stateName }}</td>
-                    <td>{{ extractOrderLink exchanger }}</td>
-                    <td>{{ cost }}</td>
-                    <td>{{ value }} M</td>
                     <td>
-                      {{ strftime createdAt }}
+                      {{ dataPlan.name }}
+                    </td>
+                    <td>{{ paymentMethod.name }}</td>
+                    <td>{{ total }}</td>
+                    <td>{{ strftime createdAt }}</td>
+                    <td>
+                      <a href="/admin/orders/{{id}}" class="list-group-item">
+                        <i class="glyphicon glyphicon-pencil"></i>
+                      </a>
                     </td>
                 </tr>
               {{/each}}
@@ -46,10 +44,11 @@
           </table>
         </div>
         <!-- /.table-responsive -->
+
       </div>
 
       <div class="panel-footer">
-          {{pagination extractOrders (addParams '/admin/extractorders' query)}}
+          {{pagination orders '/admin/orders'}}
       </div>
       <!-- /.panel-body -->
     </div>
