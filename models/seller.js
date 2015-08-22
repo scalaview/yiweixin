@@ -4,7 +4,22 @@ var crypto = require('crypto');
 module.exports = function(sequelize, DataTypes) {
   var Seller = sequelize.define('Seller', {
     name: { type: DataTypes.STRING, allowNull: false },
-    accessToken: { type: DataTypes.STRING, allowNull: false }
+    accessToken: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      set: function(val){
+        console.log(val)
+        if(val !== undefined && val !== ''){
+          this.setDataValue('accessToken', val)
+        }else if( this.accessToken === undefined ){
+          this.generatAccessToken()
+        }
+      }
+    },
+    company: { type: DataTypes.STRING, allowNull: true },
+    homepage: { type: DataTypes.STRING, allowNull: true },
+    qq: { type: DataTypes.STRING, allowNull: true },
+    phone: { type: DataTypes.STRING, allowNull: true }
   }, {
     classMethods: {
       associate: function(models) {

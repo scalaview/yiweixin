@@ -16,6 +16,8 @@ String.prototype.renderTemplate = function(options){
   return this.compileTemplate(options)
 }
 
+String.prototype.format = String.prototype.renderTemplate
+
 String.prototype.present = function(){
   return (this !== undefined) && (this.toString() !== undefined) && (this.toString() !== '')
 }

@@ -213,8 +213,12 @@ admin.post('/register', function(req, res, next){
 admin.get('/flowtasks', function(req, res) {
   var result;
   async.waterfall([function(next) {
+    var params = {}
+    if(req.query.sellerId !== undefined){
+      params = _.merge(params, { seller_id: req.query.sellerId })
+    }
     models.FlowTask.findAndCountAll({
-      where: {}   ,
+      where: params,
       limit: req.query.perPage || 15,
       offset: helpers.offset(req.query.page, req.query.perPage || 15)
     }).then(function(flowtasks) {
@@ -854,6 +858,90 @@ admin.post("/extractorder/:id", function(req, res) {
   })
 
 })
+
+// --------------------seller-----------------------
+
+admin.get("/sellers", function(req, res) {
+  var params
+  models.Seller.findAndCountAll({
+    where: params,
+    limit: req.query.perPage || 15,
+    offset: helpers.offset(req.query.page, req.query.perPage || 15)
+  }).then(function(sellers) {
+    sellers = helpers.setPagination(sellers, req)
+    res.render("admin/sellers/index", { sellers: sellers })
+  })
+})
+
+
+admin.get("/sellers/:id/edit", function(req, res) {
+  models.Seller.findById(req.params.id).then(function(seller) {
+    res.render("admin/sellers/edit", { seller: seller, path: "/admin/seller/" + seller.id })
+  })
+})
+
+admin.get("/sellers/new", function(req, res) {
+  var seller = models.Seller.build()
+
+  res.render("admin/sellers/new", { seller: seller, path: "/admin/seller" })
+})
+
+admin.post("/seller", function(req, res) {
+  var seller = models.Seller.build(req.body)
+  seller.generatAccessToken()
+  seller.save().then(function(seller) {
+    res.redirect("/admin/sellers/"+ seller.id +"/edit")
+  }).catch(function(err){
+    console.log(err)
+    res.render("admin/sellers/new", { seller: seller, path: "/admin/seller" })
+  })
+})
+
+admin.post("/seller/:id", function(req, res) {
+
+  async.waterfall([function(next) {
+    models.Seller.findById(req.params.id).then(function(seller) {
+      next(null, seller)
+    })
+  }, function(seller, next) {
+    seller.updateAttributes(req.body).then(function(seller) {
+      next(null, seller)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, seller) {
+    if(err){
+      console.log(err)
+      res.render("admin/sellers/edit", { seller: seller, path: "/admin/seller/" + seller.id })
+    }else{
+      res.redirect("/admin/sellers/{{id}}/edit".format({ id: seller.id }))
+    }
+  })
+
+})
+
+
+admin.get("/sellers/:id/reset", function(req, res){
+  async.waterfall([function(next) {
+    models.Seller.findById(req.params.id).then(function(seller) {
+      seller.generatAccessToken()
+      seller.save().then(function(seller){
+        next(null, seller)
+      })
+    }).catch(function(err){
+      next(err)
+    })
+  }], function(err, seller){
+    if(err){
+      console.log(err)
+      res.json({ err: 1, msg: "重置token出错"})
+    }else{
+      res.json({ err: 0, msg: "重置token成功", token: seller.accessToken })
+    }
+  })
+})
+
+// --------------------seller-----------------------
 
 
 // -------------- adming ---------------------
