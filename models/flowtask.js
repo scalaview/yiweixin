@@ -44,6 +44,11 @@ module.exports = function(sequelize, DataTypes) {
       defaultSort: {
         order: [['sortNum', 'DESC']]
       }
+    },
+    instanceMethods: {
+      className: function(){
+        return "FlowTask"
+      }
     }
   });
   return FlowTask;

@@ -9,6 +9,25 @@ String.prototype.htmlSafe = function(){
   return new handlebars.SafeString(this.toString())
 }
 
+String.prototype.renderTemplate = function(options){
+  if(!this.compileTemplate){
+    this.compileTemplate = handlebars.compile(this.toString())
+  }
+  return this.compileTemplate(options)
+}
+
+String.prototype.present = function(){
+  return (this !== undefined) && (this.toString() !== undefined) && (this.toString() !== '')
+}
+
+String.prototype.toI = function(){
+  try{
+    return parseInt(this.toString())
+  }catch(e){
+    return this.toString()
+  }
+}
+
 function fileUpload(file, successCallBack, errorCallBack){
   var origin_this = this,
       old_path = file.path,
@@ -158,7 +177,6 @@ function taskLink(task) {
 }
 
 function selectTag(options, collection, selected) {
-  console.log(collection)
   var source = [
         '<select {{#if options.class}} class="{{options.class}}" {{/if}} {{#if options.id}} id="{{options.id}}" {{/if}} {{#if options.name}} name="{{options.name}}" {{/if}} {{#if options.disabled}} disabled {{/if}} >',
         '{{items}}',
@@ -246,6 +264,8 @@ function pagination(result, href){
     currentPage = result.currentPage,
     items = []
 
+  if(total <= perPage){ return }
+
   for (var i = 0; i < totalpages ; i++) {
     var data;
     if(i == 0){
@@ -283,6 +303,56 @@ function isChecked(checked){
   }
 }
 
+
+// FlowHistory.STATE = {
+//     ADD: 1,
+//     REDUCE: 0
+//   };
+function amountType(type, amount){
+  console.log(type + ": " + amount)
+  if(type === 1 ){
+    return ['<span class="btn-warning">+ ', amount, ' </span> '].join("").htmlSafe()
+  }else if(type ===  0){
+    return ['<span class="btn-info">- ', amount, ' </span> '].join("").htmlSafe()
+  }
+}
+
+function flowhistorySourceLink(source, options){
+  if(!source){
+    return
+  }
+  var link = ['<a  {{#if class}} class="{{class}}" {{/if}} {{#if id}} id="{{id}}" {{/if}} {{#if href}} href="{{href}}" {{/if}}>',
+                '{{#if text}} {{text}} {{/if}}',
+              '</a>'].join("")
+  options.text =  source.className() + ": " + source.id
+
+  if(source.className() === "Order"){
+    options.href = "/admin/orders/" + source.id + "/edit"
+    return link.renderTemplate(options).htmlSafe()
+  }else if(source.className() === "ExtractOrder"){
+    options.href = "/admin/extractorder/" + source.id + "/edit"
+    return link.renderTemplate(options).htmlSafe()
+  }
+}
+
+function extractOrderLink(exchanger, options){
+  if(!exchanger){
+    return
+  }
+  var link = ['<a  {{#if class}} class="{{class}}" {{/if}} {{#if id}} id="{{id}}" {{/if}} {{#if href}} href="{{href}}" {{/if}}>',
+              '{{#if text}} {{text}} {{/if}}',
+            '</a>'].join("")
+  options.text =  exchanger.className() + ": " + exchanger.id
+  if(exchanger.className() === "TrafficPlan"){
+    options.href = "/admin/trafficplans/" + exchanger.id + "/edit"
+    return link.renderTemplate(options).htmlSafe()
+  }else if(exchanger.className() === 'FlowTask'){
+    options.href = "/admin/flowtasks/" + exchanger.id + "/edit"
+    return link.renderTemplate(options).htmlSafe()
+  }
+
+}
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -303,3 +373,6 @@ exports.addParams = addParams;
 exports.pagination = pagination;
 exports.setPagination = setPagination;
 exports.isChecked = isChecked;
+exports.amountType = amountType;
+exports.flowhistorySourceLink = flowhistorySourceLink;
+exports.extractOrderLink = extractOrderLink;
