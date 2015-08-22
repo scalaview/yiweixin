@@ -88,8 +88,8 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     instanceMethods: {
-      getSource: function(){
-        return this['get' + this.type].call(this)
+      getSource: function(conditions){
+        return this['get' + this.type].call(this, conditions)
       },
       stateName: function(){
         switch(this.state){

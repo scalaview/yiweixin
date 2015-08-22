@@ -16,6 +16,10 @@ String.prototype.renderTemplate = function(options){
   return this.compileTemplate(options)
 }
 
+String.prototype.present = function(){
+  return (this !== undefined) && (this.toString() !== undefined) && (this.toString() !== '')
+}
+
 String.prototype.toI = function(){
   try{
     return parseInt(this.toString())
@@ -173,7 +177,6 @@ function taskLink(task) {
 }
 
 function selectTag(options, collection, selected) {
-  console.log(collection)
   var source = [
         '<select {{#if options.class}} class="{{options.class}}" {{/if}} {{#if options.id}} id="{{options.id}}" {{/if}} {{#if options.name}} name="{{options.name}}" {{/if}} {{#if options.disabled}} disabled {{/if}} >',
         '{{items}}',
@@ -325,7 +328,6 @@ function flowhistorySourceLink(source, options){
 
   if(source.className() === "Order"){
     options.href = "/admin/orders/" + source.id + "/edit"
-    options.text =  source.className() + ": " + source.id
     return link.renderTemplate(options).htmlSafe()
   }else if(source.className() === "ExtractOrder"){
     options.href = "/admin/extractorder/" + source.id + "/edit"
@@ -333,6 +335,23 @@ function flowhistorySourceLink(source, options){
   }
 }
 
+function extractOrderLink(exchanger, options){
+  if(!exchanger){
+    return
+  }
+  var link = ['<a  {{#if class}} class="{{class}}" {{/if}} {{#if id}} id="{{id}}" {{/if}} {{#if href}} href="{{href}}" {{/if}}>',
+              '{{#if text}} {{text}} {{/if}}',
+            '</a>'].join("")
+  options.text =  exchanger.className() + ": " + exchanger.id
+  if(exchanger.className() === "TrafficPlan"){
+    options.href = "/admin/trafficplans/" + exchanger.id + "/edit"
+    return link.renderTemplate(options).htmlSafe()
+  }else if(exchanger.className() === 'FlowTask'){
+    options.href = "/admin/flowtasks/" + exchanger.id + "/edit"
+    return link.renderTemplate(options).htmlSafe()
+  }
+
+}
 
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
@@ -356,3 +375,4 @@ exports.setPagination = setPagination;
 exports.isChecked = isChecked;
 exports.amountType = amountType;
 exports.flowhistorySourceLink = flowhistorySourceLink;
+exports.extractOrderLink = extractOrderLink;
