@@ -1,5 +1,7 @@
 'use strict';
 var request = require("request")
+var async = require("async")
+var helpers = require("../helpers")
 
 var MessageSender = function(phone, content){
   this.phone = phone
@@ -89,6 +91,7 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
+        models.MessageQueue.belongsTo(models.MessageTemplate, { foreignKey: 'templateId' });
       },
       canSendMessage: function(phone, type, callback) {
         console.log(new Date())
@@ -105,55 +108,93 @@ module.exports = function(sequelize, DataTypes) {
           throw new Error("Please input a correct message type");
         }
       },
-      sendRegisterMessage: function(phone, successCallBack, errorCallBack){
-        //TODO
-        var num = Math.floor(Math.random() * 90000) + 10000;
-        MessageQueue.build({
-          phone: phone,
-          content: "xxxxxxxxxx  xxxx   xxx" + num + "xxxxxx",
-          type: "register",
-          verificationCode: num + ''
-        }).save().then(function(messageQueue){
-          var sender = messageQueue.send()
-          sender.then(function(data){
-            if(true){
-              var sendState = MessageQueue.stateType.send
-            }else{
-              var sendState = MessageQueue.stateType.fail
+      sendRegisterMessage: function(models, phone, successCallBack, errorCallBack){
+
+        async.waterfall([function(next){
+          models.MessageTemplate.findOne({
+            where: {
+              name: "register message"
             }
-            messageQueue.updateAttributes({
-              state: sendState,
-              sendAt: new Date()
-            }).then(function(messageQueue){
-            }).catch(function(err){
+          }).then(function(messageTemplate) {
+            if(messageTemplate){
+              next(null, messageTemplate)
+            }else{
+              next(null, null)
+            }
+          })
+        }, function(messageTemplate, next) {
+          var num = Math.floor(Math.random() * 90000) + 10000;
+          if(messageTemplate){
+            console.log(messageTemplate)
+            var content = messageTemplate.content.format({ code: num })
+          }else{
+            var content = "易流量注册。你的注册验证码：{{code}}".format({ code: num })
+          }
+          MessageQueue.build({
+            phone: phone,
+            content: content,
+            type: "register",
+            verificationCode: num + ''
+          }).save().then(function(messageQueue) {
+            next(null, messageQueue)
+          }).catch(function(err) {
+            next(err)
+          })
+        }, function(messageQueue, next) {
+          async.waterfall([function(next) {
+            var sender = messageQueue.sender()
+            sender.then(function(data) {
+              if(true){
+                var sendState = MessageQueue.stateType.send
+              }else{
+                var sendState = MessageQueue.stateType.fail
+              }
+              messageQueue.updateAttributes({
+                state: sendState,
+                sendAt: new Date()
+              }).then(function(messageQueue){
+                next(null, messageQueue)
+              }).catch(function(err){
+                next(err)
+              })
+            }).catch(function(err) {
               console.log(err)
-            })
-          }).catch(function(err){
-            console.log("inner: " + err)
-            if(messageQueue.retryTime < MessageQueue.MAXRETRYTIME){
-              messageQueue.updateAttributes({
-                retryTime: messageQueue.retryTime + 1
-              }).then(function(messageQueue){
-                setTimeout(function(){
-                  sender.do()
-                }, 2000)
-              }).catch(function(err){
-                console.log("update retry time fail")
-              })
-            }else{
-              messageQueue.updateAttributes({
-                state: MessageQueue.stateType.fail,
-              }).then(function(messageQueue){
-              }).catch(function(err){
-                console.log(err)
-              })
+              if(messageQueue.retryTime < MessageQueue.MAXRETRYTIME){
+                messageQueue.updateAttributes({
+                  retryTime: messageQueue.retryTime + 1
+                }).then(function(messageQueue){
+                  setTimeout(function(){
+                    sender.do()
+                  }, 2000)
+                }).catch(function(err){
+                  console.log("update retry time fail")
+                  content.log(err)
+                })
+              }else{
+                messageQueue.updateAttributes({
+                  state: MessageQueue.stateType.fail,
+                }).then(function(messageQueue){
+                }).catch(function(err){
+                  next(err)
+                })
+              }
+            }).do()
+          }], function(err, messageQueue) {
+            if(err){
+              console.log(err)
             }
-          }).do()
-          successCallBack(messageQueue)
-        }).catch(function(err){
-          console.log(err)
-          errorCallBack(err)
+          })
+          next(null, messageQueue)
+        }], function(err, messageQueue) {
+          if(err){
+            console.log(err)
+            errorCallBack(err)
+          }else{
+            successCallBack(messageQueue)
+          }
         })
+
+        //TODO
       },
       verifyCode: function(phone, code, type, successCallBack, errorCallBack){
         if (MessageQueue.messageType[type] !== undefined){
@@ -169,7 +210,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     instanceMethods: {
-      send: function(){
+      sender: function(){
         return new MessageSender(this.phone, this.content)
       }
     }

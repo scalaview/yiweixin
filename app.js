@@ -1150,7 +1150,7 @@ app.get('/getcode', function(req, res) {
     if(messageQueue){
       res.json({ msg: "Please try again after 1 minite", code: 2 });
     }else{
-      models.MessageQueue.sendRegisterMessage(req.query.phone, function(messageQueue){
+      models.MessageQueue.sendRegisterMessage(models, req.query.phone, function(messageQueue){
         if(messageQueue){
           res.json({ msg: "message had send", code: 1 })
         }

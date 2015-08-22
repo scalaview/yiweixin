@@ -10,26 +10,26 @@
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
-              <tr>
-                  <th>手机号码</th>
-                  <th>短信摘要</th>
-                  <th>类型</th>
-                  <th>状态</th>
-                  <th>验证码</th>
-                  <th>重试次数</th>
-                  <th>发送时间</th>
+              <tr class="row">
+                  <th class="col-lg-2">手机号码</th>
+                  <th class="col-lg-4">短信摘要</th>
+                  <th class="col-lg-1">类型</th>
+                  <th class="col-lg-1">状态</th>
+                  <th class="col-lg-1">验证码</th>
+                  <th class="col-lg-1">重试次数</th>
+                  <th class="col-lg-2">发送时间</th>
               </tr>
             </thead>
             <tbody>
               {{#each messagequeues.rows }}
-                <tr>
-                    <td>{{ phone }}</td>
-                    <td>{{ content }}</td>
-                    <td>{{ typeName }}</td>
-                    <td>{{ stateName }}</td>
-                    <td>{{ verificationCode }}</td>
-                    <td>{{ retryTime }}</td>
-                    <td>{{ strftime sendAt }}</td>
+                <tr class="row">
+                    <td class="col-lg-2">{{ phone }}</td>
+                    <td class="col-lg-4">{{ content }}</td>
+                    <td class="col-lg-1">{{ typeName }}</td>
+                    <td class="col-lg-1">{{ stateName }}</td>
+                    <td class="col-lg-1">{{ verificationCode }}</td>
+                    <td class="col-lg-1">{{ retryTime }}</td>
+                    <td class="col-lg-2">{{ strftime sendAt }}</td>
                 </tr>
               {{/each}}
             </tbody>
