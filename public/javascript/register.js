@@ -44,8 +44,14 @@ $(function(){
         },
         dataType: 'json'
       }).done(function(data) {
-        console.log(data.code)
-        sendMsgSuccess()
+        console.log(data)
+        if(data.code == 1){
+          sendMsgSuccess()
+        }else if(data.code == 2){
+          showDialog("短信已发送，1 分钟后重试")
+        }else{
+          sendMsgFail()
+        }
       }).fail(function(data) {
         console.log(data)
         sendMsgFail()

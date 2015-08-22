@@ -125,26 +125,26 @@ app.get('/', function(req, res) {
   res.render('home')
 })
 
-var skipUrls = [ '^\/wechat[\/|\?|\#]\?.*', '^\/admin\/login[\/|\?|\#]\?.*', '^\/admin\/register[\/|\?|\#]\?.*']
+// var skipUrls = [ '^\/wechat[\/|\?|\#]\?.*', '^\/admin\/login[\/|\?|\#]\?.*', '^\/admin\/register[\/|\?|\#]\?.*']
 
-admin.all("*", function(req, res, next) {
-  var url = req.originalUrl
+// admin.all("*", function(req, res, next) {
+//   var url = req.originalUrl
 
-  if(req.session.user_id){
-    next()
-    return
-  }else{
-    for (var i = skipUrls.length - 1; i >= 0; i--) {
-      var match = req.originalUrl.match(skipUrls[i]);
-      if(match !== null){
-        next()
-        return
-      }
-    };
-    var encodeUrl = new Buffer(url).toString('base64');
-    return res.redirect("/admin/login?to=" + encodeUrl);
-  }
-})
+//   if(req.session.user_id){
+//     next()
+//     return
+//   }else{
+//     for (var i = skipUrls.length - 1; i >= 0; i--) {
+//       var match = req.originalUrl.match(skipUrls[i]);
+//       if(match !== null){
+//         next()
+//         return
+//       }
+//     };
+//     var encodeUrl = new Buffer(url).toString('base64');
+//     return res.redirect("/admin/login?to=" + encodeUrl);
+//   }
+// })
 
 admin.get('/', function (req, res) {
   console.log(admin.mountpath);
@@ -1096,6 +1096,18 @@ admin.get("/orders/:id", function(req, res) {
 // ------------------orders------------------------
 
 
+admin.get("/messagequeues", function(req, res) {
+  var params
+  models.MessageQueue.findAndCountAll({
+    where: params,
+    limit: req.query.perPage || 15,
+    offset: helpers.offset(req.query.page, req.query.perPage || 15)
+  }).then(function(messageQueues) {
+    var messagequeues = helpers.setPagination(messageQueues, req)
+    res.render("admin/messagequeues/index", { messagequeues: messagequeues })
+  })
+})
+
 // -------------- adming ---------------------
 
 
@@ -1136,15 +1148,15 @@ app.post('/register', function(req, res){
 app.get('/getcode', function(req, res) {
   models.MessageQueue.canSendMessage(req.query.phone, 'register', function(messageQueue) {
     if(messageQueue){
-      res.json({ msg: "Please try again after 1 minite" });
+      res.json({ msg: "Please try again after 1 minite", code: 2 });
     }else{
       models.MessageQueue.sendRegisterMessage(req.query.phone, function(messageQueue){
         if(messageQueue){
-          res.json({ msg: "message had send", code: messageQueue.verificationCode })
+          res.json({ msg: "message had send", code: 1 })
         }
       }, function(err){
         console.log(err)
-        res.json({ msg: "try again later", err: err.errors })
+        res.json({ msg: "try again later", err: err.errors, code: 0 })
       })
     }
   })
