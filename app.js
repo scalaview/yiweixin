@@ -156,7 +156,7 @@ admin.all("*", function(req, res, next) {
 
 admin.get('/', function (req, res) {
 
-  res.render('admin/home',{ info: req.flash("info"), errors: req.flash("err") });
+  res.render('admin/home');
 });
 
 admin.get('/login', function(req, res){
@@ -167,11 +167,10 @@ admin.get('/login', function(req, res){
 })
 
 admin.post('/login', urlencodedParser, function(req, res) {
-  req.flash('info', "login")
   models.User.findOne({ where: {username: req.body.username} }).then(function(user){
     if(user && user.verifyPassword(req.body.password)){
       req.session.user_id = user.id
-      if(req.body.to){
+      if(req.body.to && req.method === 'GET'){
         var backTo = new Buffer(req.body.to, "base64").toString()
         res.redirect(backTo)
       }else{
@@ -219,8 +218,7 @@ admin.post('/register', function(req, res, next){
     req.flash('err', err.message)
     res.render('admin/register', {
       user: user,
-      layout: 'sign',
-      errors: req.flash('err')
+      layout: 'sign'
     })
   })
 })
@@ -357,9 +355,7 @@ admin.get('/flowtasks', function(req, res) {
           sellerCollection: sellerCollection,
           isActiveOptions: isActiveOptions,
           isActiveCollection: isActiveCollection,
-          query: req.query,
-          info: req.flash('info'),
-          err: req.flash('err')
+          query: req.query
         })
       }
     })
@@ -402,9 +398,7 @@ admin.get('/flowtasks/new', function(req, res) {
         sellerOptions: sellerOptions,
         sellerCollection: sellerCollection,
         trafficPlanOptions: trafficPlanOptions,
-        trafficPlanCollection: trafficPlanCollection,
-        info: req.flash('info'),
-        err: req.flash('err')
+        trafficPlanCollection: trafficPlanCollection
       })
     }
   })
@@ -458,9 +452,7 @@ admin.get('/flowtasks/:id/edit', function(req, res) {
         trafficPlanOptions: trafficPlanOptions,
         trafficPlanCollection: trafficPlanCollection,
         flowtask: flowtask,
-        path: '/admin/flowtask/'+flowtask.id,
-        info: req.flash('info'),
-        err: req.flash('err')
+        path: '/admin/flowtask/'+flowtask.id
       })
     }
   })
@@ -639,9 +631,7 @@ admin.get("/apks", function(req, res){
         apks: result,
         query: req.query,
         sellerCollection: sellerCollection,
-        sellerOptions: sellerOptions,
-        info: req.flash('info'),
-        err: req.flash('err')
+        sellerOptions: sellerOptions
       })
 
     }
@@ -676,9 +666,7 @@ admin.get("/apks/:id/edit", function(req, res) {
         sellerOptions: sellerOptions,
         sellerCollection: sellerCollection,
         apk: apk,
-        path: '/admin/apk/'+apk.id,
-        info: req.flash('info'),
-        err: req.flash('err')
+        path: '/admin/apk/'+apk.id
       })
     }
   })
@@ -946,7 +934,6 @@ admin.get("/extractorders/new", function(req, res) {
 })
 
 admin.post("/extractorder", function(req, res) {
-  console.log(req.body)
   if(!( req.body.phone !== undefined && req.body.phone.present() && req.body.trafficPlanId !== undefined &&  req.body.trafficPlanId.present() )){
     res.redirect("/admin/extractorders/new")
     return
@@ -977,8 +964,10 @@ admin.post("/extractorder", function(req, res) {
   }], function(err, extractOrder) {
     if(err){
       console.log(err)
+      req.flash('err', err.message)
       res.redirect("/admin/extractorders/new")
     }else{
+      req.flash('info', "create success")
       res.redirect("/admin/extractorders/" + extractOrder.id + "/edit")
     }
   })
@@ -1064,6 +1053,9 @@ admin.post("/extractorder/:id", function(req, res) {
   }], function(err, extractOrder) {
     if(err){
       console.log(err)
+      req.flash('err', err.message)
+    }else{
+      req.flash('info', 'update success')
     }
     res.redirect("/admin/extractorders/" + extractOrder.id + "/edit")
 
@@ -1107,7 +1099,12 @@ admin.post("/seller", function(req, res) {
   seller.save().then(function(seller) {
     res.redirect("/admin/sellers/"+ seller.id +"/edit")
   }).catch(function(err){
-    console.log(err)
+    if(err){
+      console.log(err)
+      req.flash('err', err.message)
+    }else{
+      req.flash('info', "create success")
+    }
     res.render("admin/sellers/new", { seller: seller, path: "/admin/seller" })
   })
 })
@@ -1127,8 +1124,10 @@ admin.post("/seller/:id", function(req, res) {
   }], function(err, seller) {
     if(err){
       console.log(err)
+      req.flash("err", err.message)
       res.render("admin/sellers/edit", { seller: seller, path: "/admin/seller/" + seller.id })
     }else{
+      req.flash("info", "update success")
       res.redirect("/admin/sellers/{{id}}/edit".format({ id: seller.id }))
     }
   })
@@ -1413,8 +1412,6 @@ app.get('/getcode', function(req, res) {
     res.json({ msg: '请输入手机号码', code: 0 })
     return
   }
-  req.flash('info', "ok")
-  console.log(req.flash('info'))
   models.MessageQueue.canSendMessage(req.query.phone, 'register', function(messageQueue) {
     if(messageQueue){
       res.json({ msg: "Please try again after 1 minite", code: 2 });
