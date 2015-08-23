@@ -50,7 +50,8 @@ var config = {
                   'button1' :'V1001_TODAY_TASKS'
                 },
                 'upload_path': '/public/uploads/',
-                'hostname': 'yiliuliang.net'
+                'hostname': 'yiliuliang.net',
+                'maxfileuploadsize': 10240000 // 10m
               };
 
 module.exports = config;

@@ -19,6 +19,7 @@ var fs = require('fs')
 var path = require('path')
 var helpers = require("./helpers")
 var moment = require('moment')
+var fs        = require('fs');
 
 var app = express();
 var admin = express();
@@ -126,26 +127,26 @@ app.get('/', function(req, res) {
   res.render('home')
 })
 
-// var skipUrls = [ '^\/wechat[\/|\?|\#]\?.*', '^\/admin\/login[\/|\?|\#]\?.*', '^\/admin\/register[\/|\?|\#]\?.*']
+var skipUrls = [ '^\/wechat[\/|\?|\#]\?.*', '^\/admin\/login[\/|\?|\#]\?.*', '^\/admin\/register[\/|\?|\#]\?.*']
 
-// admin.all("*", function(req, res, next) {
-//   var url = req.originalUrl
+admin.all("*", function(req, res, next) {
+  var url = req.originalUrl
 
-//   if(req.session.user_id){
-//     next()
-//     return
-//   }else{
-//     for (var i = skipUrls.length - 1; i >= 0; i--) {
-//       var match = req.originalUrl.match(skipUrls[i]);
-//       if(match !== null){
-//         next()
-//         return
-//       }
-//     };
-//     var encodeUrl = new Buffer(url).toString('base64');
-//     return res.redirect("/admin/login?to=" + encodeUrl);
-//   }
-// })
+  if(req.session.user_id){
+    next()
+    return
+  }else{
+    for (var i = skipUrls.length - 1; i >= 0; i--) {
+      var match = req.originalUrl.match(skipUrls[i]);
+      if(match !== null){
+        next()
+        return
+      }
+    };
+    var encodeUrl = new Buffer(url).toString('base64');
+    return res.redirect("/admin/login?to=" + encodeUrl);
+  }
+})
 
 admin.get('/', function (req, res) {
 
@@ -215,6 +216,63 @@ admin.post('/register', function(req, res, next){
   })
 })
 
+
+admin.post('/kindeditor/uploads', function(req, res) {
+  var form = new formidable.IncomingForm();
+  form.parse(req, function(err, fields, files) {
+    if(err){
+      res.send({ "error": 1, 'message': "server error" })
+      return
+    }else if(!files.imgFile.type.match('^image\/')){
+      res.send({ "error": 1, 'message': "只允许上传图片" })
+      return
+    }else if(files.imgFile.size > config.maxfileuploadsize){
+      res.send({ "error": 1, 'message': "超出最大文件限制" })
+      return
+    }
+    var staticpath = '/public'
+        dirpath = '/kindeditor/uploads',
+        filename = helpers.fileUploadSync(files.imgFile, staticpath + dirpath),
+        info = {
+            "error": 0,
+            "url": dirpath + "/" + filename
+        };
+    res.send(info)
+  })
+})
+
+admin.get('/kindeditor/filemanager', function (req, res) {
+  var dirpath = '/kindeditor/uploads',
+      fspath = path.join(process.env.PWD, '/public' + dirpath),
+      files = []
+  fsss = fs.readdirSync(path.join(process.env.PWD, '/public' + dirpath))
+    .filter(function(file) {
+      return (file.indexOf('.') !== 0) && (file.match(/(\.image$|\.png$|\.gif$|\.jpg$)/i))
+    })
+    .forEach(function(file) {
+      var refile = fs.statSync(fspath + '/' + file)
+          splitd = file.split('.'),
+          type = splitd[splitd.length - 1]
+          console.log(refile)
+      files.push({
+        is_dir: false,
+        has_file: false,
+        filesize: refile.size,
+        dir_path: "",
+        is_photo: true,
+        filetype: type,
+        filename: file,
+        datetime: helpers.strftime(refile.birthtime)
+      })
+    })
+
+    res.json({ moveup_dir_path: "",
+        current_dir_path: dirpath,
+        current_url: dirpath + '/',
+        total_count:5,
+        file_list: files
+      })
+})
 
 admin.get('/flowtasks', function(req, res) {
   var result;
@@ -1637,7 +1695,7 @@ app.get('/apkcenter/download/:id', function(req, res) {
       next(null, customer, apk, null)
     }
   }, function(customer, apk, existFlowHistory, next) {
-    if(customer && !existFlowHistory){
+    if(customer && !existFlowHistory && apk.isActive){
       customer.updateAttributes({
         remainingTraffic: customer.remainingTraffic + apk.reward
       }).then(function(customer) {

@@ -1,1 +1,1 @@
-mkdir -r public/uploads && mkdir -r public/kindeditor/filemanager && mkdir -r public/kindeditor/uploads
+mkdir -p public/uploads && mkdir -p public/kindeditor/uploads

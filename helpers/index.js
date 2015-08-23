@@ -52,7 +52,7 @@ function fileUpload(file, successCallBack, errorCallBack){
   });
 }
 
-function fileUploadSync(file){
+function fileUploadSync(file, dirpath){
           console.log(file)
 
   var origin_this = this,
@@ -61,7 +61,7 @@ function fileUploadSync(file){
       file_type = file.type,
       origin_file_name = file.name,
       file_name = Math.round((new Date().valueOf() * Math.random())) + "_" + _.trim(origin_file_name, ' '),
-      new_path = path.join(process.env.PWD, config.upload_path, file_name );
+      new_path = path.join(process.env.PWD, dirpath || config.upload_path, file_name );
 
   var tmp_file = fs.readFileSync(old_path);
   fs.writeFileSync(new_path, tmp_file);
@@ -359,6 +359,13 @@ function extractOrderLink(exchanger, options){
 
 }
 
+function htmlSafe(html) {
+  if(html){
+    return html.htmlSafe()
+  }
+}
+
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -382,3 +389,4 @@ exports.isChecked = isChecked;
 exports.amountType = amountType;
 exports.flowhistorySourceLink = flowhistorySourceLink;
 exports.extractOrderLink = extractOrderLink;
+exports.htmlSafe = htmlSafe;
