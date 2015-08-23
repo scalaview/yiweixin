@@ -130,7 +130,6 @@ app.get('/', function(req, res) {
 admin.use(function(req, res, next){
   res.locals.info = req.flash('info')
   res.locals.err = req.flash('err')
-
   next();
 });
 
