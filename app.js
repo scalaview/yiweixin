@@ -128,8 +128,10 @@ app.get('/', function(req, res) {
 })
 
 admin.use(function(req, res, next){
-  res.locals.info = req.flash('info')
-  res.locals.err = req.flash('err')
+  res.originrender = res.render
+  res.render = function(path, options, fn){
+    res.originrender(path, _.merge(options, { info: req.flash('info'), err: req.flash('err') }))
+  }
   next();
 });
 
