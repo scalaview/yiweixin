@@ -165,7 +165,7 @@ module.exports = function(sequelize, DataTypes) {
                 }).then(function(messageQueue){
                   setTimeout(function(){
                     sender.do()
-                  }, 2000)
+                  }, MessageQueue.RETRYINTERVAL)
                 }).catch(function(err){
                   console.log("update retry time fail")
                   content.log(err)
@@ -225,6 +225,7 @@ module.exports = function(sequelize, DataTypes) {
     fail: 2
   }
   MessageQueue.MAXRETRYTIME = 3
+  MessageQueue.RETRYINTERVAL = 20000
 
 
   return MessageQueue;

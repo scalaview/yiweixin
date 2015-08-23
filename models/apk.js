@@ -17,7 +17,7 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING,
         allowNull: true,
         set: function(file){
-          if(file.size > 0){
+          if(file.size > 0 && file.name.match('\.apk$')){
             var filename = helpers.fileUploadSync(file)
             this.setDataValue('apk', file.name);
             this.setDataValue('apkPath', filename);
@@ -42,7 +42,7 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING,
         allowNull: true,
         set: function(file){
-          if(file.size > 0){
+          if(file.size > 0 && file.type.match('^image\/')){
             var filename = helpers.fileUploadSync(file)
             this.setDataValue('icon', filename);
           }
@@ -57,7 +57,7 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING,
         allowNull: true,
         set: function(file){
-          if(file.size > 0){
+          if(file.size > 0 && file.type.match('^image\/')){
             var filename = helpers.fileUploadSync(file)
             this.setDataValue('image01', filename);
           }
@@ -72,7 +72,7 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING,
         allowNull: true,
         set: function(file){
-          if(file.size > 0){
+          if(file.size > 0 && file.type.match('^image\/')){
             var filename = helpers.fileUploadSync(file)
             this.setDataValue('image02', filename);
           }
@@ -87,7 +87,7 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING,
         allowNull: true,
         set: function(file){
-          if(file.size > 0){
+          if(file.size > 0 && file.type.match('^image\/')){
             var filename = helpers.fileUploadSync(file)
             this.setDataValue('image03', filename);
           }

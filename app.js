@@ -18,6 +18,7 @@ var formidable = require('formidable')
 var fs = require('fs')
 var path = require('path')
 var helpers = require("./helpers")
+var moment = require('moment')
 
 var app = express();
 var admin = express();
@@ -147,7 +148,7 @@ app.get('/', function(req, res) {
 // })
 
 admin.get('/', function (req, res) {
-  console.log(admin.mountpath);
+
   res.render('admin/home');
 });
 
@@ -159,7 +160,6 @@ admin.get('/login', function(req, res){
 })
 
 admin.post('/login', urlencodedParser, function(req, res) {
-  console.log(111)
   models.User.findOne({ where: {username: req.body.username} }).then(function(user){
     if(user && user.verifyPassword(req.body.password)){
       req.session.user_id = user.id
@@ -186,6 +186,11 @@ admin.post('/login', urlencodedParser, function(req, res) {
       }
     }
   })
+})
+
+admin.get('/logout', function(req, res) {
+  req.session.user_id = null
+  res.redirect('/admin/login')
 })
 
 admin.get('/register', function(req, res){
@@ -215,8 +220,14 @@ admin.get('/flowtasks', function(req, res) {
   var result;
   async.waterfall([function(next) {
     var params = {}
-    if(req.query.sellerId !== undefined){
+    if(req.query.title !== undefined && req.query.title.present()){
+      params = _.merge(params, { title: { $like: req.query.title } })
+    }
+    if(req.query.sellerId !== undefined && req.query.sellerId.present()){
       params = _.merge(params, { seller_id: req.query.sellerId })
+    }
+    if(req.query.isActive !== undefined && req.query.isActive.present()){
+      params = _.merge(params, { isActive: req.query.isActive })
     }
     models.FlowTask.findAndCountAll({
       where: params,
@@ -226,7 +237,19 @@ admin.get('/flowtasks', function(req, res) {
       result = flowtasks
       next(null, flowtasks.rows)
     })
-  }], function(err, flowtasks, next) {
+  }, function(flowtasks, next) {
+    models.Seller.findAll({
+      attributes: ['id', 'name']
+    }).then(function(sellers) {
+      var sellerCollection = []
+      for (var i = 0; i < sellers.length; i++) {
+        sellerCollection.push( [sellers[i].id, sellers[i].name] )
+      };
+      next(null, flowtasks, sellerCollection)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, flowtasks, sellerCollection, next) {
     async.map(flowtasks, function(flowtask, mapnext) {
       async.waterfall([function(next) {
         models.Seller.findById(flowtask.seller_id).then(function(seller) {
@@ -255,9 +278,19 @@ admin.get('/flowtasks', function(req, res) {
         console.log(err)
         res.send(500)
       }else{
+        var sellerOptions = { name: "sellerId", class: "col-lg-12 col-xs-12 select2", includeBlank: true },
+            isActiveOptions = { name: "isActive", class:  "col-lg-12 col-xs-12 select2", includeBlank: true },
+            isActiveCollection = [ [1, '激活'], [0, '冻结'] ]
         result.rows = flowtasks
         result = helpers.setPagination(result, req)
-        res.render("admin/flowtasks/index", { flowtasks: result })
+        res.render("admin/flowtasks/index", {
+          flowtasks: result,
+          sellerOptions: sellerOptions,
+          sellerCollection: sellerCollection,
+          isActiveOptions: isActiveOptions,
+          isActiveCollection: isActiveCollection,
+          query: req.query
+        })
       }
     })
   })
@@ -410,8 +443,12 @@ admin.post("/flowtask/:id", function(req, res) {
 })
 
 admin.get('/customers', function(req, res) {
+  var params = {}
+  if(req.query.phone !== undefined && req.query.phone.present()){
+    params = _.merge(params, { phone: { $like: "%{{phone}}%".format({ phone: req.query.phone }) } })
+  }
   models.Customer.findAndCountAll({
-    where: {},
+    where: params,
     limit: req.query.perPage || 15,
     offset: helpers.offset(req.query.page, req.query.perPage || 15)
   }).then(function(customers) {
@@ -466,8 +503,15 @@ admin.post("/apk", function(req, res) {
 admin.get("/apks", function(req, res){
   var result
   async.waterfall([function(next) {
+    var params = {}
+    if(req.query.name !== undefined && req.query.name.present()){
+      params = _.merge(params, { name: { $like: "%{{name}}%".format({ name: req.query.name }) } })
+    }
+    if(req.query.sellerId !== undefined && req.query.sellerId.present()){
+      params = _.merge(params, { sellerId: req.query.sellerId })
+    }
     models.Apk.findAndCountAll({
-        where: {},
+        where: params,
         limit: req.query.perPage || 15,
         offset: helpers.offset(req.query.page, req.query.perPage || 15)
       }).then(function(apks) {
@@ -489,14 +533,32 @@ admin.get("/apks", function(req, res){
         outnext(null, apks)
       }
     })
-  }], function(err, apks) {
+  },function(apks, next) {
+    models.Seller.findAll({
+      attributes: ['id', 'name']
+    }).then(function(sellers) {
+      var sellerCollection = []
+      for (var i = 0; i < sellers.length; i++) {
+        sellerCollection.push( [sellers[i].id, sellers[i].name] )
+      };
+      next(null, apks, sellerCollection)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, apks, sellerCollection) {
     if(err){
       console.log(err)
       res.send(500)
     }else{
+      var sellerOptions = { name: 'sellerId', class: "select2 col-lg-12 col-xs-12", includeBlank: true}
       result.rows = apks
       result = helpers.setPagination(result, req)
-      res.render('admin/apks/index', { apks: result, query: req.query })
+      res.render('admin/apks/index', {
+        apks: result,
+        query: req.query,
+        sellerCollection: sellerCollection,
+        sellerOptions: sellerOptions
+      })
 
     }
   })
@@ -591,16 +653,16 @@ admin.get("/flowhistories", function(req, res){
   var result;
   async.waterfall([function(next) {
     var params = {}
-    if(req.query.customerId !== undefined){
+    if(req.query.customerId !== undefined && req.query.customerId.present()){
       params = _.merge(params, { customerId: req.query.customerId })
     }
-    if(req.query.type !== undefined){
+    if(req.query.type !== undefined && req.query.type.present()){
       params = _.merge(params, { type: req.query.type })
     }
-    if(req.query.typeId !== undefined){
+    if(req.query.typeId !== undefined && req.query.typeId.present()){
       params = _.merge(params, { typeId: req.query.typeId.toI() })
     }
-    if(req.query.state !== undefined){
+    if(req.query.state !== undefined && req.query.state.present()){
       params = _.merge(params, { state: req.query.state })
     }
     models.FlowHistory.findAndCountAll({
@@ -651,14 +713,41 @@ admin.get("/flowhistories", function(req, res){
         outnext(null, flowhistories)
       }
     })
-  }], function(err, flowhistories) {
+  }, function(flowhistories, next){
+    models.Customer.findAll({
+      attributes: ["id", "phone"]
+    }).then(function(customers) {
+      var customerCollection = []
+      for (var i = 0; i < customers.length; i++) {
+        customerCollection.push( [customers[i].id, customers[i].phone] )
+      };
+      next(null, flowhistories, customerCollection)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, flowhistories, customerCollection) {
     if(err){
       console.log(err)
       res.send(500)
     }else{
+      var customerOptions = { name: 'customerId', class: "select2 col-lg-12 col-xs-12", includeBlank: true },
+          stateOptions = { name: 'state', class: 'select2 col-xs-12 col-lg-12', includeBlank: true },
+          stateCollection = [ [models.FlowHistory.STATE.ADD, "增加"], [models.FlowHistory.STATE.REDUCE, "减少"] ],
+          typeOptions = { name: 'type', class: 'select2 col-xs-12 col-lg-12', includeBlank: true },
+          typeCollection = [ ["Order", "充值流量币"], ["ExtractOrder", "提取流量"] ]
+
       result.rows = flowhistories
       result = helpers.setPagination(result, req)
-      res.render('admin/flowhistories/index', { flowhistories: result, query: req.query })
+      res.render('admin/flowhistories/index', {
+        flowhistories: result,
+        query: req.query,
+        customerCollection: customerCollection,
+        customerOptions: customerOptions,
+        stateCollection: stateCollection,
+        stateOptions: stateOptions,
+        typeCollection: typeCollection,
+        typeOptions: typeOptions
+      })
     }
   })
 })
@@ -669,7 +758,16 @@ admin.get("/flowhistories", function(req, res){
 admin.get("/extractorders", function(req, res) {
   var result;
   async.waterfall([function(next) {
-    var params;
+    var params = {}
+    if(req.query.phone !== undefined && req.query.phone.present()){
+      params = _.merge(params, { phone: { $like: "%{{phone}}%".format({ phone: req.query.phone }) } })
+    }
+    if(req.query.state !== undefined && req.query.state.present()){
+      params = _.merge(params, { state: req.query.state })
+    }
+    if(req.query.exchangerType !== undefined && req.query.exchangerType.present()){
+      params = _.merge(params, { exchangerType: req.query.exchangerType })
+    }
     models.ExtractOrder.findAndCountAll({
       where: params,
       limit: req.query.perPage || 15,
@@ -707,9 +805,25 @@ admin.get("/extractorders", function(req, res) {
       console.log(err)
       res.send(500)
     }else{
+      var stateOptions = { name: 'state', class: "select2 col-lg-12 col-xs-12", includeBlank: true },
+          stateCollection = [],
+          exchangerTypeOptions = { name: 'exchangerType', class: "select2 col-lg-12 col-xs-12", includeBlank: true },
+          exchangerTypeCollection = [ [ 'TrafficPlan', '充值' ], [ 'FlowTask', '流量任务' ] ]
+
+      for (var key in models.ExtractOrder.STATE) {
+        stateCollection.push([models.ExtractOrder.STATE[key] , key])
+      };
+
       result.rows = extractOrders
       result = helpers.setPagination(result, req)
-      res.render('admin/extractorders/index', { extractOrders: result, query: req.query })
+      res.render('admin/extractorders/index', {
+        extractOrders: result,
+        query: req.query,
+        stateOptions: stateOptions,
+        stateCollection: stateCollection,
+        exchangerTypeOptions: exchangerTypeOptions,
+        exchangerTypeCollection: exchangerTypeCollection
+      })
     }
   })
 })
@@ -869,14 +983,17 @@ admin.post("/extractorder/:id", function(req, res) {
 // --------------------seller-----------------------
 
 admin.get("/sellers", function(req, res) {
-  var params
+  var params = {}
+  if(req.query.name !== undefined && req.query.name.present()){
+    params = _.merge(params, { name: { $like: "%{{name}}%".format({ name: req.query.name }) } })
+  }
   models.Seller.findAndCountAll({
     where: params,
     limit: req.query.perPage || 15,
     offset: helpers.offset(req.query.page, req.query.perPage || 15)
   }).then(function(sellers) {
     sellers = helpers.setPagination(sellers, req)
-    res.render("admin/sellers/index", { sellers: sellers })
+    res.render("admin/sellers/index", { sellers: sellers, query: req.query })
   })
 })
 
@@ -958,7 +1075,19 @@ admin.get("/orders", function(req, res) {
       paymentMethodCollection = [],
       dataPlanCollection = []
   async.waterfall([function(next) {
-    var params
+    var params = {}
+    if(req.query.phone !== undefined && req.query.phone.present()){
+      params = _.merge(params, { phone: { $like: "%{{phone}}%".format({ phone: req.query.phone }) } })
+    }
+    if(req.query.state !== undefined && req.query.state.present()){
+      params = _.merge(params, { state: req.query.state } )
+    }
+    if(req.query.dataPlanId !== undefined && req.query.dataPlanId.present()){
+      params = _.merge(params, { dataPlanId: req.query.dataPlanId } )
+    }
+    if(req.query.paymentMethodId !== undefined && req.query.paymentMethodId.present()){
+      params = _.merge(params, { paymentMethodId: req.query.paymentMethodId } )
+    }
     models.Order.findAndCountAll({
       where: params,
       limit: req.query.perPage || 15,
@@ -1038,9 +1167,15 @@ admin.get("/orders", function(req, res) {
       console.log(err)
       res.send(500)
     }else{
-      var dataPlanOptions = { name: 'dataPlanId', id: 'dataPlanId', class: 'select2 col-lg-12 col-xs-12' },
-          paymentMethodOptions = { name: 'paymentMethodId', id: 'paymentMethodId', class: 'select2 col-lg-12 col-xs-12' }
+      var dataPlanOptions = { name: 'dataPlanId', id: 'dataPlanId', class: 'select2 col-lg-12 col-xs-12', includeBlank: true },
+          paymentMethodOptions = { name: 'paymentMethodId', id: 'paymentMethodId', class: 'select2 col-lg-12 col-xs-12', includeBlank: true },
+          stateOptions = { name: 'state', id: 'state', class: 'select2 col-lg-12 col-xs-12', includeBlank: true },
+          stateCollection = []
 
+      for(var key in models.Order.STATE){
+        stateCollection.push([ models.Order.STATE[key], key ])
+      }
+      console.log(stateCollection)
       result.rows = orders
       result = helpers.setPagination(result, req)
       res.render("admin/orders/index", {
@@ -1048,7 +1183,10 @@ admin.get("/orders", function(req, res) {
         dataPlanCollection: dataPlanCollection,
         paymentMethodCollection: paymentMethodCollection,
         dataPlanOptions: dataPlanOptions,
-        paymentMethodOptions: paymentMethodOptions
+        paymentMethodOptions: paymentMethodOptions,
+        stateOptions: stateOptions,
+        stateCollection: stateCollection,
+        query: req.query
       })
     }
   })
@@ -1097,16 +1235,44 @@ admin.get("/orders/:id", function(req, res) {
 
 
 admin.get("/messagequeues", function(req, res) {
-  var params
+  var params = {};
+  if(req.query.phone !== undefined && req.query.phone.present()){
+    params = _.merge(params, { phone: { $like: "%{{phone}}%".format({ phone: req.query.phone }) } } )
+  }
+  if(req.query.type !== undefined && req.query.type.present()){
+    params = _.merge(params, { type: req.query.type })
+  }
+  if(req.query.state !== undefined && req.query.state.present()){
+    params = _.merge(params, { state: req.query.state })
+  }
   models.MessageQueue.findAndCountAll({
     where: params,
     limit: req.query.perPage || 15,
     offset: helpers.offset(req.query.page, req.query.perPage || 15)
   }).then(function(messageQueues) {
-    var messagequeues = helpers.setPagination(messageQueues, req)
-    res.render("admin/messagequeues/index", { messagequeues: messagequeues })
+    var messagequeues = helpers.setPagination(messageQueues, req),
+        messageTypeOptions = { name: "type", class: 'select2 col-lg-12 col-xs-12', includeBlank: true },
+        stateTypeOptions = { name: "state", class: 'select2 col-lg-12 col-xs-12', includeBlank: true }
+        messageTypeCollections = [],
+        stateTypeCollections = []
+    for (var key in models.MessageQueue.messageType) {
+      messageTypeCollections.push([models.MessageQueue.messageType[key], key])
+    };
+    for (var key in models.MessageQueue.stateType) {
+      stateTypeCollections.push([models.MessageQueue.stateType[key], key])
+    };
+    res.render("admin/messagequeues/index", {
+      messagequeues: messagequeues,
+      query: req.query,
+      messageTypeCollections: messageTypeCollections,
+      messageTypeOptions: messageTypeOptions,
+      stateTypeCollections: stateTypeCollections,
+      stateTypeOptions: stateTypeOptions
+    })
   })
 })
+
+
 
 // -------------- adming ---------------------
 

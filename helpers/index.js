@@ -53,6 +53,8 @@ function fileUpload(file, successCallBack, errorCallBack){
 }
 
 function fileUploadSync(file){
+          console.log(file)
+
   var origin_this = this,
       old_path = file.path,
       file_size = file.size,
@@ -179,12 +181,13 @@ function taskLink(task) {
 }
 
 function selectTag(options, collection, selected) {
+  console.log(collection)
   var source = [
-        '<select {{#if options.class}} class="{{options.class}}" {{/if}} {{#if options.id}} id="{{options.id}}" {{/if}} {{#if options.name}} name="{{options.name}}" {{/if}} {{#if options.disabled}} disabled {{/if}} >',
+        '<select {{#if options.class}} class="{{options.class}}" {{else}} class="col-xs-12 col-lg-12 select2" {{/if}} {{#if options.id}} id="{{options.id}}" {{/if}} {{#if options.name}} name="{{options.name}}" {{/if}} {{#if options.disabled}} disabled {{/if}} >',
         '{{items}}',
         '</select>'
       ].join(""),
-      optionSource = '<option {{#if value}} value="{{value}}" {{/if}} {{selected}}>{{name}}</option>',
+      optionSource = '<option {{#if value }} value="{{value}}" {{/if}} {{selected}}>{{name}}</option>',
       template = handlebars.compile(source),
       optionSourceTemplate = handlebars.compile(optionSource)
 
@@ -196,9 +199,9 @@ function selectTag(options, collection, selected) {
     }
     for (var i = 0; i < collection.length ; i++) {
       if(collection[i] instanceof Array){
-        var data = { value: collection[i][0], name: collection[i][1], selected: selected === collection[i][0] ? "selected" : null }
+        var data = { value: collection[i][0].toString(), name: collection[i][1], selected: selected === collection[i][0].toString() ? "selected" : null }
       }else if(collection[i] instanceof Object){
-        var data = { value: collection[i].value, name: collection[i].name, selected: selected ===  collection[i].value ? "selected" : null }
+        var data = { value: collection[i].value.toString(), name: collection[i].name, selected: selected ===  collection[i].value.toString() ? "selected" : null }
       }
       optionHtml.push(optionSourceTemplate(data))
     };
