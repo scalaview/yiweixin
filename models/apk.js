@@ -17,7 +17,7 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING,
         allowNull: true,
         set: function(file){
-          if(file.size > 0 && file.name.match('\.apk$')){
+          if(file.size > 0 && file.name.match(/\.apk$/i)){
             var filename = helpers.fileUploadSync(file)
             this.setDataValue('apk', file.name);
             this.setDataValue('apkPath', filename);

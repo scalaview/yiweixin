@@ -19,7 +19,13 @@ String.prototype.renderTemplate = function(options){
 String.prototype.format = String.prototype.renderTemplate
 
 String.prototype.present = function(){
-  return (this !== undefined) && (this.toString() !== undefined) && (this.toString() !== '')
+  if(this !== undefined){
+    if(this instanceof Array){
+      return this.length > 0
+    }else{
+      return (this.toString() !== undefined) && (this.toString() !== '')
+    }
+  }
 }
 
 String.prototype.toI = function(){
@@ -181,7 +187,6 @@ function taskLink(task) {
 }
 
 function selectTag(options, collection, selected) {
-  console.log(collection)
   var source = [
         '<select {{#if options.class}} class="{{options.class}}" {{else}} class="col-xs-12 col-lg-12 select2" {{/if}} {{#if options.id}} id="{{options.id}}" {{/if}} {{#if options.name}} name="{{options.name}}" {{/if}} {{#if options.disabled}} disabled {{/if}} >',
         '{{items}}',
@@ -365,6 +370,37 @@ function htmlSafe(html) {
   }
 }
 
+function tipSource(source, data){
+  console.log(data)
+  if( typeof data === 'string' ){
+    return source.format({ text: data }).htmlSafe()
+  }else if( data instanceof Array && data.length > 0){
+    return source.format({ text: data.join('<br>') }).htmlSafe()
+  }else if( typeof data === 'object' && data.length > 0 ){
+    var html = []
+    for(var key in data){
+      html.push( data[key] )
+    }
+    return source.format({ text: html.join('') }).htmlSafe()
+  }
+}
+
+
+function successTips(info){
+  var source = ['<div class="alert alert-success alert-dismissable">',
+                  '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>',
+                  '{{text}}',
+                '</div>'].join('')
+  return tipSource(source, info)
+}
+
+function errTips(err) {
+  var source = ['<div class="alert alert-danger alert-dismissable">',
+                  '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>',
+                  '{{text}}',
+                '</div>'].join('')
+  return tipSource(source, err)
+}
 
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
@@ -390,3 +426,5 @@ exports.amountType = amountType;
 exports.flowhistorySourceLink = flowhistorySourceLink;
 exports.extractOrderLink = extractOrderLink;
 exports.htmlSafe = htmlSafe;
+exports.successTips = successTips;
+exports.errTips = errTips;

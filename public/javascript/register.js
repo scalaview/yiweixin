@@ -8,14 +8,6 @@ function phoneValidateTip(){
   $modal.modal('show')
 }
 
-function validatePhone(phone){
-  if(phone === undefined || phone === ''){
-    return true
-  }else {
-    return false
-  }
-}
-
 function sendMsgSuccess(){
   showDialog('验证码已经发送成功，请注意查收')
 }
@@ -25,17 +17,32 @@ function sendMsgFail(){
 }
 
 function codeEmptyTip(){
-  showDialog('请输入验证码')
+  showDialog('请输入正确的验证码')
 }
 
-$(function(){
+function countDown(oneMinute){
+  if(oneMinute > 0){
+    oneMinute--
+    $("#countDown").html(oneMinute)
+    setTimeout(function(){
+      countDown(oneMinute)
+    }, 1000)
+  }else{
+    $("#countDown").html('')
+    $("#get_code").removeAttr("disabled")
+  }
+}
+
+function init(){
   $("#get_code").click(function(){
     var $this = $(this),
-        phone = $("#phone").val()
+        phone = $("#mobile").val(),
+        oneMinute = 10
 
-    if(validatePhone(phone)){
+    if(!isMobile(phone)){
       phoneValidateTip()
     }else{
+      $("#get_code").attr("disabled", "disabled")
       $.ajax({
         url: 'getcode',
         method: "GET",
@@ -56,6 +63,9 @@ $(function(){
         console.log(data)
         sendMsgFail()
       })
+      setTimeout(function(){
+        countDown(oneMinute)
+      }, 1000)
     }
   })
 
@@ -63,17 +73,17 @@ $(function(){
     var $this = $(this),
         url = '/register',
         method = 'POST',
-        phone = $("#phone").val(),
+        phone = $("#mobile").val(),
         code = $("#code").val()
         data = {
           phone: phone,
           code: code
         }
-    if(code === undefined || code === ''){
+    if(code === undefined || !isNumber(code)){
       codeEmptyTip()
       return
     }
-    if(validatePhone(phone)){
+    if(!isMobile(phone)){
       phoneValidateTip()
     }else{
       $.ajax({
@@ -94,4 +104,9 @@ $(function(){
       })
     }
   })
+
+}
+
+$(function(){
+  init()
 })

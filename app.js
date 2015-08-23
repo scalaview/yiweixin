@@ -127,11 +127,17 @@ app.get('/', function(req, res) {
   res.render('home')
 })
 
+admin.use(function(req, res, next){
+  res.locals.info = req.flash('info')
+  res.locals.err = req.flash('err')
+
+  next();
+});
+
 var skipUrls = [ '^\/wechat[\/|\?|\#]\?.*', '^\/admin\/login[\/|\?|\#]\?.*', '^\/admin\/register[\/|\?|\#]\?.*']
 
 admin.all("*", function(req, res, next) {
   var url = req.originalUrl
-
   if(req.session.user_id){
     next()
     return
@@ -150,7 +156,7 @@ admin.all("*", function(req, res, next) {
 
 admin.get('/', function (req, res) {
 
-  res.render('admin/home');
+  res.render('admin/home',{ info: req.flash("info"), errors: req.flash("err") });
 });
 
 admin.get('/login', function(req, res){
@@ -161,6 +167,7 @@ admin.get('/login', function(req, res){
 })
 
 admin.post('/login', urlencodedParser, function(req, res) {
+  req.flash('info', "login")
   models.User.findOne({ where: {username: req.body.username} }).then(function(user){
     if(user && user.verifyPassword(req.body.password)){
       req.session.user_id = user.id
@@ -206,12 +213,14 @@ admin.post('/register', function(req, res, next){
 
   user.save().then(function(user) {
     req.session.user_id = user.id
+    req.flash("info", "注册成功")
     res.redirect('/admin')
   }).catch(function(err) {
-    req.flash('errors', err.errors)
-    res.render('register', {
-      locals: { user: user },
-      layout: 'sign'
+    req.flash('err', err.message)
+    res.render('admin/register', {
+      user: user,
+      layout: 'sign',
+      errors: req.flash('err')
     })
   })
 })
@@ -334,7 +343,8 @@ admin.get('/flowtasks', function(req, res) {
     }, function(err, flowtasks) {
       if(err){
         console.log(err)
-        res.send(500)
+        req.flash('err', err.message)
+        res.redirect('back')
       }else{
         var sellerOptions = { name: "sellerId", class: "col-lg-12 col-xs-12 select2", includeBlank: true },
             isActiveOptions = { name: "isActive", class:  "col-lg-12 col-xs-12 select2", includeBlank: true },
@@ -347,7 +357,9 @@ admin.get('/flowtasks', function(req, res) {
           sellerCollection: sellerCollection,
           isActiveOptions: isActiveOptions,
           isActiveCollection: isActiveCollection,
-          query: req.query
+          query: req.query,
+          info: req.flash('info'),
+          err: req.flash('err')
         })
       }
     })
@@ -386,10 +398,13 @@ admin.get('/flowtasks/new', function(req, res) {
       var sellerOptions = { name: 'seller_id', id: 'seller_id', class: 'select2 col-lg-12 col-xs-12' },
           trafficPlanOptions = { name: 'trafficPlanId', id: 'trafficPlanId', class: 'select2 col-lg-12 col-xs-12' }
       res.render('./admin/flowtasks/new', {
+        flowtask: models.FlowTask.build(),
         sellerOptions: sellerOptions,
         sellerCollection: sellerCollection,
         trafficPlanOptions: trafficPlanOptions,
-        trafficPlanCollection: trafficPlanCollection
+        trafficPlanCollection: trafficPlanCollection,
+        info: req.flash('info'),
+        err: req.flash('err')
       })
     }
   })
@@ -443,7 +458,9 @@ admin.get('/flowtasks/:id/edit', function(req, res) {
         trafficPlanOptions: trafficPlanOptions,
         trafficPlanCollection: trafficPlanCollection,
         flowtask: flowtask,
-        path: '/admin/flowtask/'+flowtask.id
+        path: '/admin/flowtask/'+flowtask.id,
+        info: req.flash('info'),
+        err: req.flash('err')
       })
     }
   })
@@ -464,9 +481,12 @@ admin.post('/flowtask', function(req, res) {
       trafficPlanId: fields.trafficPlanId,
       actionUrl: fields.actionUrl
     }).save().then(function(flowtask) {
+      req.flash('info', 'create success')
       res.redirect("/admin/flowtasks/" + flowtask.id + "/edit")
     }).catch(function(err) {
-      res.send(err)
+      console.log(err)
+      req.flash("err", err.message)
+      res.redirect("/admin/flowtasks/new")
     });
   });
 });
@@ -492,8 +512,10 @@ admin.post("/flowtask/:id", function(req, res) {
     }], function(err, flowtask) {
       if(err){
         console.log(err)
+        req.flash('err', err.message)
         res.redirect("/admin/flowtasks/" + flowtask.id + "/edit")
       }else{
+        req.flash('info', 'update success')
         res.redirect("/admin/flowtasks")
       }
     })
@@ -550,10 +572,12 @@ admin.post("/apk", function(req, res) {
       description: fields.description,
       digest: fields.digest
     }).save().then(function(apk) {
+      req.flash('info', 'create success')
       res.redirect("/admin/apks/"+apk.id+'/edit')
     }).catch(function(err, apk) {
       console.log(err)
-      res.send(err)
+      req.flash('err', err.message)
+      res.redirect("/admin/apks/new")
     })
   })
 })
@@ -615,7 +639,9 @@ admin.get("/apks", function(req, res){
         apks: result,
         query: req.query,
         sellerCollection: sellerCollection,
-        sellerOptions: sellerOptions
+        sellerOptions: sellerOptions,
+        info: req.flash('info'),
+        err: req.flash('err')
       })
 
     }
@@ -640,6 +666,7 @@ admin.get("/apks/:id/edit", function(req, res) {
   }], function(err, apk, sellerCollection) {
     if(err){
       console.log(err)
+      req.flash('err', err.message)
       res.redirect("/admin/apks")
     }else{
       var sellerOptions = { name: 'sellerId', id: 'sellerId', class: 'select2 col-lg-12 col-xs-12' },
@@ -649,7 +676,9 @@ admin.get("/apks/:id/edit", function(req, res) {
         sellerOptions: sellerOptions,
         sellerCollection: sellerCollection,
         apk: apk,
-        path: '/admin/apk/'+apk.id
+        path: '/admin/apk/'+apk.id,
+        info: req.flash('info'),
+        err: req.flash('err')
       })
     }
   })
@@ -682,8 +711,10 @@ admin.post("/apk/:id", function(req, res) {
     }], function(err, apk) {
       if(err){
         console.log(err)
+        req.flash('err', err.message)
         res.redirect("/admin/apk/" + apk.id + "/edit")
       }else{
+        req.flash('info', 'update success')
         res.redirect("/admin/apks")
       }
     })
@@ -695,7 +726,9 @@ admin.post("/apk/:id", function(req, res) {
 admin.get("/customers/:id", function(req, res) {
   models.Customer.findById(req.params.id).then(function(customer) {
     if(customer){
-      res.render("admin/customers/show", { customer: customer })
+      res.render("admin/customers/show", {
+        customer: customer
+      })
     }else{
       res.send(404)
     }
@@ -1306,7 +1339,10 @@ admin.get("/messagequeues", function(req, res) {
   models.MessageQueue.findAndCountAll({
     where: params,
     limit: req.query.perPage || 15,
-    offset: helpers.offset(req.query.page, req.query.perPage || 15)
+    offset: helpers.offset(req.query.page, req.query.perPage || 15),
+    order: [
+      ['updatedAt', 'DESC']
+    ]
   }).then(function(messageQueues) {
     var messagequeues = helpers.setPagination(messageQueues, req),
         messageTypeOptions = { name: "type", class: 'select2 col-lg-12 col-xs-12', includeBlank: true },
@@ -1337,10 +1373,13 @@ admin.get("/messagequeues", function(req, res) {
 
 // --------------- app -----------------------
 app.get('/register', function(req, res){
-  res.render('register', { layout: false })
+  res.render('register', { layout: 'main' })
 })
 
 app.post('/register', function(req, res){
+  if(!req.body.phone){
+    res.json({ msg: '请输入手机号码', code: 0 })
+  }
   models.MessageQueue.verifyCode(req.body.phone, req.body.code, 'register', function(messageQueue){
     if(messageQueue){
       models.Customer.build({
@@ -1370,6 +1409,12 @@ app.post('/register', function(req, res){
 })
 
 app.get('/getcode', function(req, res) {
+  if(!req.query.phone){
+    res.json({ msg: '请输入手机号码', code: 0 })
+    return
+  }
+  req.flash('info', "ok")
+  console.log(req.flash('info'))
   models.MessageQueue.canSendMessage(req.query.phone, 'register', function(messageQueue) {
     if(messageQueue){
       res.json({ msg: "Please try again after 1 minite", code: 2 });
@@ -1534,7 +1579,7 @@ app.post("/extractFlow", requireLogin, function(req, res){
   })
 })
 
-app.get('/getTrafficplans', function(req, res){
+app.get('/getTrafficplans', requireLogin, function(req, res){
   if(models.TrafficPlan.Provider[req.query.catName] !== undefined){
     var providerId = models.TrafficPlan.Provider[req.query.catName]
     models.TrafficPlan.findAll({ where: { providerId: providerId },

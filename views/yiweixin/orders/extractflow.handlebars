@@ -16,7 +16,7 @@
       <div class="right">应付流量币：<span id="needmyflow" class="orange">0</span>个</div>
   </div>
   <div class="ml">
-      <div class="btn-submit"><a href="javascript:void(0);">提取流量到手机</a></div>
+      <div class="btn-submit" id="exchanger"><a href="javascript:void(0);">提取流量到手机</a></div>
       <div class="zw-tips"><a href="../about/tiquguize.html">提取规则说明</a></div>
       <div class="inform" style="display:none;">
           <h1>提取规则：</h1>
@@ -34,144 +34,8 @@
 {{> alertmodal }}
 {{> extractConfirm }}
 
-<script type="text/javascript" src='/javascript/rechargeflow.js'></script>
 <script id="trafficplans-template" type="text/x-handlebars-template">
 \{{#each trafficplans}}
   <a class="mask01" /{{#if @first}} selected {{/if}} data-value="\{{id}}" data-flow='\{{name}}' data-cost="\{{cost}}" >\{{name}}<div class="an"></div></a>
 \{{/each}}
-</script>
-
-
-<script type="text/javascript">
-///手机验证
-function isMobile(mobile) {
-    var reg = /^1\d{10}$/;
-    return (mobile !== undefined && mobile !== '' && reg.test(mobile))
-}
-
-function getCarrier(phone){
-  var source   = $("#trafficplans-template").html();
-  $.ajax({
-    url: 'https://tcc.taobao.com/cc/json/mobile_tel_segment.htm',
-    method: 'GET',
-    dataType: 'JSONP',
-    data: {
-      tel: phone
-    }
-  }).done(function(result){
-    // areaVid: "30517"carrier: "广东移动"catName: "中国移动"ispVid: "3236139"mts: "1382846"province: "广东"
-    if(result.catName){
-      $("#phone-detail").html(result.catName + ' ' + result.carrier).data("provider", result.carrier).show()
-      getTrafficplan(source, result.catName)
-      submitIsEnable(true);
-    }else{
-      showDialog("请输入正确的手机号码");
-    }
-  })
-}
-
-function getTrafficplan(source, catName){
-  var template = Handlebars.compile(source);
-  $.ajax({
-    url: '/getTrafficplans',
-    dataType: 'JSON',
-    data: {
-      catName: catName
-    },
-    method: "GET"
-  }).done(function(data){
-    var html = template({trafficplans: data})
-    $(".llb").html(html)
-  }).fail(function(err){
-    console.log(err)
-  })
-}
-
-function extractConfirm(){
-
-  ///提取流量事件
-  $(".btn-submit").click(function() {
-      ///转赠流量
-      var selectedFlow = $(".llb a.selected");
-      //if (selectedFlow.attr('class', 'mask01')) {
-      //    alertMsg("您的余额不足，无法完成此项操作", false);
-      //    return;
-      //}
-      var flowId = selectedFlow.data("value");
-      if (!flowId || flowId == "") {
-          showDialog("请选择流量包");
-          return;
-      }
-
-      var flow = selectedFlow.data("flow"),
-          phone = $.trim($("#mobile").val())
-      $("#maskflow").html(flow)
-      $("#maskmobile").html(phone)
-      $("#mask").show()
-  });
-
-
-  $(".sure").click(function(){
-    var selectedFlow = $(".llb a.selected"),
-        phone = $.trim($("#mobile").val()),
-        flowId = selectedFlow.data("value");
-
-    if(isMobile(phone) && flowId !== undefined && flowId !== '' ){
-       $.ajax({
-        url: '/extractFlow',
-        dataType: "JSON",
-        data: {
-          phone: phone,
-          flowId: flowId
-        },
-        method: "POST"
-       }).done(function(data){
-        showDialog(data.msg)
-        if(!data.err){
-          doDelay(function(){
-            window.location.href = data.url
-          }, 1)
-        }
-       }).fail(function(err){
-        console.log(err)
-        showDialog("服务器繁忙")
-       })
-    }else{
-      showDialog("请输入电话好吗和选择正确的套餐")
-    }
-  })
-
-}
-
-$(function() {
-  extractConfirm()
-  $(".llb").on('click', 'a', function(){
-    var $this = $(this)
-    $this.parent().children().removeClass("selected");
-    $(this).addClass("selected");
-    var cost = $this.data("cost");
-    $("#needmyflow").html(cost);
-  })
-
-  //手机号码失去焦点事件
-  $("#mobile").bind("blur", function () {
-      var mobile = $.trim($(this).val());
-      if ($.trim(mobile) == "") {
-          $(".correct").hide();
-          $(".correct").html("");
-          $(".llb").html("");
-          showDialog("请输入手机号码");
-          return;
-      }
-      if (!isMobile(mobile)) {
-          $(".correct").hide();
-          $(".correct").html("");
-          $(".llb").html("");
-          showDialog("请输入正确的手机号码");
-          return;
-      }
-      getCarrier(mobile);
-  });
-
-})
 </script>

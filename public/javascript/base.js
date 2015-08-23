@@ -12,3 +12,15 @@ window.showDialog = function(msg){
 window.doDelay = function(callback, second) {
   window.setTimeout(callback, second * 1000);
 }
+
+///手机验证
+window.isMobile = function (mobile) {
+    var reg = /^1\d{10}$/;
+    return (mobile !== undefined && mobile !== '' && reg.test(mobile))
+}
+
+$(function(){
+  $(".back").click(function() {
+    $("#mask").hide()
+  })
+})

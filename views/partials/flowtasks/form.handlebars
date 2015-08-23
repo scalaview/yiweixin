@@ -27,13 +27,13 @@
         <div class='row'>
           <div class="col-lg-6">
             <div class="form-group">
-                <label>expired at</label>
-                <input class="form-control" placeholder="input expired at" id="expired_at" name="expired_at" value="{{ strftime flowtask.expired_at 'YYYY-MM-DD' }}">
+                <label>过期时间</label>
+                <input class="form-control" placeholder="input expired at" id="expired_at" name="expired_at" value="{{ strftime flowtask.expiredAt 'YYYY-MM-DD' }}">
                 <p class="help-block">Example block-level help text here.</p>
             </div>
           </div>
           <div class="col-lg-6">
-            <div class="checkbox">
+            <div class="checkbox" style="padding-top: 20px;">
               <label>
                   <input type="checkbox" name="is_active" {{ isChecked flowtask.isActive  }} >is active
               </label>
@@ -60,7 +60,7 @@
 
       <div class="form-group">
             <label>sort num</label>
-            <input class="form-control" placeholder="input sort num" name="sortNum" value="{{ flowtask.sortNum }}">
+            <input class="form-control" placeholder="input sort num" type='number' name="sortNum" value="{{ flowtask.sortNum }}">
       </div>
       <div class="form-group">
             <label>Cover</label>

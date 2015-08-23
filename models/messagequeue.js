@@ -94,7 +94,6 @@ module.exports = function(sequelize, DataTypes) {
         models.MessageQueue.belongsTo(models.MessageTemplate, { foreignKey: 'templateId' });
       },
       canSendMessage: function(phone, type, callback) {
-        console.log(new Date())
         if (MessageQueue.messageType[type] !== undefined){
           MessageQueue.findOne({ where: {
             phone: phone,
@@ -125,7 +124,6 @@ module.exports = function(sequelize, DataTypes) {
         }, function(messageTemplate, next) {
           var num = Math.floor(Math.random() * 90000) + 10000;
           if(messageTemplate){
-            console.log(messageTemplate)
             var content = messageTemplate.content.format({ code: num })
           }else{
             var content = "易流量注册。你的注册验证码：{{code}}".format({ code: num })
