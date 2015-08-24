@@ -112,8 +112,6 @@ function fileUpload(file, successCallBack, errorCallBack){
 }
 
 function fileUploadSync(file, dirpath){
-          console.log(file)
-
   var origin_this = this,
       old_path = file.path,
       file_size = file.size,
@@ -421,7 +419,6 @@ function htmlSafe(html) {
 }
 
 function tipSource(source, data){
-  console.log(data)
   if( typeof data === 'string' ){
     return source.format({ text: data }).htmlSafe()
   }else if( data instanceof Array && data.length > 0){

@@ -264,7 +264,7 @@ admin.get('/kindeditor/filemanager', function (req, res) {
       var refile = fs.statSync(fspath + '/' + file)
           splitd = file.split('.'),
           type = splitd[splitd.length - 1]
-          console.log(refile)
+
       files.push({
         is_dir: false,
         has_file: false,
@@ -1272,7 +1272,6 @@ admin.get("/orders", function(req, res) {
       for(var key in models.Order.STATE){
         stateCollection.push([ models.Order.STATE[key], key ])
       }
-      console.log(stateCollection)
       result.rows = orders
       result = helpers.setPagination(result, req)
       res.render("admin/orders/index", {
@@ -1322,7 +1321,6 @@ admin.get("/orders/:id", function(req, res) {
     if(err){
       console.log(err)
     }else{
-      console.log(order)
       res.render("admin/orders/show", { order: order })
     }
   })
@@ -1438,7 +1436,6 @@ app.get('/getcode', function(req, res) {
 app.get('/profile', requireLogin, function(req, res) {
   var customer = req.customer
   customer.getLastFlowHistory(models, models.FlowHistory.STATE.ADD, function(customer, flowHistory){
-    // console.log(customer.lastFlowHistory.source)
     res.render('yiweixin/customer/show', { customer: customer, flowHistory: customer.lastFlowHistory })
   }, function(err){
     console.log(err)
@@ -1627,7 +1624,6 @@ app.get("/spend", requireLogin, function(req, res){
 
 app.get('/send-message', function(req, res) {
   models.MessageQueue.canSendMessage(req.query.phone, req.query.type, function(messageQueue) {
-    console.log(messageQueue)
     if(messageQueue){
       res.json({ msg: "Please try again after 1 minite" });
     }else{

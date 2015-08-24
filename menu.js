@@ -16,7 +16,6 @@ exports.createMenus = function (accessToken, menus, callback) {
 
   request(options, function (error, res, data) {
     if (!error && res.statusCode == 200) {
-      console.log(data.errcode == 0)
       if(data.errcode != null && data.errcode == 0){
         callback(true)
       }else{

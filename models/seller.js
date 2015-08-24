@@ -8,7 +8,6 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: false,
       set: function(val){
-        console.log(val)
         if(val !== undefined && val !== ''){
           this.setDataValue('accessToken', val)
         }else if( this.accessToken === undefined ){
