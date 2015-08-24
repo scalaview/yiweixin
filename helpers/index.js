@@ -313,13 +313,7 @@ function isChecked(checked){
   }
 }
 
-
-// FlowHistory.STATE = {
-//     ADD: 1,
-//     REDUCE: 0
-//   };
 function amountType(type, amount){
-  console.log(type + ": " + amount)
   if(type === 1 ){
     return ['<span class="btn-warning">+ ', amount, ' </span> '].join("").htmlSafe()
   }else if(type ===  0){
@@ -341,6 +335,9 @@ function flowhistorySourceLink(source, options){
     return link.renderTemplate(options).htmlSafe()
   }else if(source.className() === "ExtractOrder"){
     options.href = "/admin/extractorder/" + source.id + "/edit"
+    return link.renderTemplate(options).htmlSafe()
+  }else if(source.className() === "Apk"){
+    options.href = "/admin/apks/" + source.id + "/edit"
     return link.renderTemplate(options).htmlSafe()
   }
 }

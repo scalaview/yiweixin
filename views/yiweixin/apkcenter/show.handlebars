@@ -106,7 +106,7 @@
     <div class="panel-footer navbar-fixed-bottom">
         <div class="row">
           <div class="col-xs-12 col-md-12">
-            <a class="download" href="/apkcenter/download/{{apk.id}}">
+            <a class="download" href="/apkcenter/download/{{apk.id}}?c={{customer.id}}">
               <button type="button" class="btn btn btn-warning btn-lg btn-block">
                 <i class="glyphicon glyphicon-download-alt"></i>
                 下载
@@ -117,20 +117,3 @@
     </div>
     <!-- /.panel-footer -->
 </div>
-
-
-<script type="text/javascript">
-$(function () {
-  $('a.download').click(function(){
-    var $this = $(this),
-        href = $this.attr("href")
-    if(href.indexOf('c=') !== -1){ return }
-
-    if(href.indexOf('?') !== -1 ){
-      $this.attr("href", href + "&c=" + {{ customer.id }})
-    }else{
-      $this.attr("href", href + "?c=" + {{ customer.id }})
-    }
-  })
-})
-</script>

@@ -171,7 +171,7 @@ admin.post('/login', urlencodedParser, function(req, res) {
   models.User.findOne({ where: {username: req.body.username} }).then(function(user){
     if(user && user.verifyPassword(req.body.password)){
       req.session.user_id = user.id
-      if(req.body.to && req.method === 'GET'){
+      if(req.body.to){
         var backTo = new Buffer(req.body.to, "base64").toString()
         res.redirect(backTo)
       }else{
@@ -779,6 +779,9 @@ admin.get("/flowhistories", function(req, res){
               break;
             case "ExtractOrder":
               flowHistory.extractOrder = source
+              break;
+            case "Apk":
+              flowHistory.apk = source
               break;
           }
           next(null, flowHistory)

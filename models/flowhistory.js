@@ -15,7 +15,7 @@ module.exports = function(sequelize, DataTypes) {
     source: {
       type: DataTypes.VIRTUAL,
       get: function(){
-        return this.order || this.extractOrder
+        return this.order || this.extractOrder || this.apk
       }
     }
   }, {
@@ -27,11 +27,17 @@ module.exports = function(sequelize, DataTypes) {
           scope: {
             sourceable: 'Order'
           }
-        }),
+        });
         models.FlowHistory.belongsTo(models.ExtractOrder, {
           foreignKey: 'typeId',
           scope: {
             sourceable: 'ExtractOrder'
+          }
+        });
+        models.FlowHistory.belongsTo(models.Apk, {
+          foreignKey: 'typeId',
+          scope: {
+            sourceable: 'Apk'
           }
         })
       },
