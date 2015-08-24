@@ -10,20 +10,18 @@
     <div class="col-lg-6">
 
         <div class="form-group">
-            <label>Phone</label>
+            <label>手机</label>
             <input class="form-control" placeholder="input title" name="phone" value="{{ extractOrder.phone }}">
-            <p class="help-block">Example block-level help text here.</p>
         </div>
         <div class="form-group">
           <label>花费流量币</label>
           <input class="form-control" placeholder="输入花费流量币" id="cost" name="cost" value="{{ extractOrder.cost }}">
-          <p class="help-block">Example block-level help text here.</p>
         </div>
     </div>
     <div class="col-lg-6">
       <div class="form-group">
         {{#if trafficPlanCollection }}
-        <label>Traffic Plan</label>
+          <label>流量套餐</label>
           {{ selectTag trafficPlanOptions trafficPlanCollection extractOrder.exchangerId }}
         {{else}}
           <label>流量任务</label>
@@ -39,7 +37,7 @@
   </div>
   <div class="row">
     <div class="col-lg-11">
-      <button type="submit" class="pull-right btn btn-primary">Submit Button</button>
+      <button type="submit" class="pull-right btn btn-primary">提  交</button>
     </div>
   </div>
 </form>

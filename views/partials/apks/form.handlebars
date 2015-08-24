@@ -10,16 +10,14 @@
     <div class="col-lg-6">
 
         <div class="form-group">
-            <label>Name</label>
+            <label>名字</label>
             <input class="form-control" placeholder="input title" name="name" value="{{ apk.name }}">
-            <p class="help-block">Example block-level help text here.</p>
         </div>
         <div class='row'>
           <div class="col-lg-6">
             <div class="form-group">
                 <label>version</label>
                 <input class="form-control" placeholder="input version" name="version" value="{{ apk.version }}">
-                <p class="help-block">Example block-level help text here.</p>
             </div>
           </div>
           <div class="col-lg-6">
@@ -33,25 +31,23 @@
     </div>
     <div class="col-lg-6">
       <div class="form-group">
-        <label>Seller</label>
+        <label>商家</label>
         {{ selectTag sellerOptions sellerCollection apk.sellerId }}
       </div>
       <div class="form-group">
-        <label>Reward</label>
+        <label>奖励（流量币）</label>
         <input class="form-control" placeholder="input reward" name="reward" value="{{ apk.reward }}">
-        <p class="help-block">Example block-level help text here.</p>
       </div>
       <div class="form-group">
-        <label>Digest</label>
+        <label>摘要</label>
         <input class="form-control" placeholder="input digest" name="digest" value="{{ apk.digest }}">
-        <p class="help-block">Example block-level help text here.</p>
       </div>
     </div>
   </div>
   <div class="row">
     <div class="col-lg-6">
       <div class="form-group">
-        <label>Sort Num</label>
+        <label>排序</label>
         <input class="form-control" placeholder="input sor num" type='number' name="sortNum" value="{{ apk.sortNum }}">
       </div>
       <div class="form-group">
@@ -64,7 +60,7 @@
         {{/if}}
       </div>
       <div class="form-group">
-        <label>Icon</label>
+        <label>图标</label>
         <input class="form-control" placeholder="input Icon" type="file" name="icon" value="{{ apk.icon }}">
         {{#if apk.icon}}
           <p class="help-block">
@@ -76,7 +72,7 @@
 
     <div class="col-lg-6">
       <div class="form-group">
-        <label>Screenshort 01</label>
+        <label>截图 01</label>
         <input class="form-control" placeholder="input screenshort" type="file" name="image01" value="{{ apk.image01 }}">
         {{#if apk.image01}}
           <p class="help-block">
@@ -85,7 +81,7 @@
         {{/if}}
       </div>
        <div class="form-group">
-        <label>Screenshort 02</label>
+        <label>截图 02</label>
         <input class="form-control" placeholder="input screenshort" type="file" name="image02" value="{{ apk.image02 }}">
         {{#if apk.image02}}
           <p class="help-block">
@@ -94,7 +90,7 @@
         {{/if}}
       </div>
       <div class="form-group">
-        <label>Screenshort 03</label>
+        <label>截图 03</label>
         <input class="form-control" placeholder="input screenshort" type="file" name="image03" value="{{ apk.image03 }}">
         {{#if apk.image03}}
           <p class="help-block">
@@ -109,14 +105,14 @@
     <div class="col-lg-12">
 
       <div class="form-group">
-          <label>Description</label>
+          <label>描述</label>
           <textarea class="form-control kindeditor" id="description" name="description" rows="3">{{apk.description}}</textarea>
       </div>
     </div>
   </div>
   <div class="row">
     <div class="col-lg-11">
-      <button type="submit" class="pull-right btn btn-primary">Submit Button</button>
+      <button type="submit" class="pull-right btn btn-primary">提  交</button>
     </div>
   </div>
 

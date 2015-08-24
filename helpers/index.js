@@ -278,15 +278,29 @@ function offset(page, prePage){
 
 function addParams(href, params){
   var subFix = '';
-  for(var key in params){
-    subFix = subFix + '&' + key + '=' + params[key]
+
+  var urlParams = href.split('?')[1],
+      originParams = {}
+  if(urlParams){
+    var queryParams = urlParams.split('&')
+    for (var i = 0; i < queryParams.length; i++) {
+      var tmp = queryParams[i].split('=')
+      if(tmp[1]){
+        originParams[tmp[0]] = tmp[1]
+      }
+    };
+  }
+
+  var paramsAll = _.merge(originParams, params)
+
+  for(var key in paramsAll){
+    subFix = subFix + '&' + key + '=' + paramsAll[key]
   }
 
   if(href.indexOf('?') !== -1 ){
-    return href + subFix
-  }else{
-    return (subFix.length > 0) ? href + "?" + subFix.substring(1, subFix.length) : href
+    href = href.split('?')[0]
   }
+  return (subFix.length > 0) ? href + "?" + subFix.substring(1, subFix.length) : href
 }
 
 
