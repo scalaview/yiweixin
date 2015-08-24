@@ -20,7 +20,6 @@ var path = require('path')
 var helpers = require("./helpers")
 var moment = require('moment')
 var fs        = require('fs');
-
 var app = express();
 var admin = express();
 
@@ -33,7 +32,7 @@ app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
 app.set('port', process.env.PORT || 3000);
-
+app.enable('verbose errors');
 app.use(express.static(__dirname + '/public'));
 
 var wechatConfig = {
@@ -76,6 +75,7 @@ app.use(urlencodedParser)
 app.use(jsonParser)
 app.use(session({secret: 'yiliuliang', saveUninitialized: true, resave: true}))
 app.use(flash());
+
 app.use(function(req, res, next){
   var err = req.session.error,
       msg = req.session.notice,
@@ -751,7 +751,10 @@ admin.get("/flowhistories", function(req, res){
     models.FlowHistory.findAndCountAll({
       where: params,
       limit: req.query.perPage || 15,
-      offset: helpers.offset(req.query.page, req.query.perPage || 15)
+      offset: helpers.offset(req.query.page, req.query.perPage || 15),
+      order: [
+        ['createdAt', 'DESC']
+      ]
     }).then(function(flowhistories){
       result = flowhistories
       next(null, flowhistories.rows)
@@ -1669,7 +1672,6 @@ app.get('/tasks/:id', function(req, res) {
 
 app.get('/apkcenter', requireLogin, function(req, res) {
   var customer = req.customer
-  console.log(customer)
   models.Apk.activeList(function(apks) {
     res.render("yiweixin/apkcenter/index", { apks: apks, customer: customer  })
   }, function(err) {
@@ -1678,6 +1680,10 @@ app.get('/apkcenter', requireLogin, function(req, res) {
 })
 
 app.get('/apkcenter/:id', function(req, res) {
+  if(! req.params.id.match(/\d/)){
+    res.redirect('/404');
+    return
+  }
   async.waterfall([function(next){
     if(req.query.c){
       models.Customer.findById(req.query.c).then(function(customer){
@@ -1703,6 +1709,10 @@ app.get('/apkcenter/:id', function(req, res) {
 })
 
 app.get('/apkcenter/download/:id', function(req, res) {
+  if(! req.params.id.match(/\d/)){
+    res.redirect('/404');
+    return
+  }
   async.waterfall([function(next){
     models.Customer.findById(req.query.c).then(function(customer) {
       next(null, customer)
@@ -1752,9 +1762,17 @@ app.get('/apkcenter/download/:id', function(req, res) {
   }, function(customer, apk, isUpdated, next){
     if(customer && isUpdated){
       customer.takeFlowHistory(models, apk, apk.reward, "首次下载app" + app.name, models.FlowHistory.STATE.ADD, function(flowHistory){
-        next(null, customer. apk, flowHistory)
+        next(null, customer, apk, flowHistory)
       }, function(err){})
+    }else{
+      next(null, customer, apk, null)
     }
+  }, function(customer, apk, flowHistory, next) {
+    apk.updateAttributes({
+      downloadTime: apk.downloadTime+1
+    }).then(function(apk) {
+      next(null, customer. apk, flowHistory)
+    }).catch(function(err){})
   }], function(err, customer, apk, flowHistory){
     if(err){
       console.log(err)
@@ -1767,7 +1785,10 @@ app.get("/taskconfirm/:id", function(req, res) {
   var id = req.params.id,
       token = req.query.token,
       phone = req.query.phone
-
+  if(! id.match(/\d/)){
+    res.redirect('/404');
+    return
+  }
   if(!(id && token && phone)) {
     res.json({ err: 1 , code: 1001, msg: "参数缺失"})
   }
@@ -1836,6 +1857,44 @@ app.get("/taskconfirm/:id", function(req, res) {
 })
 
 // --------------- app -----------------------
+
+app.get('/404', function(req, res, next){
+  next();
+});
+
+app.get('/403', function(req, res, next){
+  var err = new Error('not allowed!');
+  err.status = 403;
+  next(err);
+});
+
+app.get('/500', function(req, res, next){
+  next(new Error('keyboard cat!'));
+});
+
+
+app.use(function(req, res, next){
+  res.status(404);
+
+  if (req.accepts('html')) {
+    res.render('404', { layout: false, url: req.url });
+    return;
+  }
+
+  if (req.accepts('json')) {
+    res.send({ error: 'Not found' });
+    return;
+  }
+
+  res.type('txt').send('Not found');
+});
+
+app.use(function(err, req, res, next){
+  res.status(err.status || 500);
+  res.render('500', { layout: false, error: err });
+});
+
+
 
 var server = app.listen(app.get('port'), function () {
   var host = server.address().address;
