@@ -135,6 +135,13 @@ admin.use(function(req, res, next){
   next();
 });
 
+admin.use(function(req, res, next){
+  helpers.compact(req.body)
+  helpers.compact(req.query)
+  helpers.compact(req.params)
+  next();
+});
+
 var skipUrls = [ '^\/wechat[\/|\?|\#]\?.*', '^\/admin\/login[\/|\?|\#]\?.*', '^\/admin\/register[\/|\?|\#]\?.*']
 
 admin.all("*", function(req, res, next) {

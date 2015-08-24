@@ -36,6 +36,59 @@ String.prototype.toI = function(){
   }
 }
 
+Array.prototype.compact = function (array) {
+  if(this instanceof Array && array == undefined){
+    array = this
+  }
+
+  var index = -1,
+      length = array ? array.length : 0,
+      resIndex = -1,
+      result = [];
+
+  while (++index < length) {
+    var value = array[index];
+    if (value !== undefined && value !== null && value !== '' ) {
+      result[++resIndex] = value;
+    }
+  }
+  return result;
+}
+
+function compact(obj){
+  if(obj !== undefined && obj !== null){
+    if(typeof obj === 'string'){
+      return (obj !== '')
+    }else if( obj instanceof Array){
+      var result = []
+      if((array = obj.compact()).length > 0){
+        for (var i = 0; i < array.length; i++) {
+          var data = array[i]
+          var value = compact(array[i])
+          if( value instanceof Array ){
+            result.push(value)
+          }else if(value){
+            result.push(data)
+          }
+        };
+        return result.compact()
+      }
+    }else if( typeof obj === 'object' ){
+      for(var key in obj){
+        var value = compact(obj[key])
+        if(!value){
+           delete obj[key]
+        }else if(value instanceof Array){
+          obj[key] = value
+        }
+      }
+      return (Object.keys(obj).length > 0)
+    }else{
+      return true
+    }
+  }
+}
+
 function fileUpload(file, successCallBack, errorCallBack){
   var origin_this = this,
       old_path = file.path,
@@ -425,3 +478,4 @@ exports.extractOrderLink = extractOrderLink;
 exports.htmlSafe = htmlSafe;
 exports.successTips = successTips;
 exports.errTips = errTips;
+exports.compact = compact;

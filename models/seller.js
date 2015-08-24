@@ -3,17 +3,7 @@ var crypto = require('crypto');
 
 module.exports = function(sequelize, DataTypes) {
   var Seller = sequelize.define('Seller', {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false ,
-      validate: {
-         isNotNull: function (val) {
-           if (val === undefined || val === '') {
-             throw new Error("name not allow null")
-          }
-       }
-      }
-    },
+    name: { type: DataTypes.STRING, allowNull: false },
     accessToken: {
       type: DataTypes.STRING,
       allowNull: false,
