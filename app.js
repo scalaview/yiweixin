@@ -188,17 +188,13 @@ admin.post('/login', urlencodedParser, function(req, res) {
       var message
       if(user){
         message = 'password error'
-        res.render('login', {
-         locals: {message: message},
-         layout: 'sign'
-        })
       }else{
         message = 'register new user'
-        res.render('register', {
-          locals: {message: message},
-          layout: 'sign'
-        })
       }
+      res.render('admin/login', {
+       locals: {message: message},
+       layout: 'sign'
+      })
     }
   })
 })
