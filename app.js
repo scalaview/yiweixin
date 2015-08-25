@@ -1802,7 +1802,7 @@ app.get("/taskconfirm/:id", function(req, res) {
         accessToken: token
       }
     }).then(function(seller) {
-      next(err, seller)
+      next(null, seller)
     }).catch(function(err) {
       next(err)
     })
