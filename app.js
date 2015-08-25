@@ -471,7 +471,7 @@ admin.post('/flowtask', function(req, res) {
       content: fields.content,
       expiredAt: new Date(fields.expired_at),
       isActive: fields.is_active ? 1 : 0,
-      sortNum: fields.sort_num,
+      sortNum: fields.sortNum,
       cover: files.cover,
       seller_id: fields.seller_id,
       trafficPlanId: fields.trafficPlanId,
