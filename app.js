@@ -1457,70 +1457,68 @@ app.get('/payment', requireLogin, function(req, res) {
 
 app.post('/pay', requireLogin, function(req, res) {
     var customer = req.customer
-    var paymentMethod, dataPlan, order;
     async.waterfall([function(next) {
-      models.PaymentMethod.findOne({ where: { code: req.body.paymentMethod.toLowerCase() } }).then(function(payment) {
-        if(payment){
-          paymentMethod = payment;
-          next();
+      models.PaymentMethod.findOne({ where: { code: req.body.paymentMethod.toLowerCase() } }).then(function(paymentMethod) {
+        if(paymentMethod){
+          next(null, paymentMethod);
         }else{
           res.json({ err: 1, msg: "找不到支付方式" })
         }
       }).catch(function(err){
-        console.log(err)
-        res.json({ err: 1, meg: "server error" })
+        next(err)
       })
-    }, function(next){
-      models.DataPlan.findById(req.body.dataPlanId).then(function(plan){
-        if(plan){
-          dataPlan = plan
-          next()
+    }, function(paymentMethod, next){
+      models.DataPlan.findById(req.body.dataPlanId).then(function(dataPlan){
+        if(dataPlan){
+          next(null, paymentMethod, dataPlan)
         }else{
           res.json({ err: 1, msg: "请选择合适的套餐" })
         }
       }).catch(function(err) {
-        console.log(err)
-        res.json({ err: 1, meg: "server error" })
+        next(err)
       })
-    }, function(next){
+    }, function(paymentMethod, dataPlan, next){
       models.Order.build({
         state: models.Order.STATE.INIT,
         customerId: customer.id,
         dataPlanId: dataPlan.id,
         paymentMethodId: paymentMethod.id,
         total: dataPlan.price
-      }).save().then(function(obj){
+      }).save().then(function(order){
         //TODO do payment
-        order = obj
-        next()
+        next(null, paymentMethod, dataPlan, order)
       }).catch(function(err){
-        console.log(err)
-        res.json({ err: 1, meg: "server error" })
+        next(err)
       })
-    }, function(next){
+    }, function(paymentMethod, dataPlan, order, next){
       if(true){
         order.updateAttributes({
           state: models.Order.STATE.PAID
         }).then(function(order){
-          next()
+          next(null, paymentMethod, dataPlan, order)
         })
       }else{
         order.updateAttributes({
           state: models.Order.STATE.FAIL
         }).then(function(order){
           res.json({ err: 1, msg: "支付失败，请稍候重试" })
+        }).catch(function(err) {
+          next(err)
         })
       }
-    }, function(next){
+    }, function(paymentMethod, dataPlan, order, next){
       customer.addTraffic(models, order, function(customer, order, flowHistory){
           res.json({ err: 0, url: '/profile', msg: "充值成功" })
         }, function(err) {
-          console.log(err)
-          res.json({ err: 1, msg: "server error" })
+          next(err)
         })
     }], function(error, callback){
-      console.log(error)
-      res.json({ err: 1, msg: "server error" })
+      if(error){
+        console.log(error)
+        res.json({ err: 1, msg: "server error" })
+      }else{
+        res.redirect('/500')
+      }
     })
 })
 
@@ -1821,7 +1819,7 @@ app.get("/taskconfirm/:id", function(req, res) {
     })
   }, function(seller, flowtask, next) {
     models.TrafficPlan.findById(flowtask.trafficPlanId).then(function(trafficPlan) {
-      next(seller, flowtask, trafficPlan)
+      next(null, seller, flowtask, trafficPlan)
     }).catch(function(err) {
       next(err)
     })

@@ -151,8 +151,11 @@ function extractConfirm(){
   $(".sure").click(function(){
     var selectedFlow = $(".llb a.selected"),
         phone = $.trim($("#mobile").val()),
-        flowId = selectedFlow.data("value");
-
+        flowId = selectedFlow.data("value"),
+        source   = $("#trafficplans-template").html();
+    if(source === undefined || source == ''){
+      return
+    }
     if(isMobile(phone) && flowId !== undefined && flowId !== '' ){
        $.ajax({
         url: '/extractFlow',
@@ -174,7 +177,7 @@ function extractConfirm(){
         showDialog("服务器繁忙")
        })
     }else{
-      showDialog("请输入电话好吗和选择正确的套餐")
+      showDialog("请输入电话和选择正确的套餐")
     }
   })
 
@@ -244,7 +247,7 @@ function paymentConfirm(){
         showDialog("服务器繁忙")
       })
     }else{
-      showDialog("请输入电话好吗和选择正确的套餐")
+      showDialog("请输入电话和选择正确的套餐")
     }
   })
 }
