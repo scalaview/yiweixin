@@ -1836,10 +1836,19 @@ app.get("/taskconfirm/:id", function(req, res) {
       next(err)
     })
   }, function(seller, flowtask, trafficPlan, extractOrder, next) {
+    // TODO
     extractOrder.updateAttributes({
-      finishTime: extractOrder.finishTime + 1,
       state: models.ExtractOrder.STATE.SUCCESS
     }).then(function(extractOrder) {
+      next(null, seller, flowtask, trafficPlan, extractOrder)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(seller, flowtask, trafficPlan, extractOrder, next) {
+    // finishTime
+    flowtask.updateAttributes({
+      finishTime: flowtask.finishTime + 1
+    }).then(function(flowtask) {
       next(null, seller, flowtask, trafficPlan, extractOrder)
     }).catch(function(err) {
       next(err)
