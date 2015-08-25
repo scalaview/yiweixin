@@ -136,7 +136,7 @@ function fileUploadSync(file, dirpath){
 }
 
 function isExpired(expiredAt){
-  if(expiredAt !== undefined && (new Date() > expiredAt)){
+  if(expiredAt !== undefined && ( (new Date()).begingOfDate()  > expiredAt)){
     return true
   }else{
     return false

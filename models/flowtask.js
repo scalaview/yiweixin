@@ -4,6 +4,7 @@ var config = require("../config")
 
 module.exports = function(sequelize, DataTypes) {
   var FlowTask = sequelize.define('FlowTask', {
+    digest: { type: DataTypes.STRING, allowNull: true },
     title: { type: DataTypes.STRING, allowNull: false },
     cover: {
       type: DataTypes.STRING,
