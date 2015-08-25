@@ -55,6 +55,16 @@ Array.prototype.compact = function (array) {
   return result;
 }
 
+Date.prototype.begingOfDate = function(){
+  this.setHours(0,0,0,0);
+  return this
+}
+
+Date.prototype.endOfDate = function(){
+  this.setHours(23,59,59,999);
+  return this
+}
+
 function compact(obj){
   if(obj !== undefined && obj !== null){
     if(typeof obj === 'string'){

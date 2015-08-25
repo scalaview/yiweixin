@@ -500,6 +500,7 @@ admin.post("/flowtask/:id", function(req, res) {
     }, function(flowtask, next){
       attributes = _.merge(fields, { cover: files.cover })
       attributes['isActive'] = fields.is_active ? 1 : 0
+      attributes['expiredAt'] = new Date(fields.expired_at)
       flowtask.updateAttributes(attributes).then(function(flowtask) {
         next(null, flowtask)
       }).catch(function(err) {
@@ -1809,7 +1810,10 @@ app.get("/taskconfirm/:id", function(req, res) {
       where: {
         id: id,
         seller_id: seller.id,
-        isActive: true
+        isActive: true,
+        expiredAt: {
+          $gt: (new Date()).begingOfDate()
+        }
       }
     }).then(function(flowtask) {
       if(flowtask){
