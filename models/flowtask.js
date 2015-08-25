@@ -9,7 +9,9 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: true,
       set: function(file) {
-        if(file.size > 0 && file.type.match('^image\/')){
+        if(file == null){
+          this.setDataValue('cover', null)
+        }else if(file.size > 0 && file.type.match('^image\/')){
           var filename = helpers.fileUploadSync(file)
           this.setDataValue('cover', filename);
         }

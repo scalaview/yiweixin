@@ -498,10 +498,16 @@ admin.post("/flowtask/:id", function(req, res) {
         next(err)
       })
     }, function(flowtask, next){
-      attributes = _.merge(fields, { cover: files.cover })
-      attributes['isActive'] = fields.is_active ? 1 : 0
-      attributes['expiredAt'] = new Date(fields.expired_at)
-      flowtask.updateAttributes(attributes).then(function(flowtask) {
+      if(files.cover.size > 0){
+        fields['cover'] = files.cover
+      }else if( fields.removeCover){
+        fields['cover'] = null
+      }else{
+        fields['cover'] = files.cover
+      }
+      fields['isActive'] = fields.is_active ? 1 : 0
+      fields['expiredAt'] = new Date(fields.expired_at)
+      flowtask.updateAttributes(fields).then(function(flowtask) {
         next(null, flowtask)
       }).catch(function(err) {
         next(err)
@@ -688,15 +694,18 @@ admin.post("/apk/:id", function(req, res) {
         next(err)
       })
     }, function(apk, next){
-      attributes = _.merge(fields, {
-        icon: files.icon,
-        apk: files.apk,
-        image01: files.image01,
-        image02: files.image02,
-        image03: files.image03
-      })
-      attributes['isActive'] = fields.isActive ? 1 : 0
-      apk.updateAttributes(attributes).then(function(apk) {
+      var list = ['Icon', 'Apk', 'Image01', 'Image02', 'Image03']
+      for (var i = 0; i < list.length; i++) {
+        if(files[list[i].toLowerCase()].size > 0 ){
+          fields[list[i].toLowerCase()] = files[list[i].toLowerCase()]
+        }else if(fields['remove' + list[i]]){
+          fields[list[i].toLowerCase()] = null
+        }else{
+          fields[list[i].toLowerCase()] = files[list[i].toLowerCase()]
+        }
+      };
+      fields['isActive'] = fields.isActive ? 1 : 0
+      apk.updateAttributes(fields).then(function(apk) {
         next(null, apk)
       }).catch(function(err) {
         next(err)

@@ -63,9 +63,15 @@
       <div class="form-group">
             <label>封面</label>
             <input class="form-control" placeholder="input cover" type="file" name="cover" value="{{ flowtask.cover }}">
+            <input type="checkbox" name="removeCover" class='hide' id='removeCover'>
             {{#if flowtask.cover }}
               <p class="help-block">
-                <img class="col-lg-8 col-lg-offset-2 img-responsive" src="{{ flowtask.cover }}">
+                <div class='row'>
+                  <img class="col-lg-8 col-lg-offset-2 img-responsive" src="{{ flowtask.cover }}">
+                  <button type="button" data-el='Cover' class="remove btn btn-danger btn-circle pull-right" id= >
+                    <i class="glyphicon glyphicon-remove"></i>
+                  </button>
+                </div>
               </p>
             {{/if}}
         </div>
