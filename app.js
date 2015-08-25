@@ -1806,13 +1806,16 @@ app.get("/taskconfirm/:id", function(req, res) {
     })
   }, function(seller, next) {
     models.FlowTask.findOne({
-      id: id,
-      seller_id: seller.id
+      where: {
+        id: id,
+        seller_id: seller.id,
+        isActive: true
+      }
     }).then(function(flowtask) {
       if(flowtask){
         next(null, seller, flowtask)
       }else{
-        next(new Error("没有找到对应的任务"))
+        res.json({ err: 1, code: 1004, msg: "没有找到对应的任务"})
       }
     }).catch(function(err) {
       next(err)
