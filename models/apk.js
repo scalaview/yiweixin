@@ -112,7 +112,7 @@ module.exports = function(sequelize, DataTypes) {
       activeList: function(successCallBack, errCallBack) {
         this.query({
           where: {
-            isActive: 1
+            isActive: true
           },
           order: [
             ['sortNum', 'DESC']
@@ -146,7 +146,7 @@ module.exports = function(sequelize, DataTypes) {
     scopes: {
       active: {
         where: {
-          isActive: 0
+          isActive: false
         },
         order: [
           ['sortNum', 'DESC']

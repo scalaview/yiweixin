@@ -1662,7 +1662,8 @@ app.get('/tasks', function(req, res) {
   var tasks = models.FlowTask.scope('active', 'defaultSort').findAll().then(function(tasks) {
     res.render('yiweixin/flowtasks/index', { tasks: tasks })
   }).catch(function(err) {
-    res.redirect('/404')
+      console.log(err)
+      res.redirect('/500')
   })
 })
 

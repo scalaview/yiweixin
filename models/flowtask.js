@@ -38,7 +38,7 @@ module.exports = function(sequelize, DataTypes) {
     scopes: {
       active: {
         where: {
-          isActive: 1
+          isActive: true
         }
       },
       defaultSort: {
