@@ -14,4 +14,6 @@ $(function(){
     })
   })
 
+  $('.fulltext img').addClass('img-responsive')
+
 })
