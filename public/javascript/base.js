@@ -23,4 +23,5 @@ $(function(){
   $(".back").click(function() {
     $("#mask").hide()
   })
+  $('.fulltext img').addClass('img-responsive')
 })

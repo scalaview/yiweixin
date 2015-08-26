@@ -13,7 +13,4 @@ $(function(){
       $this.parents('.help-block').remove()
     })
   })
-
-  $('.fulltext img').addClass('img-responsive')
-
 })
