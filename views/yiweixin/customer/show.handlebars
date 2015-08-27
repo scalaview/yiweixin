@@ -1,100 +1,64 @@
-<div class="content">
-  <div class="liuliang">
-      <div class="name-img">
-          <a href="#">
-              <img src="/images/profile.png" id="WxHeadLogo"/></a>
-      </div>
-      <div class="name-con">
-            <li><span class="orange" id="WxNickName">{{ customer.username }}</span></li>
-          <li><span class="tel" id="Mobile">{{ customer.phone }} </span></li>
-      </div>
+<div class="container">
+  <div class="row">
+    <img class="img-responsive" src="/images/banner.png">
   </div>
-    <div class="ll-shuzi">
-      <div class="yue">
-        <div class="help">
-            <a href="Help.html">帮助</a>
+
+  <div class="space-6"></div>
+  <div class="row">
+   <p class="bg-primary text-center" style='padding: 15px'>
+    <a href="" style='color: #FFF'>流量币： {{ customer.remainingTraffic }}M</a>
+   </p>
+  </div>
+  <div class="row">
+    <div class="hexagon text-center">
+      <a href="/tasks">
+        <div data-action="hexagon" class="hexagon-by item1">
+          <div class="item-img1 item-img"></div>
+          <p>领取</p>
         </div>
-        <div class="tit">
-            当前流量币余额
+      </a>
+      <a href="/payment">
+        <div data-action="hexagon" class="hexagon-by item2">
+          <div class="item-img2 item-img"></div>
+          <p>购买</p>
         </div>
-        <div class="miane">
-            <span class="shuzi"> {{ customer.remainingTraffic }} </span>
-            <span class="zhao">流量币</span>
-            <!--<div class="zhuanqu"><a href="/list.html">领取流量</a></div>-->
+      </a>
+      <a href="/extractflow">
+        <div data-action="hexagon" class="hexagon-by item3">
+          <div class="item-img3 item-img"></div>
+          <p>兑换</p>
         </div>
-      </div>
-      <div class="list-con" onclick="javascript:window.location.href='/income'">
-        <div class="tit">
-            最近收入
+      </a>
+      <a href="/apkcenter">
+        <div data-action="hexagon" class="hexagon-by-1 item4">
+          <div class="item-img4 item-img"></div>
+          <p>软件中心</p>
         </div>
-        {{#if flowHistory.source}}
-          <div class="con" id="GetRec">
-              <div class="img">
-                  {{!-- <img id="Face" src="res/images/img-01.png" /> --}}
+      </a>
+      <a href="/income">
+        <div data-action="hexagon" class="hexagon-by-1 item5">
+          <div class="item-img5 item-img"></div>
+          <p>累计收入</p>
+          <div class="url"></div>
+        </div>
+      </a>
+      <a href="/spend">
+        <div data-action="hexagon" class="hexagon-by-1 item6">
+          <div class="item-img6 item-img"></div>
+          <p>累计支出</p>
+        </div>
+      </a>
+      <div class="hexagon-max hexagon-user">
+        <div class="boxF">
+          <div class="boxS">
+            <div class="boxT" style="background: #ccc;">
+              <div class="user" style="background: url(/images/profile.png) 0px 0px / 100% no-repeat;">
+                <!--<p>梦一柯南</p>-->
               </div>
-              <div class="text">
-                  <div class="over">
-                      <span class="gray">收入来源：</span>
-                      <span id="SourceName">{{ flowSource flowHistory.source }}</span>
-                  </div>
-                  <div class="over">
-                      <span class="gray">收入数量：</span>
-                      <span id="FlowPrice"> {{ flowHistory.amount }} </span>流量币
-                  </div>
-                  <div class="over">
-                      <span class="gray">收入备注：</span>
-                      <span id="Remark"> {{ flowHistory.comment }} </span>
-                  </div>
-              </div>
+            </div>
           </div>
-        {{/if}}
-      </div>
-      <div class="add">
-        <li>
-          <a href="/tasks">
-            <img src="/images/pro-03.png">
-            <div class="con">
-              <div class="text">领取流量</div>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a id="buy" href="/payment">
-            <img src="/images/pro-04.png">
-            <div class="con">
-              <div class="text">购买流量币</div>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a href="/income">
-            <img src="/images/pro.png" style=" margin-top:3px;"/>
-            <div class="con">
-              <div>累计收入<br /><span  class="gray">(流量币)</span></div>
-              <div class="">
-                  <span class="box-02" id="Get"> {{ customer.income }} </span>
-              </div>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a href="/spend">
-            <img src="/images/pro-02.png"  style=" margin-top:3px;"/>
-            <div class="con">
-              <div>累计支出<br/><span class="gray">(流量币)</span></div>
-              <div class="">
-                <span class="box-02" id="Give"> {{ customer.expenditure }}</span>
-              </div>
-            </div>
-          </a>
-          </li>
-      </div>
+        </div>
       </div>
     </div>
-    <div id="bottomWrap" style="height: 60px;"></div>
-    <div class="bottom">
-        <li><a href="/extractflow">
-            <img src="/images/iphone.png" />提取流量</a></li>
-        <li><a href="/apkcenter">
-            <i class="glyphicon glyphicon-th-large"></i>软件中心</a></li>
-    </div>
+  </div>
+</div>

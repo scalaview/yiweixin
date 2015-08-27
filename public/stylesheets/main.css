@@ -39,3 +39,168 @@ p {
   word-wrap: break-word;
   word-break: break-all;
 }
+.space-6 {
+  padding-top: 6px;
+}
+
+.hexagon .hexagon-by {
+  width: 10rem;
+  height: 8.61111rem;
+  background: url("/images/index-box.png") no-repeat;
+  background-size: 100% auto;
+  position: absolute;
+  z-index: 111;
+  margin-left: 2.5rem;
+  transform: rotate(0deg);
+  -webkit-transition: transform 1s ease 0s;
+}
+
+.hexagon .hexagon-by-1 {
+  width: 10rem;
+  height: 8.61111rem;
+  background: url("/images/index-box.png") no-repeat 0 bottom;
+  background-size: 100% auto;
+  position: absolute;
+  z-index: 111;
+  margin-left: 2.5rem;
+  transform: rotate(0deg);
+  -webkit-transition: transform 1s ease 0s;
+}
+
+.hexagon {
+  overflow: hidden;
+  width: 100%;
+  height: 30.55556rem;
+  position: relative;
+}
+
+.hexagon .item2 {
+  left: 8.77778rem;
+  top: 1.66667rem;
+}
+
+.hexagon .item1 {
+  left: 1rem;
+  top: 6.11111rem;
+}
+
+.hexagon .item3 {
+  left: 16.83333rem;
+  top: 6.11111rem;
+}
+
+.hexagon .item4 {
+  left: 16.83333rem;
+  top: 15rem;
+}
+
+.hexagon .item5 {
+  left: 8.77778rem;
+  top: 19.44444rem;
+}
+
+.hexagon .item6 {
+  left: 1rem;
+  top: 15rem;
+}
+
+.hexagon .item-img2 {
+  background: url("/images/icon-4.png");
+  background-size: 100%;
+}
+
+.hexagon .item-img {
+  width: 3.44444rem;
+  height: 3.44444rem;
+  background-size: 3.44444rem auto;
+  position: absolute;
+  left: 3.33333rem;
+  top: 1.38889rem;
+}
+.hexagon p {
+  text-align: center;
+  color: #fff;
+  margin: 5rem auto 0 auto;
+  width: 100%;
+}
+
+.hexagon .item-img1 {
+  background: url("/images/icon-3.png");
+  background-size: 100%;
+}
+
+.hexagon .item-img3 {
+  background: url("/images/icon-5.png");
+  background-size: 100%;
+}
+
+.hexagon .item-img4 {
+  background: url("/images/icon-6.png");
+  background-size: 100%;
+}
+
+.hexagon .item-img5 {
+  background: url("/images/icon-7.png");
+  background-size: 100%;
+}
+
+.hexagon .item-img6 {
+  background: url("/images/icon-8.png");
+  background-size: 100%;
+}
+
+.hexagon .hexagon-user {
+  left: 10.87778rem;
+  top: 10.55556rem;
+}
+.hexagon .hexagon-max {
+  width: 5rem;
+  height: 8.21111rem;
+  background: #fff;
+  position: absolute;
+  z-index: 111;
+  margin-left: 2.5rem;
+  transform: rotate(0deg);
+  -webkit-transition: transform 1s ease 0s;
+}
+.hexagon .boxF {
+  -webkit-transform: rotate(90deg);
+  float: left;
+  margin-left: 0.27778rem;
+}
+.hexagon .boxF{
+  width: 7.94444rem;
+  height: 9.33333rem;
+  overflow: hidden;
+}
+
+.hexagon .boxF {
+  position: absolute;
+  z-index: 120;
+  left: -1.25rem;
+}
+.hexagon .boxT {
+  -webkit-transform: rotate(-60deg);
+  visibility: visible;
+}
+
+.hexagon .boxF, .hexagon .boxS, .hexagon .boxT {
+  width: 7.94444rem;
+  height: 9.33333rem;
+  overflow: hidden;
+}
+.hexagon .boxS {
+  -webkit-transform: rotate(-60deg);
+}
+
+.hexagon .user {
+  width: 8.33333rem;
+  height: 9.72222rem;
+  -webkit-transform: rotate(30deg);
+  font-weight: bold;
+  margin-left: -0.5rem;
+  overflow: hidden;
+  background-size: 100% auto;
+}
+
+
