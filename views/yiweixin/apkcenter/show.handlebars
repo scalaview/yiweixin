@@ -41,8 +41,11 @@
     </div>
   </div>
   <div class="row">
+    <small class="col-xs-12 text-muted" style='color: #c7254e;'>
+      必须确保您从未安装过该软件
+    </small>
     <div class="col-xs-12 col-md-12">
-      <a class="download" href="/apkcenter/download/{{apk.id}}?c={{customer.id}}">
+      <a class="download" href="/apkcenter/download/{{apk.id}}?c={{customer.password_hash}}">
         <button type="button" class="btn btn btn-success btn-lg btn-block">
           <i class="glyphicon glyphicon-download-alt"></i>
           下载
@@ -50,6 +53,9 @@
       </a>
     </div>
   </div>
+  <div class="space-6"></div>
+  <div class="space-6"></div>
+  <div class="space-6"></div>
 </div>
 
 

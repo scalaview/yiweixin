@@ -10,7 +10,7 @@
             <div class="row">
               <div class="col-xs-12 col-md-12">
                 {{ customer.id}}
-                  <a href="/apkcenter/{{id}}?c={{../customer.id}}">
+                  <a href="/apkcenter/{{id}}?c={{../customer.password_hash}}">
                     <div class="col-xs-3">
                         <img class="img-responsive" src="{{ icon }}">
                     </div>
@@ -27,7 +27,7 @@
 
                     </div>
                   </a>
-                  <a href="/apkcenter/download/{{id}}?c={{../customer.id}}">
+                  <a href="/apkcenter/download/{{id}}?c={{../customer.password_hash}}">
                     <div class="col-xs-2">
                       <i class="glyphicon glyphicon-download-alt btn-lg orange"></i>
                     </div>

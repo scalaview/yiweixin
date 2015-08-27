@@ -1697,8 +1697,16 @@ app.get('/apkcenter/:id', function(req, res) {
   }
   async.waterfall([function(next){
     if(req.query.c){
-      models.Customer.findById(req.query.c).then(function(customer){
-        next(null, customer)
+      models.Customer.findOne({
+        where: {
+          password_hash: req.query.c
+        }
+      }).then(function(customer){
+        if(customer){
+          next(null, customer)
+        }else{
+          next(null, null)
+        }
       }).catch()
     }else{
       next(null, null)
@@ -1725,8 +1733,16 @@ app.get('/apkcenter/download/:id', function(req, res) {
     return
   }
   async.waterfall([function(next){
-    models.Customer.findById(req.query.c).then(function(customer) {
-      next(null, customer)
+    models.Customer.findOne({
+      where: {
+        password_hash: req.query.c
+      }
+    }).then(function(customer) {
+      if(customer){
+        next(null, customer)
+      }else{
+        next(null, null)
+      }
     }).catch()
   }, function(customer, next) {
     models.Apk.findById(req.params.id).then(function(apk){
