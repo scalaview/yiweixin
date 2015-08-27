@@ -572,6 +572,7 @@ admin.post("/apk", function(req, res) {
       image01: files.image01,
       image02: files.image02,
       image03: files.image03,
+      adImage: files.adImage,
       description: fields.description,
       digest: fields.digest
     }).save().then(function(apk) {
@@ -694,7 +695,7 @@ admin.post("/apk/:id", function(req, res) {
         next(err)
       })
     }, function(apk, next){
-      var list = ['Icon', 'Apk', 'Image01', 'Image02', 'Image03']
+      var list = ['Icon', 'Apk', 'Image01', 'Image02', 'Image03', 'Adimage']
       for (var i = 0; i < list.length; i++) {
         if(files[list[i].toLowerCase()].size > 0 ){
           fields[list[i].toLowerCase()] = files[list[i].toLowerCase()]

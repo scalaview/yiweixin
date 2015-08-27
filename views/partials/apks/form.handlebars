@@ -28,6 +28,20 @@
             </div>
           </div>
         </div>
+
+        <div class="form-group">
+           <label>顶部广告图</label>
+          <input class="form-control" placeholder="input adimage" type="file" name="adimage" value="{{ apk.adimage }}">
+          <input type="checkbox" name="removeAdimage" class='hide' id='removeAdimage'>
+          {{#if apk.adimage}}
+              <div class='row help-block'>
+                <img class="col-lg-8 col-lg-offset-2 img-responsive" src="{{ apk.adimage }}">
+                <button type="button" data-el='Adimage' class="remove btn btn-danger btn-circle pull-right">
+                  <i class="glyphicon glyphicon-remove"></i>
+                </button>
+              </div>
+          {{/if}}
+        </div>
     </div>
     <div class="col-lg-6">
       <div class="form-group">
@@ -55,14 +69,12 @@
         <input class="form-control" placeholder="input Apk" type="file" name="apk" value="{{ apk.apk }}">
         <input type="checkbox" name="removeApk" class='hide' id='removeApk'>
         {{#if apk.apk }}
-        <p class="help-block">
-          <div class='row'>
+          <div class='row help-block'>
             <a href="{{ apk.apkPath }}">{{ apk.apk }}</a>
             <button type="button" data-el='Apk' class="remove btn btn-danger btn-circle pull-right" id= >
               <i class="glyphicon glyphicon-remove"></i>
             </button>
           </div>
-        </p>
         {{/if}}
       </div>
       <div class="form-group">
@@ -70,14 +82,12 @@
         <input class="form-control" placeholder="input Icon" type="file" name="icon" value="{{ apk.icon }}">
         <input type="checkbox" name="removeIcon" class='hide' id='removeIcon'>
         {{#if apk.icon}}
-          <p class="help-block">
-            <div class='row'>
+            <div class='row help-block'>
               <img class="col-lg-8 col-lg-offset-2 img-responsive" src="{{ apk.icon }}">
               <button type="button" data-el='Icon' class="remove btn btn-danger btn-circle pull-right" id= >
                 <i class="glyphicon glyphicon-remove"></i>
               </button>
             </div>
-          </p>
         {{/if}}
         </div>
     </div>
@@ -88,14 +98,12 @@
         <input class="form-control" placeholder="input screenshort" type="file" name="image01" value="{{ apk.image01 }}">
         <input type="checkbox" name="removeImage01" class='hide' id='removeImage01'>
         {{#if apk.image01}}
-          <p class="help-block">
-            <div class='row'>
+            <div class='row help-block'>
               <img class="col-lg-8 col-lg-offset-2 img-responsive" src="{{ apk.image01 }}">
               <button type="button" data-el='Image01' class="remove btn btn-danger btn-circle pull-right" id= >
                 <i class="glyphicon glyphicon-remove"></i>
               </button>
             </div>
-          </p>
         {{/if}}
       </div>
        <div class="form-group">
@@ -103,14 +111,12 @@
         <input class="form-control" placeholder="input screenshort" type="file" name="image02" value="{{ apk.image02 }}">
         <input type="checkbox" name="removeImage02" class='hide' id='removeImage02'>
         {{#if apk.image02}}
-          <p class="help-block">
-            <div class='row'>
+            <div class='row help-block'>
               <img class="col-lg-8 col-lg-offset-2 img-responsive" src="{{ apk.image02 }}">
               <button type="button" data-el='Image02' class="remove btn btn-danger btn-circle pull-right" id= >
                 <i class="glyphicon glyphicon-remove"></i>
               </button>
             </div>
-          </p>
         {{/if}}
       </div>
       <div class="form-group">
@@ -118,14 +124,12 @@
         <input class="form-control" placeholder="input screenshort" type="file" name="image03" value="{{ apk.image03 }}">
         <input type="checkbox" name="removeImage03" class='hide' id='removeImage03'>
         {{#if apk.image03}}
-          <p class="help-block">
-            <div class='row'>
+            <div class='row help-block'>
               <img class="col-lg-8 col-lg-offset-2 img-responsive" src="{{ apk.image03 }}">
               <button type="button" data-el='Image03' class="remove btn btn-danger btn-circle pull-right" id= >
                 <i class="glyphicon glyphicon-remove"></i>
               </button>
             </div>
-          </p>
         {{/if}}
       </div>
     </div>

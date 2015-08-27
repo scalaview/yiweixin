@@ -108,6 +108,23 @@ module.exports = function(sequelize, DataTypes) {
           return
         }
       },
+      adimage: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        set: function(file){
+          if(file == null){
+            this.setDataValue('adimage', null)
+          }else if(file.size > 0 && file.type.match('^image\/')){
+            var filename = helpers.fileUploadSync(file)
+            this.setDataValue('adimage', filename);
+          }
+        },
+        get: function(){
+          var adimage = this.getDataValue('adimage');
+          if(adimage) return '/uploads/' + adimage
+          return
+        }
+      },
       description: { type: DataTypes.TEXT, allowNull: true },
       digest: { type: DataTypes.STRING, allowNull: true }
   }, {
