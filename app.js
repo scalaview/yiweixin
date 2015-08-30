@@ -1465,9 +1465,11 @@ app.get('/register', function(req, res) {
 app.post('/register', function(req, res){
   if(!req.body.phone ){
     res.json({ msg: '请输入手机号码', code: 0 })
+    return
   }
   if(!req.session.userInfo || !req.session.openid){
     res.json({ msg: '微信授权失败', code: 1005 })
+    return
   }
   models.MessageQueue.verifyCode(req.body.phone, req.body.code, 'register', function(messageQueue){
     if(messageQueue){
