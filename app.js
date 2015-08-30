@@ -1385,7 +1385,7 @@ admin.get("/messagequeues", function(req, res) {
 
 
 // --------------- app -----------------------
-// var oauthApi = new OAuth(config.appId, config.appSecret, function (openid, callback) {
+// var client = new OAuth(config.appId, config.appSecret, function (openid, callback) {
 //   // 传入一个根据openid获取对应的全局token的方法
 //   fs.readFile(openid +':access_token.txt', 'utf8', function (err, txt) {
 //     if (err) {return callback(err);}
@@ -1405,9 +1405,9 @@ app.get('/auth', function(req, res) {
   res.redirect(url)
 })
 
-
 app.get('/register', function(req, res) {
-  var code = res.query.code
+
+  var code = req.query.code
   async.waterfall([function(next) {
     if(code){
       client.getAccessToken(code, function (err, result) {
@@ -1415,6 +1415,8 @@ app.get('/register', function(req, res) {
         var openid = result.data.openid;
         next(accessToken, openid)
       });
+    }else{
+      next(new Error('user not allow login with wechat'))
     }
   }, function(accessToken, openid, next) {
     models.Customer.findOne({
@@ -1430,12 +1432,15 @@ app.get('/register', function(req, res) {
       }
     })
 
-  }, function(accessToken, openid) {
+  }, function(accessToken, openid, next) {
     client.getUser(openid, function (err, result) {
+      if(err){
+        next(err)
+      }
       var userInfo = result;
       next(null, accessToken, openid, userInfo)
     });
-  }, function(accessToken, openid, userInfo) {
+  }, function(accessToken, openid, userInfo, next) {
     req.session.userInfo = userInfo
     req.session.openid = openid
     next(null)
@@ -1448,16 +1453,12 @@ app.get('/register', function(req, res) {
   })
 })
 
-
-// app.get('/register', function(req, res){
-//   res.render('register', { layout: 'main' })
-// })
-
 app.post('/register', function(req, res){
-  console.log(req.session.userInfo)
-  console.log(req.session.openid)
   if(!req.body.phone ){
     res.json({ msg: '请输入手机号码', code: 0 })
+  }
+  if(!req.session.userInfo || !req.session.openid){
+    res.json({ msg: '微信授权失败', code: 1005 })
   }
   models.MessageQueue.verifyCode(req.body.phone, req.body.code, 'register', function(messageQueue){
     if(messageQueue){
@@ -1465,13 +1466,19 @@ app.post('/register', function(req, res){
         password: '1234567',
         phone: req.body.phone,
         username: req.session.userInfo.nickname,
-        wechat: req.session.openid
+        wechat: req.session.openid,
+        sex: req.session.userInfo.sex,
+        city: req.session.userInfo.city,
+        province: req.session.userInfo.province,
+        country: req.session.userInfo.country,
       }).save().then(function(customer){
         if(customer){
           customer.updateAttributes({
             lastLoginAt: new Date()
           }).then(function(customer){
           })
+          delete req.session.userInfo
+          delete req.session.openid
           req.session.customer_id = customer.id
           res.json({ msg: 'create success', code: 1 })
         }else{
