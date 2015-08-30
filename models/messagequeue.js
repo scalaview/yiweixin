@@ -2,10 +2,25 @@
 var request = require("request")
 var async = require("async")
 var helpers = require("../helpers")
+var config = require("../config")
 
 var MessageSender = function(phone, content){
   this.phone = phone
   this.content = content
+  this.headers = {
+    'User-Agent':       'Super Agent/0.0.1',
+    'Content-Type':     'application/x-www-form-urlencoded'
+  }
+  this.options = {
+    uri: config.yunpian,
+    method: 'POST',
+    headers: this.headers,
+    qs: {
+      apikey: config.apikey,
+      text: this.content,
+      mobile: this.phone
+    }
+  }
 
   this.then = function(callback){
     this.successCallback = callback
@@ -18,20 +33,12 @@ var MessageSender = function(phone, content){
   }
 
  this.do = function(){
-   var options = {
-     uri: "http://www.baidu.com",
-     method: 'GET'
-     // json: {
-     //   apikey: "",
-     //   text: this.text,
-     //   mobile: this.mobile
-     // }
-   }
-   var inerSuccessCallback = this.successCallback;
-   var inerErrCallback = this.errCallback;
 
-   request(options, function (error, res, data) {
-     if (!error && res.statusCode == 200) {
+  var inerSuccessCallback = this.successCallback;
+  var inerErrCallback = this.errCallback;
+
+  request(this.options, function (error, res, data) {
+    if (!error && res.statusCode == 200) {
       if(inerSuccessCallback){
         inerSuccessCallback.call(this. res, data)
       }
@@ -41,6 +48,7 @@ var MessageSender = function(phone, content){
       }
      }
    });
+
    return this
  }
  return this
@@ -124,7 +132,8 @@ module.exports = function(sequelize, DataTypes) {
         }, function(messageTemplate, next) {
           var num = Math.floor(Math.random() * 90000) + 10000;
           if(messageTemplate){
-            var content = messageTemplate.content.format({ code: num })
+            // var content = messageTemplate.content.format({ code: num, company: '云片网'  })
+            var content = messageTemplate.content.format({ code: num, company: '广州孚技网络科技'  })
           }else{
             var content = "易流量注册。你的注册验证码：{{code}}".format({ code: num })
           }
@@ -142,7 +151,8 @@ module.exports = function(sequelize, DataTypes) {
           async.waterfall([function(next) {
             var sender = messageQueue.sender()
             sender.then(function(data) {
-              if(true){
+              console.log('data: ' + data)
+              if(data.code === 0){
                 var sendState = MessageQueue.stateType.send
               }else{
                 var sendState = MessageQueue.stateType.fail

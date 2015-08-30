@@ -3,37 +3,19 @@ var config = {
                 'appId': '',
                 'aesKey': '',
                 'appSecret': '',
+                'apikey': '',
+                'yunpian': '',
                 'menus': {
                            "button":[
                            {
-                                "type":"click",
-                                "name":"玩流量",
-                                "sub_button":[
-                                {
-                                  "type":"view",
-                                  "name":"新手攻略",
-                                  "url":"http://yiliuliang.net"
-                                },
-                                {
-                                  "type":"view",
-                                  "name":"领取记录",
-                                  "url":"http://yiliuliang.net"
-                                },
-                                {
-                                  "type":"view",
-                                  "name":"领取流量",
-                                  "url":"http://yiliuliang.net"
-                                },
-                                {
-                                  "type":"click",
-                                  "name":"今日任务",
-                                  "key":"V1001_TODAY_TASKS"
-                                }]
+                              "type":"view",
+                              "name":"领取流量",
+                              "url":"http://yiliuliang.net"
                             },
                             {
                                 "type":"view",
                                 "name":"我的钱包",
-                                "url":"http://yiliuliang.net"
+                                "url":"http://yiliuliang.net/auth"
                             },
                             {
                               "type":"view",

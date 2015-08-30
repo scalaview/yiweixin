@@ -23,7 +23,7 @@ module.exports = {
         type: Sequelize.DATE
       }
     }).then(function(){
-      queryInterface.sequelize.query("insert into MessageTemplates (name, content, createdAt, updatedAt) values ('register message', '【易流量】 您的验证码：{{code}}，验证码30分钟内有效。http://yiliuliang.net/register', CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into MessageTemplates (name, content, createdAt, updatedAt) values ('register message', '【{{company}}】欢迎使用易流量，您的手机验证码是{{code}}。本条信息无需回复', CURTIME(), CURTIME())");
     })
   },
   down: function(queryInterface, Sequelize) {

@@ -1399,7 +1399,7 @@ admin.get("/messagequeues", function(req, res) {
 var client = new OAuth(config.appId, config.appSecret);
 
 app.get('/', function(req, res) {
-  res.render('home', { layout: 'main' })
+  res.render('register', { layout: 'main' })
 })
 
 app.get('/auth', function(req, res) {
