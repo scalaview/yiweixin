@@ -1411,9 +1411,12 @@ app.get('/register', function(req, res) {
   async.waterfall([function(next) {
     if(code){
       client.getAccessToken(code, function (err, result) {
+        if(err){
+          next(err)
+        }
         var accessToken = result.data.access_token;
         var openid = result.data.openid;
-        next(accessToken, openid)
+        next(null, accessToken, openid)
       });
     }else{
       next(new Error('user not allow login with wechat'))
