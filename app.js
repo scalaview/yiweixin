@@ -1478,6 +1478,7 @@ app.post('/register', function(req, res){
         city: req.session.userInfo.city,
         province: req.session.userInfo.province,
         country: req.session.userInfo.country,
+        headimgurl: req.session.userInfo.headimgurl
       }).save().then(function(customer){
         if(customer){
           customer.updateAttributes({
