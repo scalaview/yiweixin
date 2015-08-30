@@ -94,7 +94,8 @@ module.exports = function(sequelize, DataTypes) {
             return "发送失败"
         }
       }
-    }
+    },
+    templateId: { type: DataTypes.INTEGER, allowNull: true }
   }, {
     classMethods: {
       associate: function(models) {
@@ -141,7 +142,8 @@ module.exports = function(sequelize, DataTypes) {
             phone: phone,
             content: content,
             type: "register",
-            verificationCode: num + ''
+            verificationCode: num + '',
+            templateId: messageTemplate.id
           }).save().then(function(messageQueue) {
             next(null, messageQueue)
           }).catch(function(err) {

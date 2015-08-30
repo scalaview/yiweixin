@@ -1492,9 +1492,11 @@ app.post('/register', function(req, res){
           req.session.customer_id = customer.id
           res.json({ msg: 'create success', code: 1 })
         }else{
+          console.log(err)
           res.json({ msg: 'create fail', code: 0, err: err.errors })
         }
       }).catch(function(err){
+        console.log(err)
         res.json({ msg: 'create fail', code: 0, err: err.errors })
       })
     }else{
