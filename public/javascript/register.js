@@ -37,7 +37,7 @@ function init(){
   $("#get_code").click(function(){
     var $this = $(this),
         phone = $("#mobile").val(),
-        oneMinute = 10
+        oneMinute = 60
 
     if(!isMobile(phone)){
       phoneValidateTip()

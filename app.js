@@ -94,8 +94,6 @@ app.use(function(req, res, next){
 
 
 function requireLogin(req, res, next) {
-  req.session.customer_id = 1
-
   if (req.session.customer_id) {
     models.Customer.findOne({ where: { id: req.session.customer_id } }).then(function(customer) {
       if(customer){
@@ -1400,13 +1398,16 @@ admin.get("/messagequeues", function(req, res) {
 
 var client = new OAuth(config.appId, config.appSecret);
 
+app.get('/', function(req, res) {
+  res.render('home', { layout: 'main' })
+})
+
 app.get('/auth', function(req, res) {
   var url = client.getAuthorizeURL('http://yiliuliang.net/register', '111111', 'snsapi_userinfo');
   res.redirect(url)
 })
 
 app.get('/register', function(req, res) {
-
   var code = req.query.code
   async.waterfall([function(next) {
     if(code){
@@ -1430,6 +1431,7 @@ app.get('/register', function(req, res) {
       if(customer){
         req.session.customer_id = customer.id
         res.redirect('/profile')
+        return
       }else{
         next(null, accessToken, openid)
       }
@@ -1450,6 +1452,7 @@ app.get('/register', function(req, res) {
   }], function(err) {
     if(err){
       console.log(err)
+      res.redirect('/500')
     }else{
       res.render('register', { layout: 'main' })
     }
