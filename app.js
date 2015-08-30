@@ -1414,10 +1414,11 @@ app.get('/register', function(req, res) {
       client.getAccessToken(code, function (err, result) {
         if(err){
           next(err)
+        }else{
+          var accessToken = result.data.access_token;
+          var openid = result.data.openid;
+          next(null, accessToken, openid)
         }
-        var accessToken = result.data.access_token;
-        var openid = result.data.openid;
-        next(null, accessToken, openid)
       });
     }else{
       next(new Error('user not allow login with wechat'))
@@ -1497,6 +1498,7 @@ app.post('/register', function(req, res){
       res.json({ msg: '没有找到验证码或者验证码已经过期', code: 0 })
     }
   }, function(err) {
+    console.log(err)
     res.json({ msg: 'server error', code: 0, err: err.errors })
   })
 })
