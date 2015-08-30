@@ -1476,7 +1476,7 @@ app.post('/register', function(req, res){
         phone: req.body.phone,
         username: req.session.userInfo.nickname,
         wechat: req.session.openid,
-        sex: req.session.userInfo.sex,
+        sex: req.session.userInfo.sex + '',
         city: req.session.userInfo.city,
         province: req.session.userInfo.province,
         country: req.session.userInfo.country,
