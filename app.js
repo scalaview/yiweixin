@@ -1414,10 +1414,12 @@ app.get('/register', function(req, res) {
       client.getAccessToken(code, function (err, result) {
         if(err){
           next(err)
-        }else{
+        }else if(result.data){
           var accessToken = result.data.access_token;
           var openid = result.data.openid;
           next(null, accessToken, openid)
+        }else{
+          next(new Error('not found'))
         }
       });
     }else{
