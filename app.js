@@ -22,7 +22,7 @@ var moment = require('moment')
 var fs        = require('fs');
 var app = express();
 var admin = express();
-
+var OAuth = require('wechat-oauth');
 var handlebars = require('express-handlebars').create({
   defaultLayout: 'main',
   helpers: helpers
@@ -112,7 +112,6 @@ function requireLogin(req, res, next) {
   }
 }
 
-
 app.use('/admin', function (req, res, next) {
   res.locals.layout = 'admin';
   next();
@@ -122,10 +121,6 @@ app.use('/admin', admin);
 
 var models  = require('./models');
 var router  = express.Router();
-
-app.get('/', function(req, res) {
-  res.render('home')
-})
 
 admin.use(function(req, res, next){
   res.originrender = res.render
@@ -1390,20 +1385,87 @@ admin.get("/messagequeues", function(req, res) {
 
 
 // --------------- app -----------------------
-app.get('/register', function(req, res){
-  res.render('register', { layout: 'main' })
+// var oauthApi = new OAuth(config.appId, config.appSecret, function (openid, callback) {
+//   // 传入一个根据openid获取对应的全局token的方法
+//   fs.readFile(openid +':access_token.txt', 'utf8', function (err, txt) {
+//     if (err) {return callback(err);}
+//     callback(null, JSON.parse(txt));
+//   });
+// }, function (openid, token, callback) {
+//   // 请将token存储到全局，跨进程、跨机器级别的全局，比如写到数据库、redis等
+//   // 这样才能在cluster模式及多机情况下使用，以下为写入到文件的示例
+//   // 持久化时请注意，每个openid都对应一个唯一的token!
+//   fs.writeFile(openid + ':access_token.txt', JSON.stringify(token), callback);
+// });
+
+var client = new OAuth(config.appId, config.appSecret);
+
+app.get('/auth', function(req, res) {
+  var url = client.getAuthorizeURL('/register', '111111', 'snsapi_userinfo');
+  res.redirect(url)
 })
 
+
+app.get('/register', function(req, res) {
+  var code = res.query.code
+  async.waterfall([function(next) {
+    if(code){
+      client.getAccessToken(code, function (err, result) {
+        var accessToken = result.data.access_token;
+        var openid = result.data.openid;
+        next(accessToken, openid)
+      });
+    }
+  }, function(accessToken, openid, next) {
+    models.Customer.findOne({
+      where: {
+        wechat: openid
+      }
+    }).then(function (customer) {
+      if(customer){
+        req.session.customer_id = customer.id
+        res.redirect('/profile')
+      }else{
+        next(null, accessToken, openid)
+      }
+    })
+
+  }, function(accessToken, openid) {
+    client.getUser(openid, function (err, result) {
+      var userInfo = result;
+      next(null, accessToken, openid, userInfo)
+    });
+  }, function(accessToken, openid, userInfo) {
+    req.session.userInfo = userInfo
+    req.session.openid = openid
+    next(null)
+  }], function(err) {
+    if(err){
+      console.log(err)
+    }else{
+      res.render('register', { layout: 'main' })
+    }
+  })
+})
+
+
+// app.get('/register', function(req, res){
+//   res.render('register', { layout: 'main' })
+// })
+
 app.post('/register', function(req, res){
-  if(!req.body.phone){
+  console.log(req.session.userInfo)
+  console.log(req.session.openid)
+  if(!req.body.phone ){
     res.json({ msg: '请输入手机号码', code: 0 })
   }
   models.MessageQueue.verifyCode(req.body.phone, req.body.code, 'register', function(messageQueue){
     if(messageQueue){
       models.Customer.build({
-        username: req.body.phone,
         password: '1234567',
-        phone: req.body.phone
+        phone: req.body.phone,
+        username: req.session.userInfo.nickname,
+        wechat: req.session.openid
       }).save().then(function(customer){
         if(customer){
           customer.updateAttributes({
