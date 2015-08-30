@@ -26,7 +26,12 @@ module.exports = function(sequelize, DataTypes) {
     wechat: { type: DataTypes.STRING, allowNull: true },
     phone: { type: DataTypes.STRING, allowNull: false },
     lastLoginAt: { type: DataTypes.DATE, allowNull: true },
-    remainingTraffic: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 }
+    remainingTraffic: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
+    sex: { type: DataTypes.STRING, allowNull: true },
+    city: { type: DataTypes.STRING, allowNull: true },
+    province:  { type: DataTypes.STRING, allowNull: true },
+    country: { type: DataTypes.STRING, allowNull: true },
+    headimgurl: { type: DataTypes.STRING, allowNull: true }
   }, {
     classMethods: _.merge(concern.classMethods, {
       associate: function(models) {
