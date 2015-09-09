@@ -45,29 +45,23 @@ module.exports = {
         type: Sequelize.DATE
       }
     }).then(function(){
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (0, '30M', 30, 500, 0, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (0, '70M', 70, 1000, 1, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (0, '150M', 150, 2000, 2, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (0, '200M', 200, 1400, 3, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (0, '500M', 500, 3000, 4, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (0, '1024M', 1024, 5000, 5, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (0, '2048M', 2048, 7000, 6, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (0, '50M', 50, 500, 0, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (0, '100M', 100, 1000, 1, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (0, '200M', 200, 2000, 2, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (0, '500M', 500, 4500, 3, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (0, '1G', 1024, 6000, 4, CURTIME(), CURTIME())");
 
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (1, '30M', 30, 500, 0, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (1, '70M', 70, 1000, 1, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (1, '150M', 150, 2000, 2, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (1, '200M', 200, 1400, 3, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (1, '500M', 500, 3000, 4, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (1, '1024M', 1024, 5000, 5, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (1, '2048M', 2048, 7000, 6, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (1, '50M', 50, 500, 0, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (1, '100M', 100, 1000, 1, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (1, '200M', 200, 2000, 2, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (1, '500M', 500, 4500, 3, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (1, '1G', 1024, 6000, 4, CURTIME(), CURTIME())");
 
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (2, '30M', 30, 500, 0, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (2, '70M', 70, 1000, 1, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (2, '150M', 150, 2000, 2, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (2, '200M', 200, 1400, 3, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (2, '500M', 500, 3000, 4, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (2, '1024M', 1024, 5000, 5, CURTIME(), CURTIME())");
-      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (2, '2048M', 2048, 7000, 6, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (2, '50M', 50, 500, 0, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (2, '100M', 100, 1000, 1, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (2, '200M', 200, 2000, 2, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (2, '500M', 500, 4500, 3, CURTIME(), CURTIME())");
+      queryInterface.sequelize.query("insert into TrafficPlans (providerId, name, value, cost, sortNum, createdAt, updatedAt) values (2, '1G', 1024, 6000, 4, CURTIME(), CURTIME())");
 
     });
   },
