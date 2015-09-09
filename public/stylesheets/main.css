@@ -203,4 +203,11 @@ p {
   background-size: 100% auto;
 }
 
-
+.footer {
+    position: fixed;
+    width: 100%;
+    height: 2.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    bottom: 0;
+    z-index: 99999
+}
