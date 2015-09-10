@@ -17,6 +17,10 @@
         <input class="form-control" placeholder="input remainingTraffic " disabled name="remainingTraffic  " value="{{ customer.remainingTraffic   }}">
       </div>
 
+      <div class="form-group">
+        <label>Remaining Traffic </label>
+        {{ selectTag levelCollection levelCollection customer.levelId }}
+      </div>
     </div>
     <div class="col-lg-6">
       <div class="form-group">

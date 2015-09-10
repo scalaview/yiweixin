@@ -31,7 +31,8 @@ module.exports = function(sequelize, DataTypes) {
     city: { type: DataTypes.STRING, allowNull: true },
     province:  { type: DataTypes.STRING, allowNull: true },
     country: { type: DataTypes.STRING, allowNull: true },
-    headimgurl: { type: DataTypes.STRING, allowNull: true }
+    headimgurl: { type: DataTypes.STRING, allowNull: true },
+    levelId: { type: DataTypes.INTEGER, allowNull: true }
   }, {
     classMethods: _.merge(concern.classMethods, {
       associate: function(models) {

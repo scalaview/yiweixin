@@ -94,6 +94,7 @@ app.use(function(req, res, next){
 
 
 function requireLogin(req, res, next) {
+  req.session.customer_id = 1
   if (req.session.customer_id) {
     models.Customer.findOne({ where: { id: req.session.customer_id } }).then(function(customer) {
       if(customer){
@@ -720,18 +721,44 @@ admin.post("/apk/:id", function(req, res) {
 
 // -----------------customer ------------------
 admin.get("/customers/:id", function(req, res) {
-  models.Customer.findById(req.params.id).then(function(customer) {
-    if(customer){
-      res.render("admin/customers/show", {
-        customer: customer
-      })
+  async.waterfall([function(next) {
+    models.Customer.findById(req.params.id).then(function(customer) {
+      if(customer){
+        next(null, customer)
+      }else{
+        res.send(404)
+      }
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(customer, next){
+    models.Level.findAll().then(function(levels) {
+      var levelCollection = []
+        for (var i = 0; i < levels.length; i++) {
+          levelCollection.push([ levels[i].id, levels[i].name ])
+          if(customer.levelId != undefined && levels[i].id === customer.levelId){
+            customer.level = levels[i]
+          }
+        };
+
+      next(null, customer, levelCollection)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, customer, levelCollection) {
+    if(err){
+      console.log(err)
+      res.send(500)
     }else{
-      res.send(404)
+      var levelOptions = { name: 'levelId', class: 'select2 col-xs-12 col-lg-12' }
+      res.render("admin/customers/show", {
+          customer: customer,
+          levelCollection: levelCollection,
+          levelOptions: levelOptions
+        })
     }
-  }).catch(function(err) {
-    console.log(err)
-    res.send(500)
   })
+
 })
 
 
