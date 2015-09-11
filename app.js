@@ -761,7 +761,178 @@ admin.get("/customers/:id", function(req, res) {
 
 })
 
+admin.post("/customer/:id", function(req, res) {
+  async.waterfall([function(next) {
+    models.Customer.findById(req.params.id).then(function(customer) {
+      if(customer){
+        next(null, customer)
+      }else{
+        next(new Error("not found"))
+      }
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(customer, next) {
+    customer.updateAttributes({
+      levelId: req.body.levelId
+    }).then(function(customer) {
+      next(null, customer)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, customer) {
+    if(err){
+      console.log(err)
+      res.redirect('/500')
+    }else{
+      req.flash('info', "update success")
+      res.redirect('/admin/customers/' + customer.id)
+    }
+  })
+})
 
+// ============ coupon=================================
+
+admin.get("/coupons", function(req, res) {
+  async.waterfall([function(next) {
+    models.DataPlan.findAll().then(function(dataPlans) {
+      next(null, dataPlans)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(dataPlans, next){
+    models.Coupon.findAndCountAll().then(function(result) {
+      var coupons = result.rows
+      for (var i = coupons.length - 1; i >= 0; i--) {
+        for (var j = dataPlans.length - 1; j >= 0; j--) {
+          if(dataPlans[j].id == coupons[i].dataPlanId){
+            coupons[i].dataPlan = dataPlans[j]
+          }
+        };
+      };
+      next(null, dataPlans, result)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, dataPlans, result) {
+    if(err){
+      console.log(err)
+    }else{
+      result = helpers.setPagination(result, req)
+      res.render("admin/coupons/index", {
+        coupons: result
+      })
+    }
+  })
+})
+
+
+admin.get('/coupons/new', function(req, res) {
+  async.waterfall([function(next){
+    models.DataPlan.findAll().then(function(dataPlans){
+      var dataPlanCollection = []
+      for (var i = 0; i < dataPlans.length; i++ ) {
+        dataPlanCollection.push([dataPlans[i].id, dataPlans[i].name])
+      };
+      next(null, dataPlanCollection)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, dataPlanCollection) {
+    var coupon = models.Coupon.build(),
+        dataPlanOptions = { name: 'dataPlanId', class: "select2 col-lg-12 col-xs-12" }
+    res.render('admin/coupons/new', {
+      coupon: coupon,
+      dataPlanOptions: dataPlanOptions,
+      dataPlanCollection: dataPlanCollection,
+      path: "/admin/coupon"
+    })
+  })
+})
+
+
+
+admin.post('/coupon', function(req, res) {
+  var params = req.body
+  params['isActive'] = params['isActive'] === 'on'
+  params['ignoreLevel'] = params['ignoreLevel'] === 'on'
+  models.Coupon.build(params).save().then(function(coupon) {
+    if(coupon.id){
+      req.flash('info', "create success")
+      res.redirect('/admin/coupons/' + coupon.id)
+    }
+  }).catch(function(err) {
+    console.log(err)
+    req.flash('err', "create fails")
+    res.redirect('/admin/coupons/new')
+  })
+})
+
+admin.get('/coupons/:id/edit', function(req, res) {
+  async.waterfall([function(next) {
+    models.Coupon.findById(req.params.id).then(function(coupon) {
+      next(null, coupon)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(coupon, next){
+    models.DataPlan.findAll().then(function(dataPlans){
+      var dataPlanCollection = []
+      for (var i = 0; i < dataPlans.length; i++ ) {
+        if(dataPlans[i].id  === coupon.dataPlanId){
+          coupon.dataPlan = dataPlans[i]
+        }
+        dataPlanCollection.push([dataPlans[i].id, dataPlans[i].name])
+      };
+      next(null, coupon, dataPlanCollection)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, coupon, dataPlanCollection) {
+    if(err){
+      console.log(err)
+      res.redirect('/500')
+    }else{
+      var dataPlanOptions = { name: 'dataPlanId', class: "select2 col-lg-12 col-xs-12" }
+      res.render('admin/coupons/edit', {
+        coupon: coupon,
+        dataPlanOptions: dataPlanOptions,
+        dataPlanCollection: dataPlanCollection,
+        path: "/admin/coupons/" + coupon.id + '/edit'
+      })
+    }
+  })
+})
+
+admin.post('/coupons/:id', function(req, res) {
+  var params = req.body
+  params['isActive'] = params['isActive'] === 'on'
+  params['ignoreLevel'] = params['ignoreLevel'] === 'on'
+  async.waterfall([function(next) {
+    models.Coupon.findById(req.params.id).then(function(coupon) {
+      next(null, coupon)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(coupon, next) {
+    coupon.updateAttributes(params).then(function(coupon) {
+      next(null, coupon)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, coupon) {
+    if(err){
+      console.log(err)
+      req.flash('err', "update fails")
+    }else{
+      req.flash('info', "update success")
+    }
+    res.redirect('/admin/coupons/' + coupon.id + '/edit')
+  })
+})
+
+
+// ============ coupon=================================
 
 admin.get("/flowhistories", function(req, res){
   var result;
@@ -1569,17 +1740,66 @@ app.get('/profile', requireLogin, function(req, res) {
 
 app.get('/payment', requireLogin, function(req, res) {
   var customer = req.customer
-  models.DataPlan.allOptions(function(dataPlans){
-    res.render('yiweixin/orders/payment', { customer: customer, dataPlans: dataPlans })
-  }, function(err) {
-    console.log(err)
+  async.waterfall([function(next){
+    if(customer.levelId !== undefined){
+        models.Level.findById(customer.levelId).then(function(level) {
+          customer.level = level
+        })
+      }
+      next(null, customer)
+  }, function(customer, next) {
+    models.Coupon.findAll({
+      where: {
+        isActive: true,
+        expiredAt: {
+          $gt: (new Date()).begingOfDate()
+        }
+      },
+      order: [
+              ['updatedAt', 'DESC']
+             ]
+    }).then(function(coupons) {
+      next(null, coupons)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, coupons) {
+    if(err){
+      console.log(err)
+    }else{
+      models.DataPlan.allOptions(function(dataPlans){
+
+        for (var i = coupons.length - 1; i >= 0; i--) {
+          for (var j = dataPlans.length - 1; j >= 0; j--) {
+            if(coupons[i].dataPlanId == dataPlans[j].id){
+              if(dataPlans[j].coupon === undefined){
+                dataPlans[j].coupon = coupons[i]
+              }else if(dataPlans[j].coupon.updatedAt < coupons[i].updatedAt){
+                dataPlans[j].coupon = coupons[i]
+              }
+            }
+          };
+        };
+        res.render('yiweixin/orders/payment', { customer: customer, dataPlans: dataPlans })
+      }, function(err) {
+        console.log(err)
+      })
+    }
   })
+
 
 })
 
 app.post('/pay', requireLogin, function(req, res) {
     var customer = req.customer
-    async.waterfall([function(next) {
+    async.waterfall([function(next){
+      if(customer.levelId !== undefined){
+        models.Level.findById(customer.levelId).then(function(level) {
+          customer.level = level
+        })
+      }
+      next(null, customer)
+    }, function(customer, next) {
       models.PaymentMethod.findOne({ where: { code: req.body.paymentMethod.toLowerCase() } }).then(function(paymentMethod) {
         if(paymentMethod){
           next(null, paymentMethod);
@@ -1600,12 +1820,36 @@ app.post('/pay', requireLogin, function(req, res) {
         next(err)
       })
     }, function(paymentMethod, dataPlan, next){
+      models.Coupon.findAll({
+        where: {
+          dataPlanId: dataPlan.id,
+          isActive: true,
+          expiredAt: {
+            $gt: (new Date()).begingOfDate()
+          }
+        },
+        order: [
+                ['updatedAt', 'DESC']
+               ]
+      }).then(function(coupons) {
+        dataPlan.coupon = coupons[0]
+        next(null, paymentMethod, dataPlan)
+      }).catch(function(err) {
+        next(err)
+      })
+    }, function(paymentMethod, dataPlan, next){
+      var discount = 1.00
+      if(dataPlan.coupon && dataPlan.coupon.ignoreLevel && dataPlan.coupon.discount > 0){
+        discount = discount - dataPlan.coupon.discount
+      }else if(customer.level.discount > 0){
+        discount = discount - customer.level.discount
+      }
       models.Order.build({
         state: models.Order.STATE.INIT,
         customerId: customer.id,
         dataPlanId: dataPlan.id,
         paymentMethodId: paymentMethod.id,
-        total: dataPlan.price
+        total: dataPlan.price * discount
       }).save().then(function(order){
         //TODO do payment
         next(null, paymentMethod, dataPlan, order)
@@ -2044,6 +2288,7 @@ app.use(function(req, res, next){
 });
 
 app.use(function(err, req, res, next){
+  console.log(err)
   res.status(err.status || 500);
   res.render('500', { layout: false, error: err });
 });

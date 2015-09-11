@@ -247,6 +247,19 @@ function taskLink(task) {
   }
 }
 
+
+function discount(customer, dataPlan){
+  var discount = 1.00
+  if(dataPlan.coupon && dataPlan.coupon.ignoreLevel && dataPlan.coupon.discount > 0){
+    discount = discount - dataPlan.coupon.discount
+  }else if(customer.level.discount > 0){
+    discount = discount - customer.level.discount
+  }
+  if(discount < 1.00){
+    return dataPlan.price * discount
+  }
+}
+
 function selectTag(options, collection, selected) {
   var source = [
         '<select {{#if options.class}} class="{{options.class}}" {{else}} class="col-xs-12 col-lg-12 select2" {{/if}} {{#if options.id}} id="{{options.id}}" {{/if}} {{#if options.name}} name="{{options.name}}" {{/if}} {{#if options.disabled}} disabled {{/if}} >',
@@ -256,6 +269,7 @@ function selectTag(options, collection, selected) {
       optionSource = '<option {{#if value }} value="{{value}}" {{/if}} {{selected}}>{{name}}</option>',
       template = handlebars.compile(source),
       optionSourceTemplate = handlebars.compile(optionSource)
+      selected = selected || ''
 
   optionHtml = []
 
@@ -265,9 +279,9 @@ function selectTag(options, collection, selected) {
     }
     for (var i = 0; i < collection.length ; i++) {
       if(collection[i] instanceof Array){
-        var data = { value: collection[i][0].toString(), name: collection[i][1], selected: selected === collection[i][0].toString() ? "selected" : null }
+        var data = { value: collection[i][0].toString(), name: collection[i][1], selected: selected.toString() === collection[i][0].toString() ? "selected" : null }
       }else if(collection[i] instanceof Object){
-        var data = { value: collection[i].value.toString(), name: collection[i].name, selected: selected ===  collection[i].value.toString() ? "selected" : null }
+        var data = { value: collection[i].value.toString(), name: collection[i].name, selected: selected.toString() ===  collection[i].value.toString() ? "selected" : null }
       }
       optionHtml.push(optionSourceTemplate(data))
     };
@@ -500,3 +514,4 @@ exports.htmlSafe = htmlSafe;
 exports.successTips = successTips;
 exports.errTips = errTips;
 exports.compact = compact;
+exports.discount = discount;

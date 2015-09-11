@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     discount: {
       type: DataTypes.FLOAT,
-      defaultValue: 1.00
+      defaultValue: 0.00
     },
     extend: {
       type: DataTypes.INTEGER,

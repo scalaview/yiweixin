@@ -16,7 +16,7 @@ module.exports = {
       },
       discount: {
         type: Sequelize.FLOAT,
-        defaultValue: 1.00
+        defaultValue: 0.00
       },
       extend: {
         type: Sequelize.INTEGER,

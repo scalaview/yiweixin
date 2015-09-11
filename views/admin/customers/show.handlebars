@@ -4,66 +4,73 @@
           <h1 class="page-header">Customer</h1>
       </div>
   </div>
+  <form role="form" accept-charset="UTF-8" action="/admin/customer/{{ customer.id }}" method="POST">
+    <div class='row'>
+      <div class="col-lg-6">
+        <div class="form-group">
+          <label>Phone</label>
+          <input class="form-control" placeholder="input phone" name="phone"  disabled value="{{ customer.phone }}">
+        </div>
 
-  <div class='row'>
-    <div class="col-lg-6">
-      <div class="form-group">
-        <label>Phone</label>
-        <input class="form-control" placeholder="input phone" name="phone"  disabled value="{{ customer.phone }}">
+        <div class="form-group">
+          <label>Remaining Traffic </label>
+          <input class="form-control" placeholder="input remainingTraffic " disabled name="remainingTraffic  " value="{{ customer.remainingTraffic   }}">
+        </div>
+
+        <div class="form-group">
+          <label>Remaining Traffic </label>
+          {{ selectTag levelOptions levelCollection customer.levelId }}
+        </div>
       </div>
+      <div class="col-lg-6">
+        <div class="form-group">
+          <label>User name</label>
+          <input class="form-control" placeholder="input username" name="username"  disabled value="{{ customer.username }}">
+        </div>
 
-      <div class="form-group">
-        <label>Remaining Traffic </label>
-        <input class="form-control" placeholder="input remainingTraffic " disabled name="remainingTraffic  " value="{{ customer.remainingTraffic   }}">
-      </div>
+        <div class="form-group">
+          <label>wechat</label>
+          <input class="form-control" placeholder="input wechat" name="wechat"  disabled value="{{ customer.wechat }}">
+        </div>
 
-      <div class="form-group">
-        <label>Remaining Traffic </label>
-        {{ selectTag levelCollection levelCollection customer.levelId }}
+        <div class="form-group">
+          <label>Last login</label>
+          <input class="form-control" placeholder="input last login" name="lastLoginAt"  disabled value="{{ strftime customer.lastLoginAt 'YYYY-MM-DD' }}">
+        </div>
+
       </div>
     </div>
-    <div class="col-lg-6">
-      <div class="form-group">
-        <label>User name</label>
-        <input class="form-control" placeholder="input username" name="username"  disabled value="{{ customer.username }}">
+
+
+    <div class="row">
+
+      <div class="col-lg-3">
+        <a href="/admin/flowhistories?customerId={{customer.id}}&state=1">
+          <button class="btn btn-info">收入</button>
+        </a>
       </div>
-
-      <div class="form-group">
-        <label>wechat</label>
-        <input class="form-control" placeholder="input wechat" name="wechat"  disabled value="{{ customer.wechat }}">
+      <div class="col-lg-3">
+        <a href="/admin/flowhistories?customerId={{customer.id}}&state=0">
+          <button class="btn btn-info">支出</button>
+        </a>
       </div>
-
-      <div class="form-group">
-        <label>Last login</label>
-        <input class="form-control" placeholder="input last login" name="lastLoginAt"  disabled value="{{ strftime customer.lastLoginAt 'YYYY-MM-DD' }}">
+      <div class="col-lg-3">
+        <a href="/admin/customer/{{customer.id}}/tasks">
+          <button class="btn btn-info">完成任务</button>
+        </a>
       </div>
-
+      <div class="col-lg-3">
+        <a href="/admin/customer/{{customer.id}}/apks">
+          <button class="btn btn-info">下载Apk</button>
+        </a>
+      </div>
     </div>
-  </div>
+    <hr>
 
-
-  <div class="row">
-
-    <div class="col-lg-3">
-      <a href="/admin/flowhistories?customerId={{customer.id}}&state=1">
-        <button class="btn btn-info">收入</button>
-      </a>
+    <div class="row">
+      <div class="col-lg-11">
+        <button type="submit" class="pull-right btn btn-primary">提  交</button>
+      </div>
     </div>
-    <div class="col-lg-3">
-      <a href="/admin/flowhistories?customerId={{customer.id}}&state=0">
-        <button class="btn btn-info">支出</button>
-      </a>
-    </div>
-    <div class="col-lg-3">
-      <a href="/admin/customer/{{customer.id}}/tasks">
-        <button class="btn btn-info">完成任务</button>
-      </a>
-    </div>
-    <div class="col-lg-3">
-      <a href="/admin/customer/{{customer.id}}/apks">
-        <button class="btn btn-info">下载Apk</button>
-      </a>
-    </div>
-  </div>
-
+  </form>
 </div>
