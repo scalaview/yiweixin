@@ -33,7 +33,7 @@ var initConfig = {
   appId: config.appId,
   mchId: config.mchId,
   notifyUrl: "/paytest",
-  pfx: fs.readFileSync(process.env.PWD + '/cert/' + apiclient_cert.p12)
+  pfx: fs.readFileSync(process.env.PWD + '/cert/apiclient_cert.p12')
 };
 var payment = new Payment(initConfig);
 
