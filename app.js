@@ -1901,7 +1901,7 @@ var middleware = require('wechat-pay').middleware;
 app.use('/paymentconfirm', middleware(initConfig).getNotify().done(function(message, req, res, next) {
   console.log(message)
 
-  var orderId = message.orderId
+  var orderId = message.attach
 
   async.waterfall([function(next) {
     models.Order.findById(orderId).then(function(order) {
