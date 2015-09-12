@@ -2327,11 +2327,13 @@ app.get('/askforwechat/:id', requireLogin, function(req, res) {
         out_trade_no: 'kfc' + (+new Date),
         total_fee: 10 * 100,
         spbill_create_ip: req.ip,
-        openid: customer.openid,
+        openid: customer.wechat,
         trade_type: 'JSAPI'
       };
       console.log(order)
       payment.getBrandWCPayRequestParams(order, function(err, payargs){
+        console.log(err)
+        console.log(payargs)
         res.json(payargs);
       });
     }
