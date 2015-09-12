@@ -1849,7 +1849,7 @@ app.get('/pay', requireLogin, function(req, res) {
       var discount = 1.00
       if(dataPlan.coupon && dataPlan.coupon.ignoreLevel && dataPlan.coupon.discount > 0){
         discount = discount - dataPlan.coupon.discount
-      }else if(customer.level.discount > 0){
+      }else if(customer.level && customer.level.discount > 0){
         discount = discount - customer.level.discount
       }
       models.Order.build({
