@@ -1798,7 +1798,7 @@ app.get('/payment', requireLogin, function(req, res) {
 
 })
 
-app.post('/pay', requireLogin, function(req, res) {
+app.get('/pay', requireLogin, function(req, res) {
     var customer = req.customer
     async.waterfall([function(next){
       if(customer.levelId !== undefined){
