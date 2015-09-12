@@ -32,7 +32,7 @@ var initConfig = {
   partnerKey: config.partnerKey,
   appId: config.appId,
   mchId: config.mchId,
-  notifyUrl: "/paytest"
+  notifyUrl: "/paytest",
   pfx: fs.readFileSync(process.env.PWD + '/cert/' + apiclient_cert.p12)
 };
 var payment = new Payment(initConfig);
