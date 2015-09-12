@@ -236,7 +236,7 @@ function paymentConfirm(){
         dataPlanId = $("#txtFlowCount").val()
     if(dataPlanId !== undefined && dataPlanId !== ''){
       $.ajax({
-        url: '/askforwechat/' + dataPlanId,
+        url: '/pay/' + dataPlanId,
         method: "GET",
         dataType: "JSON",
         data: {
@@ -263,29 +263,5 @@ function paymentConfirm(){
     }else{
       showDialog("请输入电话和选择正确的套餐")
     }
-
-    // if(dataPlanId !== undefined && dataPlanId !== ''){
-    //   $.ajax({
-    //     url: '/pay',
-    //     method: 'POST',
-    //     dataType: "JSON",
-    //     data: {
-    //       dataPlanId: dataPlanId,
-    //       paymentMethod: 'WechatPay'
-    //     }
-    //   }).done(function(data) {
-    //     showDialog(data.msg)
-    //     if(!data.err){
-    //       doDelay(function(){
-    //        window.location.href = data.url
-    //      }, 1)
-    //     }
-    //   }).fail(function(err) {
-    //     console.log(err)
-    //     showDialog("服务器繁忙")
-    //   })
-    // }else{
-    //   showDialog("请输入电话和选择正确的套餐")
-    // }
   })
 }

@@ -2303,66 +2303,6 @@ app.get("/taskconfirm/:id", function(req, res) {
 
 })
 
-
-app.get('/askforwechat/:id', requireLogin, function(req, res) {
-  var customer = req.customer
-  async.waterfall([function(next) {
-    if(customer.levelId != undefined){
-      models.Level.findById(customer.levelId).then(function(level){
-        customer.level = level
-      })
-    }
-    next(null, customer)
-  }, function(customer, next) {
-    models.DataPlan.findById(req.params.id).then(function(dataPlan) {
-      next(null, dataPlan)
-    })
-  }, function(dataPlan, next){
-    models.Coupon.findAll({
-        where: {
-          dataPlanId: dataPlan.id,
-          isActive: true,
-          expiredAt: {
-            $gt: (new Date()).begingOfDate()
-          }
-        },
-        order: [
-                ['updatedAt', 'DESC']
-               ]
-      }).then(function(coupons) {
-        dataPlan.coupon = coupons[0]
-        next(null, dataPlan)
-      }).catch(function(err) {
-        next(err)
-      })
-  }], function(err, dataPlan) {
-    if(err){
-      console.log(err)
-    }else{
-      var ipstr = req.ip.split(':'),
-          ip = ipstr[ipstr.length -1]
-
-      var order = {
-        body: '吮指原味鸡 * 1',
-        attach: '{"部位":"三角"}',
-        out_trade_no: 'kfc' + (+new Date),
-        total_fee: 10 * 100,
-        spbill_create_ip: ip,
-        openid: customer.wechat,
-        trade_type: 'JSAPI'
-      };
-
-      console.log(order)
-      payment.getBrandWCPayRequestParams(order, function(err, payargs){
-        console.log(err)
-        console.log(payargs)
-        res.json(payargs);
-      });
-    }
-  })
-})
-
-
 // --------------- app -----------------------
 
 app.get('/404', function(req, res, next){
