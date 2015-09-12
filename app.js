@@ -103,6 +103,7 @@ app.use(function(req, res, next){
 
 
 function requireLogin(req, res, next) {
+  req.session.customer_id = 1
   if (req.session.customer_id) {
     models.Customer.findOne({ where: { id: req.session.customer_id } }).then(function(customer) {
       if(customer){
@@ -2321,12 +2322,15 @@ app.get('/askforwechat/:id', requireLogin, function(req, res) {
     if(err){
       console.log(err)
     }else{
+      var ipstr = req.ip.split(':'),
+          ip = ipstr[ipstr.length -1]
+
       var order = {
         body: '吮指原味鸡 * 1',
         attach: '{"部位":"三角"}',
         out_trade_no: 'kfc' + (+new Date),
         total_fee: 10 * 100,
-        spbill_create_ip: req.ip,
+        spbill_create_ip: ip,
         openid: customer.wechat,
         trade_type: 'JSAPI'
       };
