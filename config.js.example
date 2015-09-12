@@ -5,6 +5,8 @@ var config = {
                 'appSecret': '',
                 'apikey': '',
                 'yunpian': '',
+                'partnerKey' :''
+                'mchId': '',
                 'menus': {
                            "button":[
                            {

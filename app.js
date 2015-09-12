@@ -29,7 +29,7 @@ var handlebars = require('express-handlebars').create({
 });
 var Payment = require('wechat-pay').Payment;
 var initConfig = {
-  // partnerKey: "<partnerkey>",
+  partnerKey: config.partnerKey,
   appId: config.appId,
   mchId: config.mchId,
   notifyUrl: "/paytest"
