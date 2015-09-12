@@ -236,7 +236,7 @@ function paymentConfirm(){
         dataPlanId = $("#txtFlowCount").val()
     if(dataPlanId !== undefined && dataPlanId !== ''){
       $.ajax({
-        url: '/pay/' + dataPlanId,
+        url: '/pay',
         method: "GET",
         dataType: "JSON",
         data: {
