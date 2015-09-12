@@ -103,7 +103,6 @@ app.use(function(req, res, next){
 
 
 function requireLogin(req, res, next) {
-  req.session.customer_id = 1
   if (req.session.customer_id) {
     models.Customer.findOne({ where: { id: req.session.customer_id } }).then(function(customer) {
       if(customer){
