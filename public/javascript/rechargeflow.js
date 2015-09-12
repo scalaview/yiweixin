@@ -242,6 +242,7 @@ function paymentConfirm(){
       }).done(function(payargs) {
         alert(payargs)
         WeixinJSBridge.invoke('getBrandWCPayRequest', payargs, function(res){
+          console.log(res.err_msg)
           if(res.err_msg == "get_brand_wcpay_request:ok"){
             alert("支付成功");
             // 这里可以跳转到订单完成页面向用户展示

@@ -2334,7 +2334,7 @@ app.get('/askforwechat/:id', requireLogin, function(req, res) {
         trade_type: 'JSAPI'
       };
 
-              console.log(order)
+      console.log(order)
       payment.getBrandWCPayRequestParams(order, function(err, payargs){
         console.log(err)
         console.log(payargs)
