@@ -7,6 +7,7 @@ module.exports = function(sequelize, DataTypes) {
     paymentMethodId: { type: DataTypes.INTEGER, allowNull: false },
     discount: { type: DataTypes.DECIMAL, allowNull: true, defaultValue: 0 },
     total: { type: DataTypes.DECIMAL, allowNull: false, defaultValue: 0 },
+    transactionId: { type: DataTypes.STRING, allowNull: true },
     stateName: {
       type: DataTypes.VIRTUAL,
       get: function(){

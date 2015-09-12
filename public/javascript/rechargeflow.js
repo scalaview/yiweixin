@@ -239,21 +239,26 @@ function paymentConfirm(){
         url: '/askforwechat/' + dataPlanId,
         method: "GET",
         dataType: "JSON",
+        data: {
+          dataPlanId: dataPlanId,
+          paymentMethod: 'WechatPay'
+        }
       }).done(function(payargs) {
-        var log = ''
-        for (var k in payargs) {
-          log = log + "key: " + k + "  value: " + payargs[k] + "\n"
-        };
-        alert(log)
-        WeixinJSBridge.invoke('getBrandWCPayRequest', payargs, function(res){
-          alert.log(res.err_msg)
-          if(res.err_msg == "get_brand_wcpay_request:ok"){
-            alert("支付成功");
-            // 这里可以跳转到订单完成页面向用户展示
-          }else{
-            alert("支付失败，请重试");
-          }
-        });
+        if(payargs.err){
+          showDialog(payargs.msg)
+        }else{
+          WeixinJSBridge.invoke('getBrandWCPayRequest', payargs, function(res){
+            if(res.err_msg == "get_brand_wcpay_request:ok"){
+              alert("支付成功");
+              // 这里可以跳转到订单完成页面向用户展示
+            }else{
+              alert("支付失败，请重试");
+            }
+          });
+        }
+      }).fail(function(err) {
+        console.log(err)
+        showDialog("服务器繁忙")
       })
     }else{
       showDialog("请输入电话和选择正确的套餐")

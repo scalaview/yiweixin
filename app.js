@@ -32,7 +32,7 @@ var initConfig = {
   partnerKey: config.partnerKey,
   appId: config.appId,
   mchId: config.mchId,
-  notifyUrl: "/paytest",
+  notifyUrl: "http://yiliuliang.net/paymentconfirm",
   pfx: fs.readFileSync(process.env.PWD + '/cert/apiclient_cert.p12')
 };
 var payment = new Payment(initConfig);
@@ -118,29 +118,6 @@ function requireLogin(req, res, next) {
     res.redirect("/register");
   }
 }
-
-
-var middleware = require('wechat-pay').middleware;
-app.use('/paytest', middleware(initConfig).getNotify().done(function(message, req, res, next) {
-  var openid = message.openid;
-  var order_id = message.out_trade_no;
-  var attach = {};
-  console.log(message)
-  try{
-   attach = JSON.parse(message.attach);
-  }catch(e){}
-
-  /**
-   * 查询订单，在自己系统里把订单标为已处理
-   * 如果订单之前已经处理过了直接返回成功
-   */
-  res.reply('success');
-
-  /**
-   * 有错误返回错误，不然微信会在一段时间里以一定频次请求你
-   * res.reply(new Error('...'))
-   */
-}));
 
 app.use('/admin', function (req, res, next) {
   res.locals.layout = 'admin';
@@ -1882,42 +1859,83 @@ app.post('/pay', requireLogin, function(req, res) {
         paymentMethodId: paymentMethod.id,
         total: dataPlan.price * discount
       }).save().then(function(order){
-        //TODO do payment
         next(null, paymentMethod, dataPlan, order)
       }).catch(function(err){
         next(err)
       })
-    }, function(paymentMethod, dataPlan, order, next){
-      if(true){
-        order.updateAttributes({
-          state: models.Order.STATE.PAID
-        }).then(function(order){
-          next(null, paymentMethod, dataPlan, order)
-        })
-      }else{
-        order.updateAttributes({
-          state: models.Order.STATE.FAIL
-        }).then(function(order){
-          res.json({ err: 1, msg: "支付失败，请稍候重试" })
-        }).catch(function(err) {
-          next(err)
-        })
-      }
-    }, function(paymentMethod, dataPlan, order, next){
-      customer.addTraffic(models, order, function(customer, order, flowHistory){
-          res.json({ err: 0, url: '/profile', msg: "充值成功" })
-        }, function(err) {
-          next(err)
-        })
-    }], function(error, callback){
+    }], function(error, paymentMethod, dataPlan, order){
       if(error){
         console.log(error)
         res.json({ err: 1, msg: "server error" })
       }else{
-        res.redirect('/500')
+        var ipstr = req.ip.split(':'),
+          ip = ipstr[ipstr.length -1]
+
+        var orderParams = {
+          body: '流量套餐 ' + dataPlan.name,
+          attach: order.id,
+          out_trade_no: 'yiliuliang' + (+new Date),
+          total_fee: 10 * 100,
+          spbill_create_ip: ip,
+          openid: customer.wechat,
+          trade_type: 'JSAPI'
+        };
+
+        console.log(orderParams)
+        payment.getBrandWCPayRequestParams(orderParams, function(err, payargs){
+          if(err){
+            console.log("payment fail")
+            console.log(err)
+            res.json({err: 1, msg: 'payment fail'})
+          }else{
+            console.log(payargs)
+            res.json(payargs);
+          }
+        });
       }
     })
 })
+
+
+var middleware = require('wechat-pay').middleware;
+app.use('/paymentconfirm', middleware(initConfig).getNotify().done(function(message, req, res, next) {
+  console.log(message)
+  var orderId = message.attach
+  async.waterfall([function(next) {
+    models.Order.findById(orderId).then(function(order) {
+      if(order){
+        next(null, order)
+      }else{
+        next(new Error('order not found'))
+      }
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(order, next){
+    if(message.result_code === 'SUCCESS' && !order.isPaid()){
+      order.updateAttributes({
+        state: models.Order.STATE.PAID,
+        transactionId: message.transaction_id
+      }).then(function(order){
+        next(null, order)
+      })
+    }else{
+      next(new Error("pass"))
+    }
+  }, function(order, next){
+    customer.addTraffic(models, order, function(customer, order, flowHistory){
+      next(null, order, flowHistory)
+    }, function(err) {
+      next(err)
+    })
+  }], function(err, order, flowHistory){
+    if(err){
+      res.reply(err)
+    }else{
+      res.reply('success');
+    }
+  })
+}));
 
 app.get('/extractflow', requireLogin, function(req, res){
   res.render('yiweixin/orders/extractflow', { customer: req.customer })
