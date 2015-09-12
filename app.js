@@ -1808,7 +1808,7 @@ app.get('/pay', requireLogin, function(req, res) {
       }
       next(null, customer)
     }, function(customer, next) {
-      models.PaymentMethod.findOne({ where: { code: req.body.paymentMethod.toLowerCase() } }).then(function(paymentMethod) {
+      models.PaymentMethod.findOne({ where: { code: req.query.paymentMethod.toLowerCase() } }).then(function(paymentMethod) {
         if(paymentMethod){
           next(null, paymentMethod);
         }else{
@@ -1818,7 +1818,7 @@ app.get('/pay', requireLogin, function(req, res) {
         next(err)
       })
     }, function(paymentMethod, next){
-      models.DataPlan.findById(req.body.dataPlanId).then(function(dataPlan){
+      models.DataPlan.findById(req.query.dataPlanId).then(function(dataPlan){
         if(dataPlan){
           next(null, paymentMethod, dataPlan)
         }else{
