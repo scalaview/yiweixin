@@ -240,7 +240,11 @@ function paymentConfirm(){
         method: "GET",
         dataType: "JSON",
       }).done(function(payargs) {
-        alert(payargs)
+        var log = ''
+        for (var k : payargs) {
+          log = log + "key: " + k + "  value: " + payargs[k] + "\n"
+        };
+        alert(log)
         WeixinJSBridge.invoke('getBrandWCPayRequest', payargs, function(res){
           console.log(res.err_msg)
           if(res.err_msg == "get_brand_wcpay_request:ok"){
