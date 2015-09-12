@@ -33,7 +33,7 @@ var initConfig = {
   appId: config.appId,
   mchId: config.mchId,
   notifyUrl: "/paytest"
-  // pfx: fs.readFileSync("<location-of-your-apiclient-cert.p12>")
+  pfx: fs.readFileSync(process.env.PWD + '/cert/' + apiclient_cert.p12)
 };
 var payment = new Payment(initConfig);
 
@@ -2333,7 +2333,8 @@ app.get('/askforwechat/:id', requireLogin, function(req, res) {
         openid: customer.wechat,
         trade_type: 'JSAPI'
       };
-      console.log(order)
+
+              console.log(order)
       payment.getBrandWCPayRequestParams(order, function(err, payargs){
         console.log(err)
         console.log(payargs)

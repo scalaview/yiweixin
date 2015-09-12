@@ -4,6 +4,7 @@ bower_components
 .DS_Store
 .idea/
 public/uploads
+cert/
 config/config.json
 config.js
 public/kindeditor
