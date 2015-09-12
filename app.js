@@ -1875,7 +1875,7 @@ app.get('/pay', requireLogin, function(req, res) {
           body: '流量套餐 ' + dataPlan.name,
           attach: order.id,
           out_trade_no: 'yiliuliang' + (+new Date),
-          total_fee: 10 * 100,
+          total_fee: 1,
           spbill_create_ip: ip,
           openid: customer.wechat,
           trade_type: 'JSAPI'
