@@ -1900,7 +1900,9 @@ app.get('/pay', requireLogin, function(req, res) {
 var middleware = require('wechat-pay').middleware;
 app.use('/paymentconfirm', middleware(initConfig).getNotify().done(function(message, req, res, next) {
   console.log(message)
-  var orderId = message.attach
+
+  var orderId = message.orderId
+
   async.waterfall([function(next) {
     models.Order.findById(orderId).then(function(order) {
       if(order){
@@ -1922,7 +1924,13 @@ app.use('/paymentconfirm', middleware(initConfig).getNotify().done(function(mess
     }else{
       next(new Error("pass"))
     }
-  }, function(order, next){
+  }, function(order, next) {
+    models.Customer.findById(order.customerId).then(function(customer) {
+      next(null, order, customer)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(order, customer, next) {
     customer.addTraffic(models, order, function(customer, order, flowHistory){
       next(null, order, flowHistory)
     }, function(err) {
