@@ -27,6 +27,15 @@ var handlebars = require('express-handlebars').create({
   defaultLayout: 'main',
   helpers: helpers
 });
+var Payment = require('wechat-pay').Payment;
+var initConfig = {
+  // partnerKey: "<partnerkey>",
+  appId: config.appId,
+  mchId: config.mchId,
+  notifyUrl: "/paytest"
+  // pfx: fs.readFileSync("<location-of-your-apiclient-cert.p12>")
+};
+var payment = new Payment(initConfig);
 
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
@@ -110,6 +119,29 @@ function requireLogin(req, res, next) {
     res.redirect("/register");
   }
 }
+
+
+var middleware = require('wechat-pay').middleware;
+app.use('/paytest', middleware(initConfig).getNotify().done(function(message, req, res, next) {
+  var openid = message.openid;
+  var order_id = message.out_trade_no;
+  var attach = {};
+  console.log(message)
+  try{
+   attach = JSON.parse(message.attach);
+  }catch(e){}
+
+  /**
+   * 查询订单，在自己系统里把订单标为已处理
+   * 如果订单之前已经处理过了直接返回成功
+   */
+  res.reply('success');
+
+  /**
+   * 有错误返回错误，不然微信会在一段时间里以一定频次请求你
+   * res.reply(new Error('...'))
+   */
+}));
 
 app.use('/admin', function (req, res, next) {
   res.locals.layout = 'admin';
@@ -2253,6 +2285,60 @@ app.get("/taskconfirm/:id", function(req, res) {
   })
 
 })
+
+
+app.get('/askforwechat/:id', requireLogin, function(req, res) {
+  var customer = req.customer
+  async.waterfall([function(next) {
+    if(customer.levelId != undefined){
+      models.Level.findById(customer.levelId).then(function(level){
+        customer.level = level
+      })
+    }
+    next(null, customer)
+  }, function(customer, next) {
+    models.DataPlan.findById(req.params.id).then(function(dataPlan) {
+      next(null, dataPlan)
+    })
+  }, function(dataPlan, next){
+    models.Coupon.findAll({
+        where: {
+          dataPlanId: dataPlan.id,
+          isActive: true,
+          expiredAt: {
+            $gt: (new Date()).begingOfDate()
+          }
+        },
+        order: [
+                ['updatedAt', 'DESC']
+               ]
+      }).then(function(coupons) {
+        dataPlan.coupon = coupons[0]
+        next(null, dataPlan)
+      }).catch(function(err) {
+        next(err)
+      })
+  }], function(err, dataPlan) {
+    if(err){
+      console.log(err)
+    }else{
+      var order = {
+        body: '吮指原味鸡 * 1',
+        attach: '{"部位":"三角"}',
+        out_trade_no: 'kfc' + (+new Date),
+        total_fee: 10 * 100,
+        spbill_create_ip: req.ip,
+        openid: customer.openid,
+        trade_type: 'JSAPI'
+      };
+      console.log(order)
+      payment.getBrandWCPayRequestParams(order, function(err, payargs){
+        res.json(payargs);
+      });
+    }
+  })
+})
+
 
 // --------------- app -----------------------
 

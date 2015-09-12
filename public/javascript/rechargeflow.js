@@ -225,6 +225,7 @@ function paymentConfirm(){
 
     var flow = selectedFlow.data("value"),
         price = selectedFlow.data("price")
+
     $("#maskflow").html(flow)
     $("#maskmoney").html(price)
     $("#mask").show()
@@ -233,29 +234,48 @@ function paymentConfirm(){
   $(".sure").click(function(){
     var $this = $(this),
         dataPlanId = $("#txtFlowCount").val()
-
     if(dataPlanId !== undefined && dataPlanId !== ''){
       $.ajax({
-        url: '/pay',
-        method: 'POST',
+        url: '/askforwechat/' + dataPlanId,
+        method: "GET",
         dataType: "JSON",
-        data: {
-          dataPlanId: dataPlanId,
-          paymentMethod: 'WechatPay'
-        }
-      }).done(function(data) {
-        showDialog(data.msg)
-        if(!data.err){
-          doDelay(function(){
-           window.location.href = data.url
-         }, 1)
-        }
-      }).fail(function(err) {
-        console.log(err)
-        showDialog("服务器繁忙")
+      }).done(function(payargs) {
+        alert(payargs)
+        WeixinJSBridge.invoke('getBrandWCPayRequest', payargs, function(res){
+          if(res.err_msg == "get_brand_wcpay_request:ok"){
+            alert("支付成功");
+            // 这里可以跳转到订单完成页面向用户展示
+          }else{
+            alert("支付失败，请重试");
+          }
+        });
       })
     }else{
       showDialog("请输入电话和选择正确的套餐")
     }
+
+    // if(dataPlanId !== undefined && dataPlanId !== ''){
+    //   $.ajax({
+    //     url: '/pay',
+    //     method: 'POST',
+    //     dataType: "JSON",
+    //     data: {
+    //       dataPlanId: dataPlanId,
+    //       paymentMethod: 'WechatPay'
+    //     }
+    //   }).done(function(data) {
+    //     showDialog(data.msg)
+    //     if(!data.err){
+    //       doDelay(function(){
+    //        window.location.href = data.url
+    //      }, 1)
+    //     }
+    //   }).fail(function(err) {
+    //     console.log(err)
+    //     showDialog("服务器繁忙")
+    //   })
+    // }else{
+    //   showDialog("请输入电话和选择正确的套餐")
+    // }
   })
 }
