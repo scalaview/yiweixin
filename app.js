@@ -859,7 +859,7 @@ admin.post('/coupon', function(req, res) {
   models.Coupon.build(params).save().then(function(coupon) {
     if(coupon.id){
       req.flash('info', "create success")
-      res.redirect('/admin/coupons/' + coupon.id)
+      res.redirect('/admin/coupons/' + coupon.id + '/edit')
     }
   }).catch(function(err) {
     console.log(err)

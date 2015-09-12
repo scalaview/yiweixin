@@ -252,7 +252,7 @@ function discount(customer, dataPlan){
   var discount = 1.00
   if(dataPlan.coupon && dataPlan.coupon.ignoreLevel && dataPlan.coupon.discount > 0){
     discount = discount - dataPlan.coupon.discount
-  }else if(customer.level.discount > 0){
+  }else if(customer.level != undefined && customer.level.discount > 0){
     discount = discount - customer.level.discount
   }
   if(discount < 1.00){

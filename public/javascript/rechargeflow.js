@@ -198,7 +198,15 @@ function RegistEvent() {
 
       var flowId = $(target).data("id"),
           flowCount = $(target).data("price");
+          flowDiscount = $(target).data('discount');
       $("#txtFlowCount").val(flowId);
+      if(flowDiscount != ''){
+        $("#txtPayMoneyDiscount").html(flowDiscount.toFixed(2)).parent().removeClass('hide');
+        $("#txtPayMoney").attr('style', 'text-decoration: line-through;')
+      }else{
+        $("#txtPayMoney").removeAttr('style')
+        $("#txtPayMoneyDiscount").parent().addClass('hide');
+      }
       $("#txtPayMoney").html(parseInt(flowCount).toFixed(2));
   });
   $("#buylist a:eq(0)").click()
