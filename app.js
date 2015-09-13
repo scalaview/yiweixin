@@ -727,6 +727,14 @@ admin.post("/apk/:id", function(req, res) {
 })
 
 
+admin.get("/apk/:id/delete", function(req, res) {
+  models.Apk.findById(req.params.id).then(function(apk) {
+    apk.destroy().then(function() {
+      res.redirect('/admin/apks')
+    })
+  })
+})
+
 // -----------------customer ------------------
 admin.get("/customers/:id", function(req, res) {
   async.waterfall([function(next) {
@@ -1604,7 +1612,7 @@ admin.get('/extractorders/export', function(req, res) {
           console.log(err)
           res.send("error")
         }else{
-          var filename = "export"+ (new Date).getTime() + ".csv"
+          var filename = "export"+ (new Date).getTime() + ".txt"
           res.set({
             "Content-Disposition": 'attachment; filename="'+filename+'"',
             "Content-Type": "application/octet-stream"
@@ -1613,10 +1621,105 @@ admin.get('/extractorders/export', function(req, res) {
         }
       })
     }else{
-      res.send("error")
+      var filename = "export"+ (new Date).getTime() + ".txt",
+          results = []
+      res.set({
+            "Content-Disposition": 'attachment; filename="'+filename+'"',
+            "Content-Type": "application/octet-stream"
+          })
+      res.send(results.join('\n'))
     }
   })
 })
+
+// -------------------level-----------------------------
+
+admin.get('/levels', function(req, res) {
+  async.waterfall([function(next) {
+    models.Level.findAndCountAll().then(function(levels) {
+      next(null, levels)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, levels) {
+    if(err){
+      console.log(err)
+      res.redirect('/500')
+    }else{
+      result = helpers.setPagination(levels, req)
+      res.render("admin/levels/index", {
+        levels: result
+      })
+    }
+  })
+})
+
+admin.get('/levels/new', function(req, res) {
+  var level = models.Level.build()
+  res.render('admin/levels/new', { level: level, path: '/admin/level' })
+})
+
+admin.post('/level', function(req, res) {
+  console.log(req.body)
+  models.Level.build(req.body).save().then(function(level) {
+    if(level){
+      req.flash("info", "update success")
+      res.redirect('/admin/levels/' + level.id + '/edit')
+    }else{
+      req.flash("info", "update fail")
+      res.redirect('/admin/levels/new')
+    }
+  }).catch(function(err) {
+    console.log(err)
+    req.flash("info", "update fail")
+    res.redirect('/500')
+  })
+})
+
+admin.get("/levels/:id/edit", function(req, res) {
+  models.Level.findById(req.params.id).then(function(level) {
+    if(level){
+      res.render('admin/levels/edit', { level: level, path: '/admin/level/' + level.id, method: 'POST' })
+    }else{
+      res.redirect('/500')
+    }
+  }).catch(function(err){
+    console.log(err)
+    res.redirect('/500')
+  })
+})
+
+
+admin.post("/level/:id", function(req, res) {
+  async.waterfall([function(next) {
+    models.Level.findById(req.params.id).then(function(level) {
+      if(level){
+        next(null, level)
+      }else{
+        next(null)
+      }
+    })
+  }, function(level, next){
+    level.updateAttributes(req.body).then(function(level) {
+      if(level){
+        next(null, level)
+      }else{
+        next(new Error('update fail'))
+      }
+    })
+  }], function(err, level){
+    if(err){
+      console.log(err)
+      req.flash("info", "update success")
+      res.redirect('/500')
+    }else{
+      req.flash("info", "update fail")
+      res.redirect('/admin/levels/' + level.id + '/edit')
+    }
+  })
+})
+
+// -----------------------level-------------------------------
 
 // -------------- adming ---------------------
 

@@ -59,8 +59,11 @@
                   <td>{{ downloadTime }}</td>
                   <td>{{ isActive }}</td>
                   <td>
-                    <a href="/admin/apks/{{id}}/edit" class="list-group-item">
+                    <a href="/admin/apks/{{id}}/edit" class="list-group-item col-xs-6">
                       <i class="glyphicon glyphicon-pencil"></i>
+                    </a>
+                    <a href="/admin/apk/{{id}}/delete" class="list-group-item col-xs-6" onclick="return confirm('你确定要删除吗？')">
+                      <i class="glyphicon glyphicon-trash"></i>
                     </a>
                   </td>
                 </tr>
