@@ -224,10 +224,14 @@ function paymentConfirm(){
     }
 
     var flow = selectedFlow.data("value"),
-        price = selectedFlow.data("price")
-
+        price = selectedFlow.data("price"),
+        flowDiscount = selectedFlow.data('discount');
+    if(flowDiscount != ''){
+      $("#maskmoney").html(flowDiscount.toFixed(2))
+    }else{
+      $("#maskmoney").html(price)
+    }
     $("#maskflow").html(flow)
-    $("#maskmoney").html(price)
     $("#mask").show()
   });
 
