@@ -44,8 +44,8 @@ p {
 }
 
 .hexagon .hexagon-by {
-  width: 10rem;
-  height: 8.61111rem;
+  width: 11rem;
+  height: 9.61111rem;
   background: url("/images/index-box.png") no-repeat;
   background-size: 100% auto;
   position: absolute;
@@ -55,9 +55,9 @@ p {
 }
 
 .hexagon .hexagon-by-1 {
-  width: 10rem;
-  height: 8.61111rem;
-  background: url("/images/index-box.png") no-repeat 0 bottom;
+  width: 11rem;
+  height: 9.61111rem;
+  background: url("/images/index-box.png") no-repeat;
   background-size: 100% auto;
   position: absolute;
   z-index: 111;
@@ -66,7 +66,7 @@ p {
 }
 
 .hexagon {
-  width: 280px;
+  width: 270px;
   margin: 0 auto;
   overflow: hidden;
   height: 30.55556rem;
@@ -74,33 +74,33 @@ p {
 }
 
 .hexagon .item2 {
-  left: 8.77778rem;
+  left: 7.87777rem;
   top: 1.66667rem;
 }
 
 .hexagon .item1 {
-  left: 1rem;
-  top: 6.11111rem;
+  left:0.111rem;
+  top:6.1111rem
 }
 
 .hexagon .item3 {
-  left: 16.83333rem;
-  top: 6.11111rem;
+  left: 15.83333rem;
+  top: 6.2222rem
 }
 
 .hexagon .item4 {
-  left: 16.83333rem;
-  top: 15rem;
+  left: 15.7888rem;
+  top: 15.4222rem
 }
 
 .hexagon .item5 {
-  left: 8.77778rem;
-  top: 19.44444rem;
+  left:8rem;
+  top:20rem;
 }
 
 .hexagon .item6 {
-  left: 1rem;
-  top: 15rem;
+  left: 0rem;
+  top: 15.3rem
 }
 
 .hexagon .item-img2 {
@@ -113,7 +113,7 @@ p {
   height: 3.44444rem;
   background-size: 3.44444rem auto;
   position: absolute;
-  left: 3.33333rem;
+  left: 3.7777rem;
   top: 1.38889rem;
 }
 .hexagon p {
@@ -149,12 +149,17 @@ p {
 }
 
 .hexagon .hexagon-user {
-  left: 10.87778rem;
-  top: 10.55556rem;
+  left: 10.111rem;
+  top: 10.333rem;
 }
+
+.hexagon .hexagon-user .user{
+  background: url() 0px 0px / 100% no-repeat;
+}
+
 .hexagon .hexagon-max {
   width: 5rem;
-  height: 8.21111rem;
+  height: 0;
   background: #fff;
   position: absolute;
   z-index: 111;
@@ -183,8 +188,8 @@ p {
 }
 
 .hexagon .boxF, .hexagon .boxS, .hexagon .boxT {
-  width: 7.94444rem;
-  height: 9.33333rem;
+  width: 8.555rem;
+  height: 10.33333rem;
   overflow: hidden;
 }
 .hexagon .boxS {
@@ -192,7 +197,7 @@ p {
 }
 
 .hexagon .user {
-  width: 8.33333rem;
+  width: 10rem;
   height: 9.72222rem;
   -webkit-transform: rotate(30deg);
   font-weight: bold;

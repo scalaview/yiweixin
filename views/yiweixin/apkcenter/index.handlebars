@@ -14,7 +14,7 @@
                     <div class="col-xs-3">
                         <img class="img-responsive" src="{{ icon }}">
                     </div>
-                    <div class="col-xs-7">
+                    <div class="col-xs-5">
                       <div class="row">
                         <p class="col-xs-12">{{ name }}</p>
                        <small class="col-xs-6  text-muted">
@@ -28,8 +28,17 @@
                     </div>
                   </a>
                   <a href="/apkcenter/download/{{id}}?c={{../customer.password_hash}}">
-                    <div class="col-xs-2">
-                      <i class="glyphicon glyphicon-download-alt btn-lg orange"></i>
+                    <div class="col-xs-4">
+                      <div class="row">
+                        <div class="col-xs-12">
+                          <i class="glyphicon glyphicon-download-alt btn-lg orange"></i>
+                        </div>
+                        <div class="col-xs-12">
+                          <small class="text-muted">
+                            <img src="/images/coin.png" width="18px"> <span class="orange">+{{ apk.reward }}E币</span>
+                          </small>
+                        </div>
+                      </div>
                     </div>
                   </a>
               </div>
