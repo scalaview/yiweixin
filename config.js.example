@@ -7,6 +7,9 @@ var config = {
                 'yunpian': '',
                 'partnerKey' :''
                 'mchId': '',
+                'user': '',
+                'pwd' : '',
+                'yunma' : '',
                 'menus': {
                            "button":[
                            {

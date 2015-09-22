@@ -1,4 +1,62 @@
 'use strict';
+
+var request = require("request")
+var async = require("async")
+var helpers = require("../helpers")
+var config = require("../config")
+var querystring = require("querystring");
+
+var Recharger = function(phone, value, id, callbackUrl){
+  this.phone = phone
+  this.value = value
+  this.id = id
+  this.callbackUrl = callbackUrl
+  this.options = {
+    uri: config.yunma,
+    method: 'GET',
+    qs: {
+      a: config.user,
+      p: config.pwd,
+      m: this.phone,
+      t: this.value,
+      d: this.id,
+      n: querystring.escape(callbackUrl)
+    }
+  }
+
+  this.then = function(callback){
+    this.successCallback = callback
+    return this
+  }
+
+  this.catch = function(callback){
+   this.errCallback = callback
+   return this
+  }
+
+ this.do = function(){
+
+  var inerSuccessCallback = this.successCallback;
+  var inerErrCallback = this.errCallback;
+
+  request(this.options, function (error, res) {
+    if (!error && res.statusCode == 200) {
+      if(inerSuccessCallback){
+        var data = JSON.parse(res.body)
+        inerSuccessCallback.call(this, res, data)
+      }
+     }else{
+      if(inerErrCallback){
+        inerErrCallback.call(this, error)
+      }
+     }
+   });
+
+   return this
+ }
+ return this
+}
+
 module.exports = function(sequelize, DataTypes) {
   var ExtractOrder = sequelize.define('ExtractOrder', {
     state: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
@@ -44,6 +102,9 @@ module.exports = function(sequelize, DataTypes) {
         }else if(this.state === ExtractOrder.STATE.FAIL){
           return "失败"
         }
+      },
+      autoRecharge: function(callbackUrl){
+        return new Recharger(this.phone, this.value, this.id, callbackUrl)
       }
     }
   });

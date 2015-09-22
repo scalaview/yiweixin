@@ -2116,6 +2116,19 @@ app.post("/extractFlow", requireLogin, function(req, res){
     }).catch(function(err) {
       next(err)
     })
+  }, function(trafficPlan, extractOrder, next) {
+    extractOrder.autoRecharge('http://yiliuliang.net/extractflowconfirm').then(function(res, data) {
+      if(data.ret == 0){
+        next(null, trafficPlan, extractOrder)
+      }else{
+        extractOrder.updateAttributes({
+          state: models.ExtractOrder.STATE.FAIL
+        })
+        next(new Error(data.msg))
+      }
+    }).catch(function(err){
+      next(err)
+    }).do()
   }, function(trafficPlan, extractOrder, next){
     //
     customer.reduceTraffic(models, extractOrder, function(customer, extractOrder, trafficPlan, flowHistory) {
@@ -2444,6 +2457,40 @@ app.get("/taskconfirm/:id", function(req, res) {
     }
   })
 
+})
+
+app.get('/extractflowconfirm', function(req, res) {
+  var id = req.query.orderid,
+      phone = req.query.phone
+  if(id === undefined || id === '' || phone === undefined || phone === '' ){
+    res.send('error')
+    return
+  }
+  async.waterfall([function(next) {
+    models.ExtractOrder.findOne({
+      id: id,
+      phone: phone
+    }).then(function(extractorder) {
+      next(null, extractorder)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(extractorder, next) {
+    extractorder.updateAttributes({
+      state: models.ExtractOrder.STATE.SUCCESS
+    }).then(function(extractorder) {
+      next(null, extractorder)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, extractorder) {
+    if(err){
+      console.log(err)
+      res.send('err')
+    }else{
+      res.send('success')
+    }
+  })
 })
 
 // --------------- app -----------------------
