@@ -119,6 +119,11 @@ function requireLogin(req, res, next) {
   }
 }
 
+app.all("*", function(req, res, next) {
+  console.log(req.method + " : " + req.url)
+  next()
+})
+
 app.use('/admin', function (req, res, next) {
   res.locals.layout = 'admin';
   next();
