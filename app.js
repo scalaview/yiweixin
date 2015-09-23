@@ -1802,7 +1802,7 @@ app.get('/register', function(req, res) {
   }], function(err) {
     if(err){
       console.log(err)
-      res.redirect('/500')
+      res.redirect('/auth')
     }else{
       res.render('register', { layout: 'main' })
     }
