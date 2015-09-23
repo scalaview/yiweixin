@@ -1726,6 +1726,41 @@ admin.post("/level/:id", function(req, res) {
 
 // -----------------------level-------------------------------
 
+admin.get('/trafficplans', function(req, res) {
+  async.waterfall([function(next) {
+    models.TrafficPlan.findAndCountAll().then(function(trafficPlans) {
+      next(null, trafficPlans)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, trafficPlans) {
+    if(err){
+      console.log(err)
+      res.redirect('/500')
+    }else{
+      res.render('admin/trafficplans/index', { trafficPlans: trafficPlans})
+    }
+  })
+})
+
+admin.get('/trafficplans/new', function(req, res) {
+  async.waterfall([function(next) {
+    next(null)
+  }], function(err) {
+    if(err){
+      console.log(err)
+      res.redirect('/500')
+    }else{
+      var trafficPlan = models.TrafficPlan.build(),
+        // TODO
+        providerOptions = {}
+
+      res.render('admin/trafficplans/new', { trafficPlan: trafficPlan})
+    }
+  })
+})
+
+
 // -------------- adming ---------------------
 
 

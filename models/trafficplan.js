@@ -6,7 +6,9 @@ module.exports = function(sequelize, DataTypes) {
     name: { type: DataTypes.STRING, allowNull: false },
     cost: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0.00 },
     sortNum: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
-    display: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true }
+    display: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+    type: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
+    bid: { type: DataTypes.INTEGER, allowNull: true }
   }, {
     classMethods: {
       associate: function(models) {
@@ -16,6 +18,9 @@ module.exports = function(sequelize, DataTypes) {
     instanceMethods: {
       className: function(){
         return "TrafficPlan"
+      },
+      provider: function(){
+        return TrafficPlan.ProviderName[this.providerId]
       }
     },
     scopes: {
@@ -34,6 +39,12 @@ module.exports = function(sequelize, DataTypes) {
     '中国移动': 0,
     '中国联通': 1,
     '中国电信': 2
+  }
+
+  TrafficPlan.ProviderName = {
+    0: '中国移动',
+    1: '中国联通',
+    2: '中国电信'
   }
   return TrafficPlan;
 };
