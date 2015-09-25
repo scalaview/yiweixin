@@ -5,15 +5,6 @@
       </div>
   </div>
 
-providerId: { type: DataTypes.INTEGER, allowNull: false },
-    value: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
-    name: { type: DataTypes.STRING, allowNull: false },
-    cost: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0.00 },
-    sortNum: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
-    display: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
-    type: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
-    bid: { type: DataTypes.INTEGER, allowNull: true }
-
 
 <form role="form" accept-charset="UTF-8" action="{{path}}" method="{{method}}">
   <div class='row'>
@@ -33,7 +24,6 @@ providerId: { type: DataTypes.INTEGER, allowNull: false },
       <div class="form-group">
         <label>provider</label>
         {{ selectTag providerOptions providerCollection trafficPlan.providerId }}
-        <input class="form-control" placeholder="input providerId" name="providerId" value="{{ trafficPlan.providerId }}">
       </div>
     </div>
     <div class="col-lg-6">
@@ -50,7 +40,7 @@ providerId: { type: DataTypes.INTEGER, allowNull: false },
       </div>
       <div class="form-group">
         <label>type</label>
-        <input class="form-control" placeholder="input type" name="type" type='number'  min="0" max="1"  step='0.01' value="{{ trafficPlan.type }}">
+        {{ selectTag typeOptions typeCollection trafficPlan.type }}
       </div>
       <div class="form-group">
         <label>bid</label>

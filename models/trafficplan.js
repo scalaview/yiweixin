@@ -46,5 +46,10 @@ module.exports = function(sequelize, DataTypes) {
     1: '中国联通',
     2: '中国电信'
   }
+  TrafficPlan.TYPE = {
+    '非正式' : 0,
+    '正式' : 1
+  }
+
   return TrafficPlan;
 };
