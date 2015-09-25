@@ -1862,6 +1862,19 @@ admin.post('/trafficplan/:id', function(req, res){
 })
 
 
+admin.get('/syncdata', function(req, res) {
+  models.TrafficPlan.syncDataSource('18144889889').then(function(response, data) {
+    if(data.status && data.status == -100){
+      var plans = JSON.parse(data.data)
+      console.log(plans)
+    }else{
+
+    }
+  }).catch(function(err) {
+    console.log(err)
+  }).do()
+})
+
 // -------------- adming ---------------------
 
 

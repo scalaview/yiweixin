@@ -10,6 +10,9 @@ var config = {
                 'user': '',
                 'pwd' : '',
                 'yunma' : '',
+                'did' : '',
+                'umeolKey' : '',
+                'umeolUrl' : '',
                 'menus': {
                            "button":[
                            {
