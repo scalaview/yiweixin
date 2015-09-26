@@ -94,10 +94,12 @@ app.use(function (req, res, next) {
   }, function (err, string) {
     if (err) return next(err)
     req.text = {}
-    try{
-      req.text = JSON.parse(string)
-    }catch(e){
-      next(e)
+    if(string !== undefined && string !== ''){
+      try{
+        req.text = JSON.parse(string)
+      }catch(e){
+        next(e)
+      }
     }
     next()
   })
