@@ -2344,6 +2344,7 @@ app.post("/extractFlow", requireLogin, function(req, res){
   }, function(trafficPlan, extractOrder, next) {
     extractOrder.autoRecharge().then(function(res, data) {
       if(trafficPlan.bid){
+        console.log(data)
         if(data.status == 1){
           next(null, trafficPlan, extractOrder)
         }else{
@@ -2704,9 +2705,11 @@ app.get('/extractflowconfirm', function(req, res) {
   }
   async.waterfall([function(next) {
     models.ExtractOrder.findOne({
-      id: id,
-      phone: phone,
-      state: models.ExtractOrder.STATE.INIT
+      where: {
+        id: id,
+        phone: phone,
+        state: models.ExtractOrder.STATE.INIT
+      }
     }).then(function(extractorder) {
       if(extractorder){
         next(null, extractorder)
@@ -2725,6 +2728,18 @@ app.get('/extractflowconfirm', function(req, res) {
     }).catch(function(err) {
       next(err)
     })
+  }, function(extractOrder, next) {
+    extractOrder.getExchanger().then(function(trafficPlan) {
+      next(null, extractOrder, trafficPlan)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(extractOrder, trafficPlan, next) {
+    models.MessageQueue.sendRechargeMsg(models, trafficPlan, extractOrder.phone, function(messageQueue) {
+      next(null)
+    }, function(err) {
+      next(err)
+    })
   }], function(err, extractorder) {
     if(err){
       console.log(err)
@@ -2735,26 +2750,22 @@ app.get('/extractflowconfirm', function(req, res) {
   })
 })
 
-app.get('/extractflowdefaultconfirm', function(req, res) {
-  var body = {}
-  try{
-    body = JSON.parse(req.body)
-  }catch(e){
-    console.log(e)
-    res.send('err')
-    return
-  }
+app.post('/extractflowdefaultconfirm', function(req, res) {
+  var body = req.body
   var id = body.dorderid,
       phone = body.mobile
+      console.log(req)
   if(id === undefined || id === '' || phone === undefined || phone === '' ){
     res.send('error')
     return
   }
   async.waterfall([function(next) {
     models.ExtractOrder.findOne({
-      id: id,
-      phone: phone,
-      state: models.ExtractOrder.STATE.INIT
+      where: {
+        id: id,
+        phone: phone,
+        state: models.ExtractOrder.STATE.INIT
+      }
     }).then(function(extractorder) {
       if(extractorder){
         next(null, extractorder)

@@ -206,6 +206,93 @@ module.exports = function(sequelize, DataTypes) {
 
         //TODO
       },
+      sendRechargeMsg: function(models, trafficPlan, phone, successCallBack, errorCallBack) {
+        async.waterfall([function(next) {
+          models.MessageTemplate.findOne({
+            where: {
+              name: "recharge message"
+            }
+          }).then(function(messageTemplate) {
+            if(messageTemplate){
+              next(null, messageTemplate)
+            }else{
+              next(null, null)
+            }
+          })
+        }, function(messageTemplate, next) {
+          if(messageTemplate){
+            var content = messageTemplate.content.format({ plan: trafficPlan.name, app: '易流量'  })
+          }else{
+            var content = "欢迎使用{{app}}，您的流量{{plan}}充值已完成，将于未来24小时内到账，请注意查收。以上信息可能延迟，本条信息无需回复".format({ plan: trafficPlan.name, app: '易流量'  })
+          }
+          console.log(phone)
+          MessageQueue.build({
+            phone: phone,
+            content: content,
+            type: "recharge",
+            templateId: messageTemplate.id
+          }).save().then(function(messageQueue) {
+            next(null, messageQueue)
+          }).catch(function(err) {
+            next(err)
+          })
+        }, function(messageQueue, next) {
+          //
+          async.waterfall([function(next) {
+            var sender = messageQueue.sender()
+            sender.then(function(data) {
+              console.log('data: ' + data)
+              if(data.code === 0){
+                var sendState = MessageQueue.stateType.send
+              }else{
+                var sendState = MessageQueue.stateType.fail
+              }
+              messageQueue.updateAttributes({
+                state: sendState,
+                sendAt: new Date()
+              }).then(function(messageQueue){
+                next(null, messageQueue)
+              }).catch(function(err){
+                next(err)
+              })
+            }).catch(function(err) {
+              console.log(err)
+              if(messageQueue.retryTime < MessageQueue.MAXRETRYTIME){
+                messageQueue.updateAttributes({
+                  retryTime: messageQueue.retryTime + 1
+                }).then(function(messageQueue){
+                  setTimeout(function(){
+                    sender.do()
+                  }, MessageQueue.RETRYINTERVAL)
+                }).catch(function(err){
+                  console.log("update retry time fail")
+                  content.log(err)
+                })
+              }else{
+                messageQueue.updateAttributes({
+                  state: MessageQueue.stateType.fail,
+                }).then(function(messageQueue){
+                }).catch(function(err){
+                  next(err)
+                })
+              }
+            }).do()
+          }], function(err, messageQueue) {
+            if(err){
+              console.log(err)
+            }
+          })
+          next(null, messageQueue)
+          //
+        }], function(err, messageQueue) {
+          if(err){
+            console.log(err)
+            errorCallBack(err)
+          }else{
+            successCallBack(messageQueue)
+          }
+        })
+      },
       verifyCode: function(phone, code, type, successCallBack, errorCallBack){
         if (MessageQueue.messageType[type] !== undefined){
           MessageQueue.findOne({ where: {
@@ -226,7 +313,8 @@ module.exports = function(sequelize, DataTypes) {
     }
   });
   MessageQueue.messageType = {
-    register: 0
+    register: 0,
+    recharge: 1
   }
 
   MessageQueue.stateType = {
