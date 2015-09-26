@@ -6,6 +6,8 @@ var sign = require("./sign")
 var bodyParser = require('body-parser')
 var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
+var getRawBody = require('raw-body')
+var typer = require('media-typer')
 var async = require("async")
 var parseString = require('xml2js').parseString;
 var accessToken = null
@@ -84,6 +86,22 @@ app.use(urlencodedParser)
 app.use(jsonParser)
 app.use(session({secret: 'yiliuliang', saveUninitialized: true, resave: true}))
 app.use(flash());
+app.use(function (req, res, next) {
+  getRawBody(req, {
+    length: req.headers['content-length'],
+    limit: '1mb',
+    encoding: typer.parse(req.headers['content-type']).parameters.charset
+  }, function (err, string) {
+    if (err) return next(err)
+    req.text = {}
+    try{
+      req.text = JSON.parse(string)
+    }catch(e){
+      next(e)
+    }
+    next()
+  })
+})
 
 app.use(function(req, res, next){
   var err = req.session.error,
@@ -143,8 +161,6 @@ admin.use(function(req, res, next){
 });
 
 admin.use(function(req, res, next){
-  console.log(req)
-  console.log("===================================================================")
   helpers.compact(req.body)
   helpers.compact(req.query)
   helpers.compact(req.params)
@@ -2753,10 +2769,10 @@ app.get('/extractflowconfirm', function(req, res) {
 })
 
 app.post('/extractflowdefaultconfirm', function(req, res) {
-  var body = req.body
+  var body = req.text
+      console.log(body)
   var id = body.dorderid,
       phone = body.mobile
-      console.log(req)
   if(id === undefined || id === '' || phone === undefined || phone === '' ){
     res.send('error')
     return
