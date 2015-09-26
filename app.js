@@ -6,8 +6,6 @@ var sign = require("./sign")
 var bodyParser = require('body-parser')
 var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
-var getRawBody = require('raw-body')
-var typer = require('media-typer')
 var async = require("async")
 var parseString = require('xml2js').parseString;
 var accessToken = null
@@ -86,23 +84,26 @@ app.use(urlencodedParser)
 app.use(jsonParser)
 app.use(session({secret: 'yiliuliang', saveUninitialized: true, resave: true}))
 app.use(flash());
-app.use(function (req, res, next) {
-  getRawBody(req, {
-    length: req.headers['content-length'],
-    limit: '1mb',
-    encoding: typer.parse(req.headers['content-type']).parameters.charset
-  }, function (err, string) {
-    if (err) return next(err)
-    req.text = {}
-    if(string !== undefined && string !== ''){
+
+app.use(function(req, res, next){
+  var contentType = req.headers['content-type'] || ''
+    , mime = contentType.split(';')[0];
+
+  if (mime != 'text/plain') {
+    return next();
+  }
+
+  var data = "";
+  req.on('data', function(chunk){ data += chunk})
+  req.on('end', function(){
+    if(data !== ''){
       try{
-        req.text = JSON.parse(string)
+        req.rawBody = JSON.parse(data)
       }catch(e){
-        next(e)
       }
     }
-    next()
-  })
+    next();
+   })
 })
 
 app.use(function(req, res, next){
@@ -2771,7 +2772,7 @@ app.get('/extractflowconfirm', function(req, res) {
 })
 
 app.post('/extractflowdefaultconfirm', function(req, res) {
-  var body = req.text
+  var body = req.rawBody
       console.log(body)
   var id = body.dorderid,
       phone = body.mobile
@@ -2813,7 +2814,7 @@ app.post('/extractflowdefaultconfirm', function(req, res) {
       console.log(err)
       res.send('err')
     }else{
-      res.send(0)
+      res.send('0')
     }
   })
 })
