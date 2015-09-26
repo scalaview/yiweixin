@@ -5,6 +5,7 @@ var async = require("async")
 var helpers = require("../helpers")
 var config = require("../config")
 var querystring = require("querystring");
+var crypto = require('crypto')
 
 var Recharger = function(phone, value, id, callbackUrl){
   this.phone = phone
@@ -21,6 +22,62 @@ var Recharger = function(phone, value, id, callbackUrl){
       t: this.value,
       d: this.id,
       n: querystring.escape(callbackUrl)
+    }
+  }
+
+  this.then = function(callback){
+    this.successCallback = callback
+    return this
+  }
+
+  this.catch = function(callback){
+   this.errCallback = callback
+   return this
+  }
+
+ this.do = function(){
+
+  var inerSuccessCallback = this.successCallback;
+  var inerErrCallback = this.errCallback;
+
+  request(this.options, function (error, res) {
+    if (!error && res.statusCode == 200) {
+      if(inerSuccessCallback){
+        var data = JSON.parse(res.body)
+        inerSuccessCallback.call(this, res, data)
+      }
+     }else{
+      if(inerErrCallback){
+        inerErrCallback.call(this, error)
+      }
+     }
+   });
+
+   return this
+ }
+ return this
+}
+
+var DefaultRecharger = function(phone, bid, orderId){
+  this.phone = phone
+  this.bid = bid
+  this.orderId = orderId
+
+  this.did = config.did
+  this.key = config.umeolKey
+  this.time = (new Date()).getTime()
+  this.preMd5Str = this.phone + this.did + this.time + this.key
+
+  this.options = {
+    uri: config.umeolRechargeUrl,
+    method: 'GET',
+    qs: {
+      tel: this.phone,
+      did: this.did,
+      bid: this.bid,
+      dorderid: this.orderId,
+      timestamp: this.time,
+      userkey: crypto.createHash('md5').update(this.preMd5Str).digest("hex")
     }
   }
 
@@ -105,8 +162,12 @@ module.exports = function(sequelize, DataTypes) {
           return "失败"
         }
       },
-      autoRecharge: function(callbackUrl){
-        return new Recharger(this.phone, this.value, this.id, callbackUrl)
+      autoRecharge: function(){
+        if(this.bid){
+          return new DefaultRecharger(this.phone, this.bid, this.id)
+        }else{
+          return new Recharger(this.phone, this.value, this.id, 'http://yiliuliang.net/extractflowconfirm')
+        }
       }
     }
   });

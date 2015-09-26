@@ -1738,7 +1738,8 @@ admin.get('/trafficplans', function(req, res) {
       console.log(err)
       res.redirect('/500')
     }else{
-      res.render('admin/trafficplans/index', { trafficPlans: trafficPlans})
+      result = helpers.setPagination(trafficPlans, req)
+      res.render('admin/trafficplans/index', { trafficPlans: result})
     }
   })
 })
@@ -1863,16 +1864,85 @@ admin.post('/trafficplan/:id', function(req, res){
 
 
 admin.get('/syncdata', function(req, res) {
-  models.TrafficPlan.syncDataSource('18144889889').then(function(response, data) {
-    if(data.status && data.status == -100){
-      var plans = JSON.parse(data.data)
-      console.log(plans)
-    }else{
 
+  var generateName = function(string, defaultName){
+    var y = /[M|G]/,
+        t = /\b/,
+        start = t.exec(string),
+        end = y.exec(string)
+    if(start.index >= 0 && end.index + 1 > start.index && end.index + 1 <= string.length){
+      return string.substring(start.index, end.index + 1)
+    }else{
+      return defaultName
     }
-  }).catch(function(err) {
-    console.log(err)
-  }).do()
+  }
+
+  var numbers = ['13826549803', '18144889889', '13100000099']
+  async.map(numbers, function(number, pass) {
+    async.waterfall([function(next) {
+      models.TrafficPlan.syncDataSource(number).then(function(response, data) {
+        if(data.status && data.status == -100){
+          var plans = []
+          try{
+            plans = JSON.parse(data.data)
+            next(null, plans)
+          }catch(e){
+            next(err)
+          }
+        }else{
+          next(new Error(data.msg))
+        }
+      }).catch(function(err) {
+        next(err)
+      }).do()
+    }, function(plans, outnext){
+      async.map(plans, function(plan, next) {
+        models.TrafficPlan.findOne({
+          where: {
+            bid: plan.bid
+          }
+        }).then(function(trafficplan) {
+          if(!trafficplan){
+            var providerId = 0;
+            switch(plan.spid){
+              case 1:
+                providerId = models.TrafficPlan.Provider['中国电信']
+                break;
+              case 3:
+                providerId = models.TrafficPlan.Provider['中国联通']
+                break;
+              default:
+                providerId = models.TrafficPlan.Provider['中国移动']
+            }
+
+            models.TrafficPlan.build({
+              type: 1, // 正式
+              bid: plan.bid,
+              value: plan.size,
+              name: generateName(plan.name ,plan.size + "M"),
+              providerId: providerId,
+              cost: plan.price * 100,
+              display: true
+            }).save()
+          }
+        })
+        next(null)
+      }, function(err) {
+        if(err){
+          outnext(err)
+        }else{
+          outnext(null)
+        }
+      })
+    }], function(err){
+      if(err){
+        console.log(err)
+      }
+      pass(null)
+    })
+  }, function(err){
+    res.send('ok')
+  })
 })
 
 // -------------- adming ---------------------
@@ -2264,21 +2334,33 @@ app.post("/extractFlow", requireLogin, function(req, res){
       exchangerId: trafficPlan.id,
       phone: req.body.phone,
       cost: trafficPlan.cost,
-      value: trafficPlan.value
+      value: trafficPlan.value,
+      bid: trafficPlan.bid
     }).save().then(function(extractOrder) {
       next(null, trafficPlan, extractOrder)
     }).catch(function(err) {
       next(err)
     })
   }, function(trafficPlan, extractOrder, next) {
-    extractOrder.autoRecharge('http://yiliuliang.net/extractflowconfirm').then(function(res, data) {
-      if(data.ret == 0){
-        next(null, trafficPlan, extractOrder)
+    extractOrder.autoRecharge().then(function(res, data) {
+      if(trafficPlan.bid){
+        if(data.status == 1){
+          next(null, trafficPlan, extractOrder)
+        }else{
+          extractOrder.updateAttributes({
+            state: models.ExtractOrder.STATE.FAIL
+          })
+          next(new Error(data.msg))
+        }
       }else{
-        extractOrder.updateAttributes({
-          state: models.ExtractOrder.STATE.FAIL
-        })
-        next(new Error(data.msg))
+        if(data.ret == 0){
+          next(null, trafficPlan, extractOrder)
+        }else{
+          extractOrder.updateAttributes({
+            state: models.ExtractOrder.STATE.FAIL
+          })
+          next(new Error(data.msg))
+        }
       }
     }).catch(function(err){
       next(err)
@@ -2623,9 +2705,15 @@ app.get('/extractflowconfirm', function(req, res) {
   async.waterfall([function(next) {
     models.ExtractOrder.findOne({
       id: id,
-      phone: phone
+      phone: phone,
+      state: models.ExtractOrder.STATE.INIT
     }).then(function(extractorder) {
-      next(null, extractorder)
+      if(extractorder){
+        next(null, extractorder)
+      }else{
+        res.send('success')
+        return
+      }
     }).catch(function(err) {
       next(err)
     })
@@ -2643,6 +2731,58 @@ app.get('/extractflowconfirm', function(req, res) {
       res.send('err')
     }else{
       res.send('success')
+    }
+  })
+})
+
+app.get('/extractflowdefaultconfirm', function(req, res) {
+  var body = {}
+  try{
+    body = JSON.parse(req.body)
+  }catch(e){
+    console.log(e)
+    res.send('err')
+    return
+  }
+  var id = body.dorderid,
+      phone = body.mobile
+  if(id === undefined || id === '' || phone === undefined || phone === '' ){
+    res.send('error')
+    return
+  }
+  async.waterfall([function(next) {
+    models.ExtractOrder.findOne({
+      id: id,
+      phone: phone,
+      state: models.ExtractOrder.STATE.INIT
+    }).then(function(extractorder) {
+      if(extractorder){
+        next(null, extractorder)
+      }else{
+        res.send(0)
+        return
+      }
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(extractorder, next) {
+    var status = models.ExtractOrder.STATE.FAIL
+    if(body.status === 1){
+      status = models.ExtractOrder.STATE.SUCCESS
+    }
+    extractorder.updateAttributes({
+      state: status
+    }).then(function(extractorder) {
+      next(null, extractorder)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, extractorder) {
+    if(err){
+      console.log(err)
+      res.send('err')
+    }else{
+      res.send(0)
     }
   })
 })

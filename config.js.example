@@ -13,6 +13,7 @@ var config = {
                 'did' : '',
                 'umeolKey' : '',
                 'umeolUrl' : '',
+                'umeolRechargeUrl' : '',
                 'menus': {
                            "button":[
                            {
