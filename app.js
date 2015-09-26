@@ -143,6 +143,8 @@ admin.use(function(req, res, next){
 });
 
 admin.use(function(req, res, next){
+  console.log(req)
+  console.log("===================================================================")
   helpers.compact(req.body)
   helpers.compact(req.query)
   helpers.compact(req.params)
@@ -2345,7 +2347,7 @@ app.post("/extractFlow", requireLogin, function(req, res){
     extractOrder.autoRecharge().then(function(res, data) {
       if(trafficPlan.bid){
         console.log(data)
-        if(data.status == 1){
+        if(data.status == 1 || data.status == 2){
           next(null, trafficPlan, extractOrder)
         }else{
           extractOrder.updateAttributes({
