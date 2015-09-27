@@ -191,7 +191,6 @@ admin.all("*", function(req, res, next) {
 })
 
 admin.get('/', function (req, res) {
-
   res.render('admin/home');
 });
 
@@ -1966,6 +1965,18 @@ admin.get('/syncdata', function(req, res) {
   })
 })
 
+
+//===================dataplan================================
+
+
+admin.get('/dataplans', function(req, res) {
+  models.findAndCountAll().then(function(dataplans) {
+
+  }).catch(function(err) {
+
+  })
+})
+
 // -------------- adming ---------------------
 
 
@@ -2364,8 +2375,8 @@ app.post("/extractFlow", requireLogin, function(req, res){
     })
   }, function(trafficPlan, extractOrder, next) {
     extractOrder.autoRecharge().then(function(res, data) {
+      console.log(data)
       if(trafficPlan.bid){
-        console.log(data)
         if(data.status == 1 || data.status == 2){
           next(null, trafficPlan, extractOrder)
         }else{
