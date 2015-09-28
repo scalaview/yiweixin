@@ -19,12 +19,12 @@ var config = {
                            {
                               "type":"view",
                               "name":"领取流量",
-                              "url":"http://yiliuliang.net"
+                              "url":""
                             },
                             {
                                 "type":"view",
                                 "name":"我的钱包",
-                                "url":"http://yiliuliang.net/auth"
+                                "url":""
                             },
                             {
                               "type":"view",
@@ -33,7 +33,7 @@ var config = {
                               {
                                 "type":"view",
                                 "name":"关于易流量",
-                                "url":"http://yiliuliang.net"
+                                "url":""
                               }]
                             }]
                         },
@@ -41,7 +41,7 @@ var config = {
                   'button1' :'V1001_TODAY_TASKS'
                 },
                 'upload_path': '/public/uploads/',
-                'hostname': 'yiliuliang.net',
+                'hostname': '',
                 'maxfileuploadsize': 10240000 // 10m
               };
 
