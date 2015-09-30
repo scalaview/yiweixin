@@ -2826,14 +2826,14 @@ app.get('/extractflowconfirm', function(req, res) {
     }).catch(function(err) {
       next(err)
     })
-  }, function(extractOrder, next) {
-    extractOrder.getExchanger().then(function(trafficPlan) {
-      next(null, extractOrder, trafficPlan)
+  }, function(extractorder, next) {
+    extractorder.getExchanger().then(function(trafficPlan) {
+      next(null, extractorder, trafficPlan)
     }).catch(function(err) {
       next(err)
     })
-  }, function(extractOrder, trafficPlan, next) {
-    models.MessageQueue.sendRechargeMsg(models, trafficPlan, extractOrder.phone, function(messageQueue) {
+  }, function(extractorder, trafficPlan, next) {
+    models.MessageQueue.sendRechargeMsg(models, trafficPlan, extractorder.phone, function(messageQueue) {
       next(null)
     }, function(err) {
       next(err)
@@ -2887,14 +2887,14 @@ app.post('/extractflowdefaultconfirm', function(req, res) {
       next(err)
     })
   }, function(extractorder, next) {
-    extractOrder.getExchanger().then(function(trafficPlan) {
-      next(null, extractOrder, trafficPlan)
+    extractorder.getExchanger().then(function(trafficPlan) {
+      next(null, extractorder, trafficPlan)
     }).catch(function(err) {
       next(err)
     })
-  }, function(extractOrder, trafficPlan, next) {
-    models.MessageQueue.sendRechargeMsg(models, trafficPlan, extractOrder.phone, function(messageQueue) {
-      next(null, extractOrder)
+  }, function(extractorder, trafficPlan, next) {
+    models.MessageQueue.sendRechargeMsg(models, trafficPlan, extractorder.phone, function(messageQueue) {
+      next(null, extractorder)
     }, function(err) {
       next(err)
     })
