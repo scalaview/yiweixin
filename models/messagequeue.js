@@ -152,8 +152,9 @@ module.exports = function(sequelize, DataTypes) {
         }, function(messageQueue, next) {
           async.waterfall([function(next) {
             var sender = messageQueue.sender()
-            sender.then(function(data) {
-              console.log('data: ' + data)
+            sender.then(function(dataStr) {
+              console.log('data: ' + dataStr)
+              var data = JSON.parse(dataStr)
               if(data.code === 0){
                 var sendState = MessageQueue.stateType.send
               }else{
@@ -240,8 +241,9 @@ module.exports = function(sequelize, DataTypes) {
           //
           async.waterfall([function(next) {
             var sender = messageQueue.sender()
-            sender.then(function(data) {
-              console.log('data: ' + data)
+            sender.then(function(dataStr) {
+              console.log('data: ' + dataStr)
+              var data = JSON.parse(dataStr)
               if(data.code === 0){
                 var sendState = MessageQueue.stateType.send
               }else{
