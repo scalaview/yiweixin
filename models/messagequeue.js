@@ -223,7 +223,7 @@ module.exports = function(sequelize, DataTypes) {
           if(messageTemplate){
             var content = messageTemplate.content.format({ plan: trafficPlan.name, app: '易流量'  })
           }else{
-            var content = "欢迎使用{{app}}，您的流量{{plan}}充值已完成，将于未来24小时内到账，请注意查收。以上信息可能延迟，本条信息无需回复".format({ plan: trafficPlan.name, app: '易流量'  })
+            var content = "尊敬的{{phone}}用户，您好，您通过[孚云]微信公众号充值的{{plan}}已经提交，将在两个小时内到账。如未成功到账，请关注[孚云]公众号查询流量充值进度。".format({ phone: phone, plan: trafficPlan.name })
           }
           console.log(phone)
           MessageQueue.build({

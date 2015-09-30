@@ -2886,6 +2886,18 @@ app.post('/extractflowdefaultconfirm', function(req, res) {
     }).catch(function(err) {
       next(err)
     })
+  }, function(extractorder, next) {
+    extractOrder.getExchanger().then(function(trafficPlan) {
+      next(null, extractOrder, trafficPlan)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(extractOrder, trafficPlan, next) {
+    models.MessageQueue.sendRechargeMsg(models, trafficPlan, extractOrder.phone, function(messageQueue) {
+      next(null, extractOrder)
+    }, function(err) {
+      next(err)
+    })
   }], function(err, extractorder) {
     if(err){
       console.log(err)
