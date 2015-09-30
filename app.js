@@ -279,6 +279,32 @@ admin.post('/kindeditor/uploads', function(req, res) {
   })
 })
 
+admin.post('/homeimage/uploads', function(req, res) {
+
+  var form = new formidable.IncomingForm();
+  form.parse(req, function(err, fields, files) {
+    if(err){
+      res.send({ "error": 1, 'message': "server error" })
+      return
+    }else if(!files.adimage.type.match('^image\/')){
+      res.send({ "error": 1, 'message': "只允许上传图片" })
+      return
+    }else if(files.adimage.size > config.maxfileuploadsize){
+      res.send({ "error": 1, 'message': "超出最大文件限制" })
+      return
+    }
+    var staticpath = '/public'
+        dirpath = '/uploads'
+        files.adimage.name = "banner.png"
+        filename = helpers.fileUploadSync(files.adimage, staticpath + dirpath, true),
+        info = {
+            "error": 0,
+            "url": dirpath + "/" + filename
+        };
+    res.redirect("/admin")
+  })
+})
+
 admin.get('/kindeditor/filemanager', function (req, res) {
   var dirpath = '/kindeditor/uploads',
       fspath = path.join(process.env.PWD, '/public' + dirpath),

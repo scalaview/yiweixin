@@ -121,15 +121,15 @@ function fileUpload(file, successCallBack, errorCallBack){
   });
 }
 
-function fileUploadSync(file, dirpath){
+function fileUploadSync(file, dirpath, forceRecover){
   var origin_this = this,
       old_path = file.path,
       file_size = file.size,
       file_type = file.type,
       origin_file_name = file.name,
-      file_name = Math.round((new Date().valueOf() * Math.random())) + "_" + _.trim(origin_file_name, ' '),
+      file_name = (forceRecover !== undefined && forceRecover) ? origin_file_name : Math.round((new Date().valueOf() * Math.random())) + "_" + _.trim(origin_file_name, ' '),
       new_path = path.join(process.env.PWD, dirpath || config.upload_path, file_name );
-
+console.log(new_path)
   var tmp_file = fs.readFileSync(old_path);
   fs.writeFileSync(new_path, tmp_file);
   return file_name
