@@ -1922,7 +1922,7 @@ admin.get('/syncdata', function(req, res) {
             bid: plan.bid
           }
         }).then(function(trafficplan) {
-          if(!trafficplan){
+          if(!trafficplan || req.query.force){
             var providerId = 0;
             switch(plan.spid){
               case 1:
@@ -1934,16 +1934,22 @@ admin.get('/syncdata', function(req, res) {
               default:
                 providerId = models.TrafficPlan.Provider['中国移动']
             }
-
-            models.TrafficPlan.build({
-              type: 1, // 正式
-              bid: plan.bid,
-              value: plan.size,
-              name: generateName(plan.name ,plan.size + "M"),
-              providerId: providerId,
-              cost: plan.price * 100,
-              display: true
-            }).save()
+            if(trafficplan){
+              trafficplan.updateAttributes({
+                value: plan.size,
+                name: plan.name
+              })
+            }else{
+              models.TrafficPlan.build({
+                type: 1, // 正式
+                bid: plan.bid,
+                value: plan.size,
+                name: generateName(plan.name ,plan.size + "M"),
+                providerId: providerId,
+                cost: plan.price * 100,
+                display: true
+              }).save()
+            }
           }
         })
         next(null)
