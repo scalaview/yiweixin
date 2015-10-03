@@ -14,16 +14,20 @@
         <input class="form-control" placeholder="input name" name="name" value="{{ trafficPlan.name }}">
       </div>
       <div class="form-group">
-        <label>cost</label>
+        <label>花费</label>
         <input class="form-control" placeholder="input cost" name="cost" type='number' min="0" step='1' value="{{ trafficPlan.cost }}">
       </div>
       <div class="form-group">
-        <label>sortNum</label>
+        <label>排序</label>
         <input class="form-control" placeholder="input sortNum" name="sortNum" type='number' min="0" step='1' value="{{ trafficPlan.sortNum }}">
       </div>
       <div class="form-group">
-        <label>provider</label>
+        <label>提供商</label>
         {{ selectTag providerOptions providerCollection trafficPlan.providerId }}
+      </div>
+      <div class="form-group">
+        <label>分组</label>
+        {{ selectTag trafficgroupsOptions trafficgroupsCollection trafficPlan.trafficGroupId }}
       </div>
     </div>
     <div class="col-lg-6">

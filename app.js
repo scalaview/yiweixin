@@ -1792,8 +1792,16 @@ admin.get('/trafficplans', function(req, res) {
 
 admin.get('/trafficplans/new', function(req, res) {
   async.waterfall([function(next) {
-    next(null)
-  }], function(err) {
+    models.TrafficGroup.findAll().then(function(trafficgroups) {
+      var trafficgroupsCollection = [];
+      for (var i = 0; i < trafficgroups.length; i++) {
+        trafficgroupsCollection.push([ trafficgroups[i].id, trafficgroups[i].name ])
+      };
+      next(null, trafficgroupsCollection)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, trafficgroupsCollection) {
     if(err){
       console.log(err)
       res.redirect('/500')
@@ -1802,7 +1810,8 @@ admin.get('/trafficplans/new', function(req, res) {
           providerOptions = { name: "providerId", class: 'select2 col-lg-12 col-xs-12' },
           providerCollection = [ [0, '中国移动'], [1, '中国联通'], [2, '中国电信'] ],
           typeOptions = { name: "type", class: 'select2 col-lg-12 col-xs-12' },
-          typeCollection = [ [0, '非正式'], [1, '正式']]
+          typeCollection = [ [0, '非正式'], [1, '正式']],
+          trafficgroupsOptions = { name: "trafficGroupId", class: 'select2 col-lg-12 col-xs-12', includeBlank: true }
 
       res.render('admin/trafficplans/new', {
         trafficPlan: trafficPlan,
@@ -1810,6 +1819,8 @@ admin.get('/trafficplans/new', function(req, res) {
         providerCollection: providerCollection,
         typeOptions: typeOptions,
         typeCollection: typeCollection,
+        trafficgroupsOptions: trafficgroupsOptions,
+        trafficgroupsCollection: trafficgroupsCollection,
         path: '/admin/trafficplan'
       })
     }
@@ -1824,7 +1835,6 @@ admin.post('/trafficplan', function(req, res) {
   }else{
     params['display'] = false
   }
-
 
   async.waterfall([function(next) {
     models.TrafficPlan.build(params).save().then(function(trafficplan) {
@@ -1856,7 +1866,17 @@ admin.get('/trafficplans/:id/edit', function(req, res) {
     }).catch(function(err) {
       next(err)
     })
-  }], function(err, trafficPlan) {
+  }, function(trafficplan, next) {
+    models.TrafficGroup.findAll().then(function(trafficgroups) {
+      var trafficgroupsCollection = [];
+      for (var i = 0; i < trafficgroups.length; i++) {
+        trafficgroupsCollection.push([ trafficgroups[i].id, trafficgroups[i].name ])
+      };
+      next(null, trafficplan, trafficgroupsCollection)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, trafficPlan, trafficgroupsCollection) {
     if(err){
       console.log(err)
       res.redirect('/500')
@@ -1864,13 +1884,17 @@ admin.get('/trafficplans/:id/edit', function(req, res) {
       var providerOptions = { name: "providerId", class: 'select2 col-lg-12 col-xs-12' },
           providerCollection = [ [0, '中国移动'], [1, '中国联通'], [2, '中国电信'] ],
           typeOptions = { name: "type", class: 'select2 col-lg-12 col-xs-12' },
-          typeCollection = [ [0, '非正式'], [1, '正式']]
+          typeCollection = [ [0, '非正式'], [1, '正式']],
+          trafficgroupsOptions = { name: "trafficGroupId", class: 'select2 col-lg-12 col-xs-12', includeBlank: true }
+
       res.render('admin/trafficplans/new', {
           trafficPlan: trafficPlan,
           providerOptions: providerOptions,
           providerCollection: providerCollection,
           typeOptions: typeOptions,
           typeCollection: typeCollection,
+          trafficgroupsOptions: trafficgroupsOptions,
+          trafficgroupsCollection: trafficgroupsCollection,
           path: '/admin/trafficplan/' + trafficPlan.id
         })
     }
@@ -1923,6 +1947,19 @@ admin.get('/syncdata', function(req, res) {
     }
   }
 
+  var getProviderId = function(spid){
+    switch(spid){
+      case 1:
+        return models.TrafficPlan.Provider['中国电信']
+        break;
+      case 3:
+        return models.TrafficPlan.Provider['中国联通']
+        break;
+      default:
+        return models.TrafficPlan.Provider['中国移动']
+    }
+  }
+
   var numbers = ['13826549803', '18144889889', '13100000099']
   async.map(numbers, function(number, pass) {
     async.waterfall([function(next) {
@@ -1933,7 +1970,7 @@ admin.get('/syncdata', function(req, res) {
             plans = JSON.parse(data.data)
             next(null, plans)
           }catch(e){
-            next(err)
+            next(e)
           }
         }else{
           next(new Error(data.msg))
@@ -1941,44 +1978,85 @@ admin.get('/syncdata', function(req, res) {
       }).catch(function(err) {
         next(err)
       }).do()
+    }, function(plans, next) {
+      var map = {},
+          t = /\b/
+
+      for (var i = 0; i < plans.length; i++) {
+        start = t.exec(plans[i].name)
+        name = plans[i].name.substring(0, start.index)
+        map[name] = plans[i].spid
+      };
+      var keys = Object.keys(map),
+          prepareData = []
+
+      for (var i = 0; i < keys.length; i++) {
+        prepareData.push({name: keys[i], spid: map[keys[i]] })
+      };
+      async.map(prepareData, function(plan, innerNext) {
+          models.TrafficGroup.findOrCreate({
+            where: {
+              name: plan.name,
+              providerId: getProviderId(plan.spid)
+            }
+          }).then(function(trafficgroup) {
+              innerNext(null, trafficgroup)
+          })
+      }, function(err) {
+        next(null, plans)
+      })
     }, function(plans, outnext){
       async.map(plans, function(plan, next) {
-        models.TrafficPlan.findOne({
-          where: {
-            bid: plan.bid
-          }
-        }).then(function(trafficplan) {
-          if(!trafficplan || req.query.force){
-            var providerId = 0;
-            switch(plan.spid){
-              case 1:
-                providerId = models.TrafficPlan.Provider['中国电信']
-                break;
-              case 3:
-                providerId = models.TrafficPlan.Provider['中国联通']
-                break;
-              default:
-                providerId = models.TrafficPlan.Provider['中国移动']
+        async.waterfall([function(innerNext){
+          var t = /\b/,
+            start = t.exec(plan.name)
+            name = plan.name.substring(0, start.index)
+
+          models.TrafficGroup.findOne({
+            where: {
+              name: name,
+              providerId: getProviderId(plan.spid)
             }
-            if(trafficplan){
-              trafficplan.updateAttributes({
-                value: plan.size,
-                name: plan.name
-              })
-            }else{
-              models.TrafficPlan.build({
-                type: 1, // 正式
-                bid: plan.bid,
-                value: plan.size,
-                name: generateName(plan.name ,plan.size + "M"),
-                providerId: providerId,
-                cost: plan.price * 100,
-                display: true
-              }).save()
+          }).then(function(trafficgroup) {
+              innerNext(null, trafficgroup)
+          })
+        }, function(trafficgroup, innerNext) {
+          models.TrafficPlan.findOne({
+            where: {
+              bid: plan.bid
             }
-          }
+          }).then(function(trafficplan) {
+            if(!trafficplan || req.query.force){
+              var providerId = getProviderId(plan.spid)
+              if( req.query.force === '1' ){
+                var name = plan.name
+              }else{
+                var name = generateName(plan.name ,plan.size + "M")
+              }
+              if(trafficplan){
+                trafficplan.updateAttributes({
+                  value: plan.size,
+                  name: name,
+                  trafficGroupId :trafficgroup.id
+                })
+              }else{
+                models.TrafficPlan.build({
+                  type: 1, // 正式
+                  bid: plan.bid,
+                  value: plan.size,
+                  name: generateName(plan.name ,plan.size + "M"),
+                  providerId: providerId,
+                  cost: plan.price * 100,
+                  display: true,
+                  trafficGroupId :trafficgroup.id
+                }).save()
+              }
+            }
+          })
+          innerNext(null)
+        }], function(err) {
+          next(null)
         })
-        next(null)
       }, function(err) {
         if(err){
           outnext(err)
@@ -2048,6 +2126,110 @@ admin.post('/dataplan/:id', function(req, res) {
   })
 
 })
+
+
+admin.get("/trafficgroups", function(req, res) {
+  models.TrafficGroup.findAndCountAll({
+    order: [
+      "providerId", "sortNum"
+    ]
+  }).then(function(trafficgroups) {
+    if(trafficgroups){
+      result = helpers.setPagination(trafficgroups, req)
+    }else{
+      result = {rows: {}}
+    }
+    res.render("admin/trafficgroups/index", {trafficgroups: result})
+  })
+})
+
+admin.get('/trafficgroups/new', function(req, res) {
+  var trafficgroup = models.TrafficGroup.build(),
+      providerOptions = { name: "providerId", class: 'select2 col-lg-12 col-xs-12' },
+      providerCollection = [ [0, '中国移动'], [1, '中国联通'], [2, '中国电信'] ]
+
+  res.render('admin/trafficgroups/new', {
+    providerOptions: providerOptions,
+    providerCollection: providerCollection,
+    trafficgroup: trafficgroup,
+    path: '/admin/trafficgroup/'
+  })
+})
+
+admin.post('/trafficgroup', function(req, res) {
+  var params = req.body
+    if(params['display'] == 'on'){
+      params['display'] = true
+    }else{
+      params['display'] = false
+    }
+
+  async.waterfall([function(next) {
+    models.TrafficGroup.build(params).save().then(function(trafficgroup) {
+      next(null, trafficgroup)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, trafficgroup) {
+    if(err){
+      console.log(err)
+      res.redirect('/500')
+    }else{
+      req.flash("info", "create success")
+      res.redirect('/admin/trafficgroups/'+ trafficgroup.id +'/edit')
+    }
+  })
+})
+
+
+admin.get('/trafficgroups/:id/edit', function(req, res) {
+  models.TrafficGroup.findById(req.params.id).then(function(trafficgroup) {
+    var providerOptions = { name: "providerId", class: 'select2 col-lg-12 col-xs-12' },
+        providerCollection = [ [0, '中国移动'], [1, '中国联通'], [2, '中国电信'] ]
+    res.render('admin/trafficgroups/edit', {
+      providerOptions: providerOptions,
+      providerCollection: providerCollection,
+      trafficgroup: trafficgroup,
+      path: '/admin/trafficgroup/' + trafficgroup.id
+    })
+  }).catch(function(err) {
+    console.log(err)
+    res.redirect('/500')
+  })
+})
+
+admin.post('/trafficgroup/:id', function(req, res) {
+  var params = req.body
+    if(params['display'] == 'on'){
+      params['display'] = true
+    }else{
+      params['display'] = false
+    }
+
+  async.waterfall([function(next) {
+    models.TrafficGroup.findById(req.params.id).then(function(trafficgroup) {
+      next(null, trafficgroup)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(trafficgroup, next) {
+    trafficgroup.updateAttributes(params).then(function(trafficgroup) {
+      next(null, trafficgroup)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, trafficgroup) {
+    if(err){
+      console.log(err)
+      req.flash("info", "update fail")
+    }else{
+      req.flash("info", "update success")
+    }
+    res.redirect('/admin/trafficgroups/'+ trafficgroup.id +'/edit')
+  })
+})
+
+
 
 // -------------- adming ---------------------
 
@@ -2496,15 +2678,50 @@ app.post("/extractFlow", requireLogin, function(req, res){
 app.get('/getTrafficplans', requireLogin, function(req, res){
   if(models.TrafficPlan.Provider[req.query.catName] !== undefined){
     var providerId = models.TrafficPlan.Provider[req.query.catName]
-    models.TrafficPlan.findAll({ where: {
-                                  providerId: providerId,
-                                  display: true
-                                },
-                                 order: [
-                                  'sortNum', 'id'
-                                 ]}).then(function(trafficPlans){
-                                    res.json(trafficPlans)
-                                 })
+    async.waterfall([function(outnext) {
+      models.TrafficGroup.findAll({
+        where: {
+          providerId: providerId,
+          display: true
+        },
+        order: [
+          'sortNum', 'id'
+         ]
+      }).then(function(trafficgroups) {
+        async.map(trafficgroups, function(trafficgroup, next) {
+          console.log(trafficgroup)
+          trafficgroup.getTrafficPlans({
+            where: {
+              display: true
+            }
+          }).then(function(trafficplans) {
+            var data = {}
+            if(trafficplans.length > 0){
+              data = {
+                name: trafficgroup.name,
+                trafficplans: trafficplans
+              }
+            }
+            next(null, data)
+          }).catch(function(err) {
+            next(err)
+          })
+        }, function(err, result) {
+          if(err){
+            outnext(err)
+          }else{
+            outnext(null, result)
+          }
+        })
+      })
+    }], function(err, result) {
+      if(err){
+        console.log(err)
+        res.json({ err: 1, msg: "server err" })
+      }else{
+        res.json(result)
+      }
+    })
   }else{
     res.json({ err: 1, msg: "phone err" })
   }

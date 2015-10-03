@@ -116,7 +116,7 @@ function getTrafficplan(source, catName){
     },
     method: "GET"
   }).done(function(data){
-    var html = template({trafficplans: data})
+    var html = template({trafficgroups: data})
     $(".llb").html(html)
   }).fail(function(err){
     console.log(err)

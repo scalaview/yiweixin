@@ -8,6 +8,7 @@
   </div>
   <div class="form-group">
       <div class="tel-name" id="balance">选择流量包（您当前可提取流量<span style="color:orange;"> {{customer.remainingTraffic}}  </span>E币）</div>
+      <hr>
       <div class="llb">
       </div>
       <div class="error" style="display: none;"></div>
@@ -18,15 +19,14 @@
   <div class="ml">
       <div class="btn-submit" id="exchanger"><a href="javascript:void(0);">提取流量到手机</a></div>
       <div class="zw-tips"><a href="../about/tiquguize.html">提取规则说明</a></div>
-      <div class="inform" style="display:none;">
-          <h1>提取规则：</h1>
-          <p>1、流量币永不过期，提取流量即将您参与活动获得的流量币提取为电信、移动、联通的手机上网流量包。</p>
-          <p>2、提取流量范围：中国电信全国、中国联通全国、中国移动广东省。（移动其它省份提取服务将陆续开通）</p>
-          <p>3、可以为自己或者朋友的手机号码提取流量包，流量包将在24小时内到账。</p>
-          <p>4、手机上网流量包当月提取当月生效，月底到期。</p>
-          <p>5、受运营商流量充值规则限制，用户手机以下情形无法提取流量包：停机、欠费、时长卡、未激活、所属套餐不能办理订购流量业务、携号转网用户、移动多号通业务的副号。</p>
-          <p>6、受运营商流量充值规则限制，以下情形可能无法提取流量包：中国电信部分省份的4G用户、中国联通部分省份的2G或4G用户、虚拟运营商用户以及流量包叠加充值等。</p>
-          <p>7、如果出现提取失败，E币将在2日内返还到您的流量钱包中。</p>
+      <div class="inform">
+        <p>【有效期】当月有效，月底清零</p>
+        <p>【流量类型】2/3/4G通用（不含港澳台,全天不分时段）</p>
+        <p>【充值限制】可无限次充值【停机或转主套餐未生效以及随心王套餐不能办理】</p>
+        <p>【查询方式】发cxll到10086查询省内通用流量，也可以登录本《孚云》微信公众号查看充值进度</p>
+        <p>【使用方式】查询到流量即可使用</p>
+        <p>—— 重点注意以下——</p>
+        <p>【常见问题】充值成功后未收到或收不齐短信,属于正常情况,不影响到账,可以发送CXLL到10086查询【特殊情况会延迟到账，一般不超过24小时】或登录本《孚<云》微信公众号查看充值进度</p>
       </div>
   </div>
 </div>
@@ -35,7 +35,15 @@
 {{> extractConfirm }}
 
 <script id="trafficplans-template" type="text/x-handlebars-template">
-\{{#each trafficplans}}
-  <a class="mask01" /{{#if @first}} selected {{/if}} data-value="\{{id}}" data-flow='\{{name}}' data-cost="\{{cost}}" >\{{name}}<div class="an"></div></a>
+\{{#each trafficgroups}}
+  <div>
+    <p>\{{name}}</p>
+    <div>
+    \{{#each trafficplans}}
+      <a class="mask01" /{{#if @first}} selected {{/if}} data-value="\{{id}}" data-flow='\{{name}}' data-cost="\{{cost}}" >\{{name}}<div class="an"></div></a>
+    \{{/each}}
+    </div>
+  </div>
+  <hr>
 \{{/each}}
 </script>

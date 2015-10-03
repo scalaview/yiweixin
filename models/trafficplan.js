@@ -64,11 +64,12 @@ module.exports = function(sequelize, DataTypes) {
     sortNum: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
     display: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     type: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
-    bid: { type: DataTypes.INTEGER, allowNull: true }
+    bid: { type: DataTypes.INTEGER, allowNull: true },
+    trafficGroupId: { type: DataTypes.INTEGER, allowNull: true }
   }, {
     classMethods: {
       associate: function(models) {
-        // associations can be defined here
+        models.TrafficPlan.belongsTo(models.TrafficGroup, { foreignKey: 'trafficGroupId' });
       },
       syncDataSource: function(phone) {
         return new DataSource(phone)
