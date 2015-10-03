@@ -2496,7 +2496,10 @@ app.post("/extractFlow", requireLogin, function(req, res){
 app.get('/getTrafficplans', requireLogin, function(req, res){
   if(models.TrafficPlan.Provider[req.query.catName] !== undefined){
     var providerId = models.TrafficPlan.Provider[req.query.catName]
-    models.TrafficPlan.findAll({ where: { providerId: providerId },
+    models.TrafficPlan.findAll({ where: {
+                                  providerId: providerId,
+                                  display: true
+                                },
                                  order: [
                                   'sortNum', 'id'
                                  ]}).then(function(trafficPlans){
