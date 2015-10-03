@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       sortNum: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0
       },
