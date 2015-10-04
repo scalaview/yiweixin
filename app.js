@@ -2808,7 +2808,7 @@ app.get('/getTrafficplans', requireLogin, function(req, res){
           if(err){
             outnext(err)
           }else{
-            outnext(null, helpers.compact(result))
+            outnext(null, result)
           }
         })
       })
