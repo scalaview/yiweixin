@@ -151,14 +151,17 @@ module.exports = function(sequelize, DataTypes) {
             }).catch(errCallBack)
           }, function(customer, next){
             var flowHistory = customer.lastFlowHistory
-            models[flowHistory.type].findById(flowHistory.typeId).then(function(source){
-              if(source){
-                flowHistory.source = source
-              }
+            if(flowHistory.type){
+              models[flowHistory.type].findById(flowHistory.typeId).then(function(source){
+                if(source){
+                  flowHistory.source = source
+                }
+                successCallBack(customer, flowHistory)
+              }).catch(errCallBack)
+            }else{
               successCallBack(customer, flowHistory)
-            }).catch(errCallBack)
+            }
           }], function(err, result){
-
           })
 
         }else{

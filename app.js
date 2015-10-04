@@ -2483,11 +2483,11 @@ app.get('/getcode', function(req, res) {
 
 app.get('/profile', requireLogin, function(req, res) {
   var customer = req.customer
-  customer.getLastFlowHistory(models, models.FlowHistory.STATE.ADD, function(customer, flowHistory){
-    res.render('yiweixin/customer/show', { customer: customer, flowHistory: customer.lastFlowHistory })
-  }, function(err){
-    console.log(err)
-  })
+  if(customer){
+    res.render('yiweixin/customer/show', { customer: customer })
+  }else{
+    res.redirect('/auth')
+  }
 })
 
 app.get('/payment', requireLogin, function(req, res) {
@@ -2808,7 +2808,12 @@ app.get('/getTrafficplans', requireLogin, function(req, res){
           if(err){
             outnext(err)
           }else{
-            outnext(null, result)
+            var data = []
+            for (var i = 0; i < result.length; i++) {
+              if(result[i])
+                data.push(result[i])
+            };
+            outnext(null, data)
           }
         })
       })
