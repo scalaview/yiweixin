@@ -858,6 +858,52 @@ admin.post("/customer/:id", function(req, res) {
   })
 })
 
+admin.post("/customer/traffic/:id", function(req, res) {
+  var type = req.body.type,
+      amount = parseInt(req.body.num)
+  async.waterfall([function(next) {
+    models.Customer.findById(req.params.id).then(function(customer) {
+      if(customer){
+        models.FlowHistory.build({
+          customerId: customer.id,
+          state: type,
+          amount: amount,
+          comment: req.body.comment
+        }).save().then(function(flowhistory) {
+          next(null, customer, flowhistory)
+        }).catch(function(err) {
+          next(err, customer)
+        })
+
+      }else{
+        next(new Error('no customer found'))
+      }
+    })
+  }, function(customer, flowhistory, next) {
+    if(type == '1') {
+      var value = customer.remainingTraffic + amount
+    }else if (customer.remainingTraffic >= amount){
+      var value = customer.remainingTraffic - amount
+    }
+    customer.updateAttributes({
+      remainingTraffic: value
+    }).then(function(customer) {
+      next(null, customer)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, customer, flowhistory) {
+    if(err){
+      console.log(err)
+      req.flash('err', err.message)
+      res.redirect('/admin/customers/' + customer.id)
+    }else{
+      req.flash('info', "update success")
+      res.redirect('/admin/customers/' + customer.id)
+    }
+  })
+})
+
 // ============ coupon=================================
 
 admin.get("/coupons", function(req, res) {
@@ -1045,25 +1091,30 @@ admin.get("/flowhistories", function(req, res){
     })
   }, function(flowhistories, outnext) {
     async.map(flowhistories, function(flowHistory, next) {
-      flowHistory.getSource().then(function(source) {
 
-        if(source){
-          switch(source.className()){
-            case "Order":
-              flowHistory.order = source
-              break;
-            case "ExtractOrder":
-              flowHistory.extractOrder = source
-              break;
-            case "Apk":
-              flowHistory.apk = source
-              break;
-          }
-          next(null, flowHistory)
-        }
-      }).catch(function(err) {
-        next(err)
-      })
+      if(flowHistory.getSource()){
+        flowHistory.getSource().then(function(source) {
+
+            if(source){
+              switch(source.className()){
+                case "Order":
+                  flowHistory.order = source
+                  break;
+                case "ExtractOrder":
+                  flowHistory.extractOrder = source
+                  break;
+                case "Apk":
+                  flowHistory.apk = source
+                  break;
+              }
+              next(null, flowHistory)
+            }
+        }).catch(function(err) {
+          next(err)
+        })
+      }else{
+        next(null, flowHistory)
+      }
     }, function(err, flowhistories) {
       if(err){
         outnext(err)

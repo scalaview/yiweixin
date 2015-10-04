@@ -77,6 +77,37 @@
 
 <div class='container-fluid'>
   <div class="row">
-
+    <div class="col-lg-6">
+      <form role="form" accept-charset="UTF-8" action="/admin/customer/traffic/{{ customer.id }}" method="POST">
+        <input type='hidden' name="type" value='1'>
+        <div class="form-group">
+          <label>增加E币</label>
+          <input class="form-control" name="num">
+        </div>
+        <div class="form-group">
+          <label>记录</label>
+          <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="pull-right btn btn-primary">提  交</button>
+        </div>
+      </form>
+    </div>
+    <div class="col-lg-6">
+      <form role="form" accept-charset="UTF-8" action="/admin/customer/traffic/{{ customer.id }}" method="POST">
+        <input type='hidden' name="type" value='0'>
+        <div class="form-group">
+          <label>减少E币</label>
+          <input class="form-control" name="num">
+        </div>
+        <div class="form-group">
+          <label>记录</label>
+          <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="pull-right btn btn-primary">提  交</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

@@ -95,7 +95,9 @@ module.exports = function(sequelize, DataTypes) {
     },
     instanceMethods: {
       getSource: function(conditions){
-        return this['get' + this.type].call(this, conditions)
+        if(this.type){
+          return this['get' + this.type].call(this, conditions)
+        }
       },
       stateName: function(){
         switch(this.state){
