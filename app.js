@@ -2793,7 +2793,7 @@ app.get('/getTrafficplans', requireLogin, function(req, res){
               display: true
             }
           }).then(function(trafficplans) {
-            var data = {}
+            var data = null
             if(trafficplans.length > 0){
               data = {
                 name: trafficgroup.name,
@@ -2808,7 +2808,7 @@ app.get('/getTrafficplans', requireLogin, function(req, res){
           if(err){
             outnext(err)
           }else{
-            outnext(null, result)
+            outnext(null, helpers.compact(result))
           }
         })
       })
