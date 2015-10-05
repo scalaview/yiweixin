@@ -4,6 +4,7 @@ var config = require("../config")
 var moment = require('moment')
 var _ = require('lodash')
 var handlebars = require('handlebars')
+var models  = require('../models')
 
 String.prototype.htmlSafe = function(){
   return new handlebars.SafeString(this.toString())
@@ -487,6 +488,23 @@ function errTips(err) {
   return tipSource(source, err)
 }
 
+function requireLogin(req, res, next) {
+  if (req.session.customer_id) {
+    models.Customer.findOne({ where: { id: req.session.customer_id } }).then(function(customer) {
+      if(customer){
+        req.customer = customer
+        next();
+      }else{
+        res.redirect("/register");
+      }
+    }).catch(function(err){
+      console.log(err)
+    })
+  } else {
+    res.redirect("/register");
+  }
+}
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -515,3 +533,4 @@ exports.successTips = successTips;
 exports.errTips = errTips;
 exports.compact = compact;
 exports.discount = discount;
+exports.requireLogin = requireLogin;
