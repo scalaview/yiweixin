@@ -3,6 +3,7 @@ var admin = express.Router();
 var models  = require('../../models')
 var helpers = require("../../helpers")
 var async = require("async")
+var _ = require('lodash')
 
 
 admin.get("/orders", function(req, res) {
@@ -25,6 +26,9 @@ admin.get("/orders", function(req, res) {
     }
     models.Order.findAndCountAll({
       where: params,
+      order: [
+        ['updatedAt', 'DESC']
+      ],
       limit: req.query.perPage || 15,
       offset: helpers.offset(req.query.page, req.query.perPage || 15)
     }).then(function(orders){

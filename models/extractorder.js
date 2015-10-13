@@ -6,22 +6,22 @@ var helpers = require("../helpers")
 var config = require("../config")
 var querystring = require("querystring");
 var crypto = require('crypto')
+var Iconv = require('iconv').Iconv;
+var iconv = new Iconv('GBK', 'UTF-8//TRANSLIT//IGNORE');
 
-var Recharger = function(phone, value, id, callbackUrl){
+var Recharger = function(phone, value){
   this.phone = phone
   this.value = value
-  this.id = id
-  this.callbackUrl = callbackUrl
+
   this.options = {
     uri: config.yunma,
     method: 'GET',
+    encoding: null,
     qs: {
-      a: config.user,
-      p: config.pwd,
-      m: this.phone,
-      t: this.value,
-      d: this.id,
-      n: querystring.escape(callbackUrl)
+      user_name: config.user,
+      passwd: config.pwd,
+      mobile: this.phone,
+      num: (this.value / 50)
     }
   }
 
@@ -43,7 +43,12 @@ var Recharger = function(phone, value, id, callbackUrl){
   request(this.options, function (error, res) {
     if (!error && res.statusCode == 200) {
       if(inerSuccessCallback){
-        var data = JSON.parse(res.body)
+        var body = iconv.convert(res.body).toString()
+        var values =  body.split('\n')
+        var data = {
+          state: values[0],
+          msg: values[1]
+        }
         inerSuccessCallback.call(this, res, data)
       }
      }else{
@@ -166,7 +171,7 @@ module.exports = function(sequelize, DataTypes) {
         if(this.bid){
           return new DefaultRecharger(this.phone, this.bid, this.id)
         }else{
-          return new Recharger(this.phone, this.value, this.id, 'http://yiliuliang.net/extractflowconfirm')
+          return new Recharger(this.phone, this.value)
         }
       }
     }

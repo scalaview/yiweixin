@@ -3,6 +3,7 @@ var admin = express.Router();
 var models  = require('../../models')
 var helpers = require("../../helpers")
 var async = require("async")
+var _ = require('lodash')
 
 admin.get("/sellers", function(req, res) {
   var params = {}

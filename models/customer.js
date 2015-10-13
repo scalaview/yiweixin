@@ -91,7 +91,7 @@ module.exports = function(sequelize, DataTypes) {
             next(new Error("剩余流量币不足"))
           }
         }, function(customer, extractOrder, trafficPlan, next){
-          customer.takeFlowHistory(models, extractOrder, trafficPlan.cost, "提取流量", models.FlowHistory.STATE.REDUCE, function(flowHistory){
+          customer.takeFlowHistory(models, extractOrder, trafficPlan.cost, "提取流量" + trafficPlan.name + "至" + extractOrder.phone, models.FlowHistory.STATE.REDUCE, function(flowHistory){
               next(null, customer, extractOrder, trafficPlan, flowHistory)
             }, function(err){
               next(err)

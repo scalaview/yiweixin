@@ -4,6 +4,7 @@ var models  = require('../../models')
 var helpers = require("../../helpers")
 var formidable = require('formidable')
 var async = require("async")
+var _ = require('lodash')
 
 
 admin.get('/apks/new', function(req, res) {

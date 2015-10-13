@@ -64,8 +64,14 @@ app.post("/extractFlow", requireLogin, function(req, res){
           next(new Error(data.msg))
         }
       }else{
-        if(data.ret == 0){
-          next(null, trafficPlan, extractOrder)
+        if(data.state == 1){
+          extractOrder.updateAttributes({
+            state: models.ExtractOrder.STATE.SUCCESS
+          }).then(function(extractOrder){
+            next(null, trafficPlan, extractOrder)
+          }).catch(function(err) {
+            next(err)
+          })
         }else{
           extractOrder.updateAttributes({
             state: models.ExtractOrder.STATE.FAIL
@@ -82,12 +88,6 @@ app.post("/extractFlow", requireLogin, function(req, res){
       next(null, customer, extractOrder)
     }, function(err) {
       next(err)
-    })
-  }, function(customer, extractOrder, next) {
-    extractOrder.updateAttributes({
-      state: models.ExtractOrder.STATE.INIT
-    }).then(function(extractOrder) {
-      next(null, customer, extractOrder)
     })
   }], function(err, result){
     if(err){
