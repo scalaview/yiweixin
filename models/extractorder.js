@@ -16,7 +16,6 @@ var Recharger = function(phone, value){
   this.options = {
     uri: config.yunma,
     method: 'GET',
-    encoding: null,
     qs: {
       user_name: config.user,
       passwd: config.pwd,
@@ -43,8 +42,7 @@ var Recharger = function(phone, value){
   request(this.options, function (error, res) {
     if (!error && res.statusCode == 200) {
       if(inerSuccessCallback){
-        var body = iconv.convert(res.body).toString()
-        var values =  body.split('\n')
+        var values = res.body.split('\n')
         var data = {
           state: values[0],
           msg: values[1]

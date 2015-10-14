@@ -5,6 +5,7 @@ var formidable = require('formidable')
 var helpers = require("../../helpers")
 var fs        = require('fs');
 var _ = require('lodash')
+var async = require("async")
 
 
 admin.use(function(req, res, next){
