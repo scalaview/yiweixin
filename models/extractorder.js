@@ -6,8 +6,6 @@ var helpers = require("../helpers")
 var config = require("../config")
 var querystring = require("querystring");
 var crypto = require('crypto')
-var Iconv = require('iconv').Iconv;
-var iconv = new Iconv('GBK', 'UTF-8//TRANSLIT//IGNORE');
 
 var Recharger = function(phone, value){
   this.phone = phone
