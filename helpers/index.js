@@ -361,26 +361,24 @@ function pagination(result, href){
     page = result.page,
     perPage = result.perPage,
     totalpages = (total % perPage) == 0 ? (total / perPage) : parseInt(total / perPage) + 1,
-    currentPage = result.currentPage,
+    currentPage = parseInt(result.currentPage),
     items = []
 
   if(total <= perPage){ return }
+    var startIndex = (currentPage - 5 > 0) ? currentPage - 5 : 0,
+        endIndex = (currentPage + 4 > totalpages) ? totalpages : currentPage + 4
 
-  for (var i = 0; i < totalpages ; i++) {
-    var data;
-    if(i == 0){
-      data = { status: 'previous', disabled: isFirst() ? 'disabled' : null, link: isFirst() ? "#" : addParams(href, {page: 1}), text: "上一页"  }
-      items.push(itemTemplate(data))
-    }
+  var data;
+  data = { status: 'previous', disabled: isFirst() ? 'disabled' : null, link: isFirst() ? "#" : addParams(href, {page: 1}), text: "首页"  }
+  items.push(itemTemplate(data))
 
+  for (var i = startIndex; i < endIndex ; i++) {
     data = { status: (currentPage == (i + 1)) ? "active" : null, link: addParams(href, {page: i+1}), text: (i+1)}
     items.push(itemTemplate(data))
-
-    if(i == (totalpages-1)){
-      data = { status: 'next', disabled: isLast() ? 'disabled' : null, link: isLast() ? "#" : addParams(href, {page: totalpages}), text: "下一页"  }
-      items.push(itemTemplate(data))
-    }
   };
+
+  data = { status: 'next', disabled: isLast() ? 'disabled' : null, link: isLast() ? "#" : addParams(href, {page: totalpages}), text: "尾页"  }
+  items.push(itemTemplate(data))
 
   return template({ items: items.join("").htmlSafe() }).htmlSafe()
 }
