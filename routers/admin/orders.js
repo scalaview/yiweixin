@@ -11,10 +11,11 @@ admin.get("/orders", function(req, res) {
       paymentMethodCollection = [],
       dataPlanCollection = []
   async.waterfall([function(next) {
-    var params = {}
+    var customerParams = {}
     if(req.query.phone !== undefined && req.query.phone.present()){
-      params = _.merge(params, { phone: { $like: "%{{phone}}%".format({ phone: req.query.phone }) } })
+      customerParams = _.merge(customerParams, { phone:  { $like: "%{{phone}}%".format({ phone: req.query.phone }) } })
     }
+    var params = {}
     if(req.query.state !== undefined && req.query.state.present()){
       params = _.merge(params, { state: req.query.state } )
     }
@@ -30,7 +31,8 @@ admin.get("/orders", function(req, res) {
         ['updatedAt', 'DESC']
       ],
       limit: req.query.perPage || 15,
-      offset: helpers.offset(req.query.page, req.query.perPage || 15)
+      offset: helpers.offset(req.query.page, req.query.perPage || 15),
+      include: [ { model: models.Customer, where: customerParams } ]
     }).then(function(orders){
       result = orders
       next(null, orders.rows)
