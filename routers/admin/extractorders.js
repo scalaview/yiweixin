@@ -107,7 +107,7 @@ admin.get("/extractorders/new", function(req, res) {
   })
 })
 
-admin.post("/extractorder", function(req, res) {
+admin.post("/extractorder", function(req, res) {  // 禁止新建
   if(!( req.body.phone !== undefined && req.body.phone.present() && req.body.trafficPlanId !== undefined &&  req.body.trafficPlanId.present() )){
     res.redirect("/admin/extractorders/new")
     return
@@ -129,6 +129,7 @@ admin.post("/extractorder", function(req, res) {
       phone: req.body.phone,
       cost: req.body.cost,
       value: trafficPlan.value,
+      bid: trafficPlan.bid,
       extend: req.body.extend
     }).save().then(function(extractOrder) {
       next(null, extractOrder)

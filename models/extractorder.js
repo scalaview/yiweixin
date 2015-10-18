@@ -142,6 +142,12 @@ module.exports = function(sequelize, DataTypes) {
             sourceable: 'FlowTask'
           }
         });
+        models.ExtractOrder.belongsTo(models.Customer, {
+          foreignKey: 'customerId',
+          scope: {
+            sourceable: 'Customer'
+          }
+        });
       }
     },
     instanceMethods: {

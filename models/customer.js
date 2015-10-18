@@ -104,6 +104,38 @@ module.exports = function(sequelize, DataTypes) {
           }
         })
       },
+      refundTraffic: function(models, extractOrder, message,successCallBack, errCallBack) {
+        var customer = this
+        async.waterfall([function(next) {
+          customer.updateAttributes({
+            remainingTraffic: customer.remainingTraffic + extractOrder.cost
+          }).then(function(customer) {
+            next(null, customer, extractOrder)
+          }).catch(function(err) {
+            next(err)
+          })
+        }, function(customer, extractOrder, next) {
+          extractOrder.getTrafficPlan().then(function(trafficPlan) {
+            extractOrder.trafficPlan = trafficPlan
+            next(null, customer, extractOrder, trafficPlan)
+          }).catch(function(err) {
+            next(err)
+          })
+        },function(customer, extractOrder, trafficPlan, next) {
+          var msg = "提取" + trafficPlan.name + "至" + extractOrder.phone + "失败。原因：" + message + "。流量币已经退还账户，对你造成的不便我们万分抱歉"
+          customer.takeFlowHistory(models, extractOrder, extractOrder.cost, msg, models.FlowHistory.STATE.ADD, function(flowHistory){
+              next(null, customer, extractOrder, flowHistory)
+            }, function(err) {
+              next(err)
+            })
+        }], function(err, customer, extractOrder, flowHistory) {
+          if(err){
+            errCallBack(err)
+          }else{
+            successCallBack(customer, extractOrder, flowHistory)
+          }
+        })
+      },
       takeFlowHistory: function(models, obj, amount, comment, state, successCallBack, errCallBack){
         var customer = this
         if(state !== models.FlowHistory.STATE.ADD && state !== models.FlowHistory.STATE.REDUCE){

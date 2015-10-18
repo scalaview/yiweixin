@@ -5,7 +5,7 @@ var helpers = require("../../helpers")
 var async = require("async")
 var requireLogin = helpers.requireLogin
 
-app.get("/taskconfirm/:id", function(req, res) {
+app.get("/taskconfirm/:id", function(req, res) {  //流量任务confirm接口
   var id = req.params.id,
       token = req.query.token,
       phone = req.query.phone
@@ -58,21 +58,44 @@ app.get("/taskconfirm/:id", function(req, res) {
       exchangerId: flowtask.id,
       phone: phone,
       cost: 0,
-      value: trafficPlan.value
+      value: trafficPlan.value,
+      bid: trafficPlan.bid
     }).save().then(function(extractOrder) {
       next(null, seller, flowtask, trafficPlan, extractOrder)
     }).catch(function(err) {
       next(err)
     })
   }, function(seller, flowtask, trafficPlan, extractOrder, next) {
-    // TODO
-    extractOrder.updateAttributes({
-      state: models.ExtractOrder.STATE.SUCCESS
-    }).then(function(extractOrder) {
-      next(null, seller, flowtask, trafficPlan, extractOrder)
-    }).catch(function(err) {
+    extractOrder.autoRecharge().then(function(res, data) {
+      console.log(data)
+      if(trafficPlan.bid){  // 正规空中充值
+        if(data.status == 1 || data.status == 2){
+          next(null, seller, flowtask, trafficPlan, extractOrder)
+        }else{
+          extractOrder.updateAttributes({
+            state: models.ExtractOrder.STATE.FAIL
+          })
+          next(new Error(data.msg))
+        }
+      }else{
+        if(data.state == 1){
+          extractOrder.updateAttributes({
+            state: models.ExtractOrder.STATE.SUCCESS
+          }).then(function(extractOrder){
+            next(null, seller, flowtask, trafficPlan, extractOrder)
+          }).catch(function(err) {
+            next(err)
+          })
+        }else{
+          extractOrder.updateAttributes({
+            state: models.ExtractOrder.STATE.FAIL
+          })
+          next(new Error(data.msg))
+        }
+      }
+    }).catch(function(err){
       next(err)
-    })
+    }).do()
   }, function(seller, flowtask, trafficPlan, extractOrder, next) {
     // finishTime
     flowtask.updateAttributes({
@@ -85,7 +108,7 @@ app.get("/taskconfirm/:id", function(req, res) {
   }], function(err, seller, flowtask, trafficPlan, extractOrder){
     if(err){
       console.log(err)
-      res.json({ err: 1, code: 1003, msg: "参数错误"})
+      res.json({ err: 1, code: 1003, msg: err.msg || "参数错误"})
     }else{
       res.json({
         err: 0, msg: "confirm success"
@@ -176,10 +199,32 @@ app.post('/extractflowdefaultconfirm', function(req, res) {
       next(err)
     })
   }, function(extractorder, next) {
+    if(extractorder.customerId){
+      extractorder.getCustomer().then(function(customer) {
+        next(null, extractorder, customer)
+      }).catch(function(err) {
+        next(err)
+      })
+    }else{
+      next(null, extractorder, null)
+    }
+  },function(extractorder, customer, next) {
     var status = models.ExtractOrder.STATE.FAIL
     if(body.status === 1){
       status = models.ExtractOrder.STATE.SUCCESS
+      next(null, extractorder, status)
+    }else{
+      if(customer){
+        customer.refundTraffic(models, extractorder, body.msg, function(customer, extractorder, flowHistory) {
+          next(null, extractorder, status)
+        }, function(err) {
+          next(err)
+        })
+      }else{
+        next(null, extractorder, status)
+      }
     }
+  }, function(extractorder, status, next) {
     extractorder.updateAttributes({
       state: status
     }).then(function(extractorder) {
@@ -188,17 +233,29 @@ app.post('/extractflowdefaultconfirm', function(req, res) {
       next(err)
     })
   }, function(extractorder, next) {
-    extractorder.getExchanger().then(function(trafficPlan) {
-      next(null, extractorder, trafficPlan)
+    extractorder.getExchanger().then(function(exchanger) {
+      if(exchanger.className() === 'TrafficPlan'){
+        next(null, extractorder, exchanger)
+      }else{
+        exchanger.getTrafficPlan().then(function(trafficPlan) {
+          next(null, extractorder, trafficPlan)
+        }).catch(function(err) {
+          next(err)
+        })
+      }
     }).catch(function(err) {
       next(err)
     })
   }, function(extractorder, trafficPlan, next) {
-    models.MessageQueue.sendRechargeMsg(models, trafficPlan, extractorder.phone, function(messageQueue) {
+    if(extractorder.status === models.ExtractOrder.STATE.SUCCESS){
+      models.MessageQueue.sendRechargeMsg(models, trafficPlan, extractorder.phone, function(messageQueue) {
+        next(null, extractorder)
+      }, function(err) {
+        next(err)
+      })
+    }else{
       next(null, extractorder)
-    }, function(err) {
-      next(err)
-    })
+    }
   }], function(err, extractorder) {
     if(err){
       console.log(err)

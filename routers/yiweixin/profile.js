@@ -45,7 +45,8 @@ app.post("/extractFlow", requireLogin, function(req, res){
       phone: req.body.phone,
       cost: trafficPlan.cost,
       value: trafficPlan.value,
-      bid: trafficPlan.bid
+      bid: trafficPlan.bid,
+      customerId: customer.id
     }).save().then(function(extractOrder) {
       next(null, trafficPlan, extractOrder)
     }).catch(function(err) {
@@ -54,7 +55,7 @@ app.post("/extractFlow", requireLogin, function(req, res){
   }, function(trafficPlan, extractOrder, next) {
     extractOrder.autoRecharge().then(function(res, data) {
       console.log(data)
-      if(trafficPlan.bid){
+      if(trafficPlan.bid){  // 正规空中充值
         if(data.status == 1 || data.status == 2){
           next(null, trafficPlan, extractOrder)
         }else{

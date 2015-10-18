@@ -36,6 +36,7 @@ module.exports = function(sequelize, DataTypes) {
       associate: function(models) {
         // associations can be defined here
         models.FlowTask.belongsTo(models.Seller, { foreignKey: 'seller_id' });
+        models.FlowTask.belongsTo(models.TrafficPlan, { foreignKey: 'trafficPlanId' });
       }
     },
     scopes: {
