@@ -6,7 +6,7 @@ var helpers = require("../../helpers")
 var fs        = require('fs');
 var _ = require('lodash')
 var async = require("async")
-
+var config = require("../../config")
 
 admin.use(function(req, res, next){
   res.originrender = res.render
