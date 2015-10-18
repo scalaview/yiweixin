@@ -199,13 +199,13 @@ app.post('/extractflowdefaultconfirm', function(req, res) {
       next(err)
     })
   }, function(extractorder, next) {
-    if(extractorder.customerId){
+    if(extractorder.customerId){  // 正规充值
       extractorder.getCustomer().then(function(customer) {
         next(null, extractorder, customer)
       }).catch(function(err) {
         next(err)
       })
-    }else{
+    }else{  // 流量任务奖励
       next(null, extractorder, null)
     }
   },function(extractorder, customer, next) {
