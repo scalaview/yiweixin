@@ -51,8 +51,6 @@ app.post('/givento', requireLogin, function(req, res) {
     })
   }, function(otherone, next) {
     customer.givenTo(models, otherone, parseInt(req.body.amount), function(){
-      console.log("ok")
-
       next(null)
     }, function(err) {
       next(err)

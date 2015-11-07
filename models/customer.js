@@ -206,13 +206,11 @@ module.exports = function(sequelize, DataTypes) {
       },
       givenTo: function(models, otherone, amount, successCallBack, errCallBack){
         var customer = this
-        console.log("in")
 
         if(customer.remainingTraffic < amount){
           errCallBack(new Error("not enough"))
           return
         }
-        console.log("nnn")
 
         async.waterfall([function(next) {
           customer.updateAttributes({
