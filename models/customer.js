@@ -141,15 +141,19 @@ module.exports = function(sequelize, DataTypes) {
         if(state !== models.FlowHistory.STATE.ADD && state !== models.FlowHistory.STATE.REDUCE){
           return errCallBack(new Error("Type Error"))
         }
-
-        models.FlowHistory.build({
+        var params = {
           customerId: customer.id,
           state: state,
-          type: obj.className(),
-          typeId: obj.id,
           amount: amount,
           comment: comment
-        }).save().then(function(flowHistory){
+        }
+        if(obj !== undefined){
+          _.merge(params, {
+            type: obj.className(),
+            typeId: obj.id
+          })
+        }
+        models.FlowHistory.build(params).save().then(function(flowHistory){
           successCallBack(flowHistory)
         }).catch(function(err){
           errCallBack(err)
@@ -199,6 +203,54 @@ module.exports = function(sequelize, DataTypes) {
         }else{
           errCallBack(new Error("FlowHistory state not include"))
         }
+      },
+      givenTo: function(models, otherone, amount, successCallBack, errCallBack){
+        var customer = this
+        console.log("in")
+
+        if(customer.remainingTraffic < amount){
+          errCallBack(new Error("not enough"))
+          return
+        }
+        console.log("nnn")
+
+        async.waterfall([function(next) {
+          customer.updateAttributes({
+            remainingTraffic: customer.remainingTraffic - amount
+          }).then(function(customer) {
+            next(null, customer)
+          }).catch(function(err) {
+            next(err)
+          })
+        }, function(customer, next) {
+          customer.takeFlowHistory(models, otherone, amount, "向" + otherone.phone + "用户转赠流量" + amount +"E币", models.FlowHistory.STATE.REDUCE,
+            function(flowHistory){
+              next(null, customer, flowHistory)
+            }, function(err) {
+              next(err)
+            })
+        }, function(customer, flowHistory, next) {
+          otherone.updateAttributes({
+            remainingTraffic: otherone.remainingTraffic + amount
+          }).then(function(otherone) {
+            next(null, otherone)
+          }).catch(function(err) {
+            next(err)
+          })
+        }, function(otherone, next) {
+          otherone.takeFlowHistory(models, otherone, amount, customer.phone + "向您转赠流量" + amount +"E币", models.FlowHistory.STATE.ADD,
+            function(flowHistory){
+              next(null, otherone, flowHistory)
+            }, function(err) {
+              next(err)
+            })
+        }], function(err) {
+          if(err){
+            errCallBack(err)
+          }else{
+            successCallBack()
+          }
+        })
       }
     }),
     scopes: {

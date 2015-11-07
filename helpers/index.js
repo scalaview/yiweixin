@@ -486,7 +486,10 @@ function errTips(err) {
   return tipSource(source, err)
 }
 
+// ===================login=====================
+
 function requireLogin(req, res, next) {
+  req.session.customer_id = 1
   if (req.session.customer_id) {
     models.Customer.findOne({ where: { id: req.session.customer_id } }).then(function(customer) {
       if(customer){

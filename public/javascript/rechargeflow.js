@@ -3,6 +3,7 @@ var lastSubmitdate = new Date().getTime();
 //页面加载
 $(document).ready(function () {
   extractConfirm()
+  givenTo()
   $(".correct").html("");
   $(".correct").hide();
   var m = $("#mobile").val();
@@ -23,6 +24,53 @@ $(document).ready(function () {
   });
 });
 
+
+function givenTo(){
+  $('#givento').click(function(){
+    var phone = $('#mobile').val(),
+        amountStr = $('#amount').val()
+        totalStr = $('#balance').data('amount')
+    if(totalStr !== undefined){
+      var total = parseInt(totalStr)
+    }
+
+    var amount = 0
+    try{
+      amount = parseInt(amountStr)
+      debugger
+      if(isNaN(amount) || amount > total) {
+        showDialog("您的E币不足以支出转赠数量")
+        return
+      }
+    }catch(e){
+      console.log(e)
+      showDialog("请输入正确的数量")
+      return
+    }
+    $.ajax({
+      url: '/givento',
+      method: "POST",
+      dataType: "JSON",
+      data: {
+        phone: phone,
+        amount: amount
+      }
+    }).done(function(data) {
+      console.log(data)
+      if(data.code){
+        showDialog(data.msg)
+        doDelay(function(){
+          window.location.href = data.url
+        }, 2)
+      }else{
+        showDialog(data.msg)
+      }
+    }).fail(function(err) {
+      console.log(err)
+      showDialog("服务器异常")
+    })
+  })
+}
 
 function mobileBlur(successCallback){
   //手机号码失去焦点事件

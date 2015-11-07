@@ -1,0 +1,26 @@
+<div class="content">
+  <div class="form-group">
+      <div class="tel-name">充值号码：</div>
+      <div class="tel-input">
+          <input type="text" class="form-control" placeholder="请输入转赠方手机号码" id="mobile" maxlength="11">
+      </div>
+      <div id="phone-detail" class="correct" style="display: none" >   </div>
+  </div>
+  <div class="form-group">
+    <div class="tel-input">
+      <input type="text" class="form-control" placeholder="输入赠送的数量" id="amount">
+    </div>
+    <div class="tel-name" id="balance" data-amount="{{customer.remainingTraffic}}">您当前可转赠流量<span style="color:orange;"> {{customer.remainingTraffic}}  </span>E币）</div>
+    <hr>
+  </div>
+  <div class="sale-price">
+      <div class="right">应付E币：<span id="needmyflow" class="orange">0</span>个</div>
+  </div>
+</div>
+
+<div class="ml">
+  <div class="btn-submit" id="givento"><a href="javascript:void(0);">确定转赠</a></div>
+</div>
+
+{{> alertmodal }}
+{{> extractConfirm }}
