@@ -20,7 +20,7 @@
         <input type="checkbox" name="removeImage" class='hide' id='removeImage'>
         {{#if banner.image }}
             <div class='row help-block'>
-              <img class="col-lg-8 col-lg-offset-2 img-responsive" src="{{ banner.image }}">
+              <img class="col-lg-4 col-lg-offset-2 img-responsive" src="{{ banner.image }}">
               <button type="button" data-el='Image' class="remove btn btn-danger btn-circle pull-right">
                 <i class="glyphicon glyphicon-remove"></i>
               </button>
@@ -30,6 +30,12 @@
     </div>
   </div>
   <div class='row'>
+    <div class="col-lg-6">
+      <div class="form-group">
+        <label>跳转链接</label>
+        <input class="form-control" placeholder="input url" name="url" value="{{ banner.url }}">
+      </div>
+    </div>
     <div class="col-lg-6">
       <div class="form-group">
           <div class="form-group">

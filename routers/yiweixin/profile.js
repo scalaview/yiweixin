@@ -7,11 +7,26 @@ var requireLogin = helpers.requireLogin
 
 app.get('/profile', requireLogin, function(req, res) {
   var customer = req.customer
-  if(customer){
-    res.render('yiweixin/customer/show', { customer: customer })
-  }else{
+  if(!customer){
     res.redirect('/auth')
+    return
   }
+  async.waterfall([function(next) {
+    models.Banner.findAll({
+      where: {
+        active: true
+      },
+      order: [
+          'sortNum', 'id'
+      ]
+    }).then(function(banners) {
+      next(null, banners)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, banners) {
+    res.render('yiweixin/customer/show', { customer: customer, banners: banners })
+  })
 })
 
 app.get('/extractflow', requireLogin, function(req, res){

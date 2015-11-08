@@ -25,6 +25,7 @@ admin.post('/banner', function(req, res) {
       name: fields.name,
       active: fields.active ? 1 : 0,
       sortNum: fields.sortNum,
+      url: fields.url,
       image: files.image
     }).save().then(function(banner) {
       req.flash('info', 'create success')
@@ -71,6 +72,7 @@ admin.post('/banner/:id', function(req, res) {
         name: fields.name,
         active: fields.active ? 1 : 0,
         sortNum: fields.sortNum,
+        url: fields.url,
         image: files.image
       }).then(function(banner) {
         next(null, banner)

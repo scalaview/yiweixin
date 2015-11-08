@@ -22,7 +22,8 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     active: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
-    sortNum: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 }
+    sortNum: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    url: { type: DataTypes.STRING, allowNull: true }
   }, {
     classMethods: {
       associate: function(models) {
