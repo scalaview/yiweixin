@@ -7,6 +7,7 @@ var async = require("async")
 var OAuth = require('wechat-oauth');
 var config = require("../../config")
 
+
 // var client = new OAuth(config.appId, config.appSecret, function (openid, callback) {
 //   // 传入一个根据openid获取对应的全局token的方法
 //   fs.readFile(openid +':access_token.txt', 'utf8', function (err, txt) {
