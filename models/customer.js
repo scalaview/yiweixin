@@ -49,9 +49,6 @@ module.exports = function(sequelize, DataTypes) {
           this.setDataValue('ancestry', ancestryCustomer.ancestry.push(ancestryCustomer.id).join('/'))
           this.setDataValue('ancestryDepth', parseInt(ancestryCustomer.ancestryDepth) + 1 )
         }
-      },
-      get: function(){
-        this.ancestry.split('/')
       }
     }
   }, {
@@ -270,6 +267,13 @@ module.exports = function(sequelize, DataTypes) {
             successCallBack()
           }
         })
+      },
+      getAncestry: function(){
+        if(this.ancestry) {
+          return this.ancestry.split('/')
+        }else{
+          return []
+        }
       }
     }),
     scopes: {

@@ -4,64 +4,65 @@ var models  = require('../../models')
 var helpers = require("../../helpers")
 var async = require("async")
 var config = require("../../config")
+var _ = require('lodash')
 var WechatAPI = require('wechat-api');
 var requireLogin = helpers.requireLogin
 
 var api = new WechatAPI(config.appId, config.appSecret);
 
+var maxDepth = 3
+
 app.get('/myaccount', requireLogin, function(req, res) {
   var customer = req.customer
 
-  async.waterfall([function(next) {
-    var result = {
-      first: 0,
-      second: 0,
-      third: 0
-    }
+  async.waterfall([function(outnext) {
+    var array = [0, 0, 0]
+    var wrapped = array.map(function (value, index) {
+                  return {index: index, value: value};
+                });
+
     var depth = customer.ancestryDepth
-    if ((parseInt(depth) + 1) < 3){
-      models.Customer.count({
-        where: {
-          ancestryDepth: parseInt(depth) + 1,
-          ancestry: {
-            $or: {
-              $like: '%/'+customer.id,
-              $eq: customer.id
+
+    async.map(wrapped, function(item, next) {
+      var index = item.index
+      var _depth = (parseInt(depth) + parseInt(index) + 1)
+      if (_depth <= wrapped.length){
+        if(customer.ancestry){
+          var ancestryParams = customer.ancestry + '%'
+        }else{
+          var ancestryParams = customer.id + '%'
+        }
+        var params = {
+            ancestry: {
+              $or: {
+                $like: ancestryParams,
+                $eq: customer.id
+              }
             }
           }
+
+        if(index < (wrapped.length - 1) ){
+          params = _.extend(params, { ancestryDepth: _depth })
+        }else{
+          params = _.extend(params, { ancestryDepth: { $gte: _depth } })
         }
-      }).then(function(c) {
-        result.third = c
-        next(null, result)
-      }).catch(function(err){
-        next(err)
-      })
-    }
-  }, function(result, next) {
-    models.Customer.count({
-      where: {
-        secondAffiliateId: {
-          $eq: null
-        }
+
+        models.Customer.count({
+          where: params
+        }).then(function(c) {
+          next(null, c)
+        }).catch(function(err){
+          next(err)
+        })
+      }else{
+        next(null, 0)
       }
-    }).then(function(c) {
-      result.second = c
-      next(null, result)
-    }).catch(function(err){
-      next(err)
-    })
-  }, function(result, next) {
-    models.Customer.count({
-      where: {
-        affiliateId: {
-          $eq: null
-        }
+    }, function(err, result){
+      if(err){
+        outnext(err)
+      }else{
+        outnext(null, result)
       }
-    }).then(function(c) {
-      result.first = c
-      next(null, result)
-    }).catch(function(err){
-      next(err)
     })
   }], function(err, result) {
     if(err){
@@ -107,8 +108,45 @@ app.get('/myticket', function(req, res) {
 })
 
 
-app.get('myslaves', function(req, res){
-  req.query
+app.get('/myslaves', requireLogin, function(req, res){
+  var customer = req.customer,
+      depth = req.query.depth
+
+  async.waterfall([function(next) {
+    if(customer.ancestry){
+      var ancestryParams = customer.ancestry + '%'
+    }else{
+      var ancestryParams = customer.id + '%'
+    }
+    var params = {
+            ancestry: {
+              $or: {
+                $like: ancestryParams,
+                $eq: customer.id
+              }
+            }
+          }
+    if(depth < maxDepth ){
+      params = _.extend(params, { ancestryDepth: depth })
+    }else{
+      params = _.extend(params, { ancestryDepth: { $gte: depth } })
+    }
+
+    models.Customer.findAndCountAll({
+      where: params
+    }).then(function(customers) {
+      next(null, customers)
+    }).catch(function(err) {
+      next(err)
+    })
+  }], function(err, customers) {
+    if(err){
+      console.log(err)
+      res.redirect('/500')
+    }else{
+      res.render('yiweixin/customer/myslaves', { customers: customers })
+    }
+  })
 })
 
 module.exports = app;
