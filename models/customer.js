@@ -32,7 +32,28 @@ module.exports = function(sequelize, DataTypes) {
     province:  { type: DataTypes.STRING, allowNull: true },
     country: { type: DataTypes.STRING, allowNull: true },
     headimgurl: { type: DataTypes.STRING, allowNull: true },
-    levelId: { type: DataTypes.INTEGER, allowNull: true }
+    levelId: { type: DataTypes.INTEGER, allowNull: true },
+    affiliateId: { type: DataTypes.INTEGER, allowNull: true },
+    secondAffiliateId: { type: DataTypes.INTEGER, allowNull: true },
+    thirdAffiliateId: { type: DataTypes.INTEGER, allowNull: true },
+    isSubscribe: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    salary: { type: DataTypes.DECIMAL, allowNull: false, defaultValue: 0 },
+    subscribeTime: { type: DataTypes.DATE, allowNull: true },
+    ticket: { type: DataTypes.STRING, allowNull: true },
+    ancestryDepth: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    ancestry: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      set: function(ancestryCustomer){
+        if(ancestryCustomer){
+          this.setDataValue('ancestry', ancestryCustomer.ancestry.push(ancestryCustomer.id).join('/'))
+          this.setDataValue('ancestryDepth', parseInt(ancestryCustomer.ancestryDepth) + 1 )
+        }
+      },
+      get: function(){
+        this.ancestry.split('/')
+      }
+    }
   }, {
     classMethods: _.merge(concern.classMethods, {
       associate: function(models) {
