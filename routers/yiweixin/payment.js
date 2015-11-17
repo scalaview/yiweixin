@@ -11,7 +11,7 @@ var initConfig = {
   partnerKey: config.partnerKey,
   appId: config.appId,
   mchId: config.mchId,
-  notifyUrl: "http://yiliuliang.net/paymentconfirm",
+  notifyUrl: "http://" + config.hostname + "/paymentconfirm",
   pfx: fs.readFileSync(process.env.PWD + '/cert/apiclient_cert.p12')
 };
 var payment = new Payment(initConfig);

@@ -28,7 +28,7 @@ app.get('/', function(req, res) {
 })
 
 app.get('/auth', function(req, res) {
-  var url = client.getAuthorizeURL('http://yiliuliang.net/register', '111111', 'snsapi_userinfo');
+  var url = client.getAuthorizeURL('http://' + config.hostname + '/register', '111111', 'snsapi_userinfo');
   res.redirect(url)
 })
 
