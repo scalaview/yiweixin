@@ -44,7 +44,7 @@ module.exports = function(sequelize, DataTypes) {
                                 $eq: null
                               },
                               level: {
-                                $lt: maxDepth
+                                $lte: maxDepth
                               }
                             }
             }

@@ -271,12 +271,12 @@ function doAffiliate(order, customer, pass){
           var one =  obj.customer
           var confLine = obj.config
 
-          var salary = confLine.percent * order.total
+          var salary = (parseInt(confLine.percent) / 100) * order.total
           one.updateAttributes({
             salary: one.salary + salary
           }).then(function(o) {
             // add history
-            one.takeFlowHistory(models, one, salary, "从" + customer.name + "获得分销奖励 " + salary, models.FlowHistory.STATE.ADD , function() {
+            one.takeFlowHistory(models, one, salary, "从" + customer.username + "获得分销奖励 " + salary, models.FlowHistory.STATE.ADD , function() {
             }, function(err) {
             })
             callback()
