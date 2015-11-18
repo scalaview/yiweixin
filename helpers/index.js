@@ -489,7 +489,7 @@ function errTips(err) {
 // ===================login=====================
 
 function requireLogin(req, res, next) {
-  req.session.customer_id = 1
+  req.session.customer_id = 5
   if (req.session.customer_id) {
     models.Customer.findOne({ where: { id: req.session.customer_id } }).then(function(customer) {
       if(customer){

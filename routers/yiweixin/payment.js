@@ -208,7 +208,7 @@ app.use('/paymentconfirm', middleware(initConfig).getNotify().done(function(mess
     }, function(err) {
       next(err)
     })
-  }], function(err, order, customer){
+  }, doAffiliate], function(err, order, customer){
     if(err){
       res.reply(err)
     }else{
@@ -266,16 +266,19 @@ function doAffiliate(order, customer, pass){
           next(err)
         })
       }, function(objHash, next) {
+
         async.each(objHash, function(obj, callback) {
           var one =  obj.customer
           var confLine = obj.config
 
-          var salary = confLine.percent * dataPlan.value
+          var salary = confLine.percent * order.total
           one.updateAttributes({
             salary: one.salary + salary
           }).then(function(o) {
             // add history
-
+            one.takeFlowHistory(models, one, salary, "从" + customer.name + "获得分销奖励 " + salary, models.FlowHistory.STATE.ADD , function() {
+            }, function(err) {
+            })
             callback()
           }).catch(function(err) {
             callback(err)
@@ -288,30 +291,8 @@ function doAffiliate(order, customer, pass){
             next(null)
           }
         })
+
       }], function(err) {
-
-      })
-
-      async.each(configs, function(conf, next) {
-
-        var percent = conf.percent
-
-        var level = (customer.ancestryDepth - conf.level)
-
-        if(level >= 0)
-          models.Customer.findAll({
-            where: {
-              ancestry: {
-                $like: customer.ancestry + "%",
-                ancestryDepth: level
-              }
-            }
-          }).then(function(ancestries) {
-
-          })
-        }
-
-      }, function(err) {
 
       })
 
