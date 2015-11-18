@@ -15,6 +15,8 @@ var initConfig = {
   pfx: fs.readFileSync(process.env.PWD + '/cert/apiclient_cert.p12')
 };
 var payment = new Payment(initConfig);
+var maxDepth = config.max_depth
+var _ = require('lodash')
 
 app.get('/payment', requireLogin, function(req, res) {
   var customer = req.customer
@@ -202,11 +204,11 @@ app.use('/paymentconfirm', middleware(initConfig).getNotify().done(function(mess
     })
   }, function(order, customer, next) {
     customer.addTraffic(models, order, function(customer, order, flowHistory){
-      next(null, order, flowHistory)
+      next(null, order, customer)
     }, function(err) {
       next(err)
     })
-  }], function(err, order, flowHistory){
+  }], function(err, order, customer){
     if(err){
       res.reply(err)
     }else{
@@ -214,5 +216,96 @@ app.use('/paymentconfirm', middleware(initConfig).getNotify().done(function(mess
     }
   })
 }));
+
+function doAffiliate(order, customer, pass){
+  pass(null, order, customer)
+
+  async.waterfall([function(next) {
+    models.DataPlan.findById(order.dataPlanId).then(function(dataPlan) {
+      next(null, dataPlan)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(dataPlan, next) {
+    models.AffiliateConfig.loadConfig(models, dataPlan, function(configs) {
+      if(configs.length <= 0){
+        return
+      }
+      // var wrapped = configs.map(function (value, index) {
+      //             return {index: value.level, value: value};
+      //           });
+      var configHash = {}
+      _(configs).forEach(function(n) {
+        configHash[n.level] = n
+      }).value();
+
+      var ancestryArr = customer.getAncestry()
+      if(ancestryArr.length <= 0){
+        return
+      }
+
+      async.waterfall([function(next) {
+        models.Customer.findAll({
+          where: {
+            id: {
+              $in: ancestryArr
+            }
+          }
+        }).then(function(ancestries) {
+          var objHash = ancestries.map(function (value, index) {
+            if(configHash[customer.ancestryDepth - value.ancestryDepth]){
+              return {
+                config: configHash[customer.ancestryDepth - value.ancestryDepth],
+                customer: value
+              }
+            }
+          }).compact()
+
+          next(null, objHash)
+        }).catch(function(err) {
+          next(err)
+        })
+      }, function(objHash, next) {
+        async.each(objHash, function(obj, callback) {
+          var one =  obj.customer
+          var confLine = obj.config
+
+          one.updateAttributes({})
+
+        }, function(err) {
+
+        })
+      }], function(err) {
+
+      })
+
+      async.each(configs, function(conf, next) {
+
+        var percent = conf.percent
+
+        var level = (customer.ancestryDepth - conf.level)
+
+        if(level >= 0)
+          models.Customer.findAll({
+            where: {
+              ancestry: {
+                $like: customer.ancestry + "%",
+                ancestryDepth: level
+              }
+            }
+          }).then(function(ancestries) {
+
+          })
+        }
+
+      }, function(err) {
+
+      })
+
+    }, function(err) {})
+  }], function(err) {
+
+  })
+}
 
 module.exports = app;

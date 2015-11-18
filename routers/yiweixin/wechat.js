@@ -10,6 +10,7 @@ var wechat = require('wechat')
 var WechatAPI = require('wechat-api');
 var api = new WechatAPI(config.appId, config.appSecret);
 
+var maxDepth = config.max_depth
 
 var wechatConfig = {
   token: config.token,
@@ -100,6 +101,11 @@ function subscribe(message, res){
   }, function(recommend, result, next) {
       // new customer
       var ancestryArr = recommend.getAncestry().push(recommend.id)
+
+      var ancestryStr = (ancestryArr.length > maxDepth) ? recommend.getAncestry().join('/')  : recommend.getAncestry().push(recommend.id).join('/')
+
+      var ancestryDepth = ((parseInt(recommend.ancestryDepth) + 1) > maxDepth ) ? maxDepth : (parseInt(recommend.ancestryDepth) + 1)
+
       models.Customer.build({
         password: '1234567',
         phone: "11111111111",
@@ -111,8 +117,8 @@ function subscribe(message, res){
         country: result.country,
         headimgurl: result.headimgurl,
         subscribeTime: result.subscribe_time,
-        ancestry: ancestryArr.join('/'),
-        ancestryDepth: parseInt(recommend.ancestryDepth) + 1
+        ancestry: ancestryStr,
+        ancestryDepth: ancestryDepth
       }).save().then(function(customer) {
         next(null, customer)
       }).catch(function(err) {

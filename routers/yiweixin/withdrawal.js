@@ -10,7 +10,7 @@ var requireLogin = helpers.requireLogin
 
 var api = new WechatAPI(config.appId, config.appSecret);
 
-var maxDepth = 3
+var maxDepth = config.max_depth
 
 app.get('/myaccount', requireLogin, function(req, res) {
   var customer = req.customer

@@ -1,4 +1,9 @@
 'use strict';
+
+var config = require("../config")
+var async = require("async")
+var maxDepth = config.max_depth
+
 module.exports = function(sequelize, DataTypes) {
   var AffiliateConfig = sequelize.define('AffiliateConfig', {
     level: {
@@ -18,6 +23,51 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
+      },
+      loadConfig: function(models, dataPlan, successCallBack, errCallBack) {
+        async.waterfall([function(next) {
+          models.AffiliateConfig.count({
+            where: {
+              dataPlanId: dataPlan.id
+            }
+          }).then(function(c) {
+            if(c > 0){
+              var params = {
+                              dataPlanId: dataPlan.id,
+                              level: {
+                                $lt: maxDepth
+                              }
+                            }
+            }else{
+              var params = {
+                              dataPlanId: {
+                                $eq: null
+                              },
+                              level: {
+                                $lt: maxDepth
+                              }
+                            }
+            }
+            next(null, params)
+          })
+        }, function(params, next) {
+          models.AffiliateConfig.findAll({
+            where: params,
+            order: [
+              ['level']
+            ]
+          }).then(function(configs) {
+            next(null, configs)
+          }).catch(function(err) {
+            next(err)
+          })
+        }], function(err, configs) {
+          if(err){
+            errCallBack(err)
+          }else{
+            successCallBack(configs)
+          }
+        })
       }
     }
   });
