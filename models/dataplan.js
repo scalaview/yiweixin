@@ -3,7 +3,7 @@ module.exports = function(sequelize, DataTypes) {
   var DataPlan = sequelize.define('DataPlan', {
     name: { type: DataTypes.STRING, allowNull: false },
     value: { type: DataTypes.INTEGER, allowNull: false },
-    price: { type: DataTypes.DECIMAL, allowNull: true, defaultValue: 0 }
+    price: { type: DataTypes.DECIMAL(10, 2), allowNull: true, defaultValue: 0 }
   }, {
     classMethods: {
       associate: function(models) {
