@@ -270,10 +270,23 @@ function doAffiliate(order, customer, pass){
           var one =  obj.customer
           var confLine = obj.config
 
-          one.updateAttributes({})
+          var salary = confLine.percent * dataPlan.value
+          one.updateAttributes({
+            salary: one.salary + salary
+          }).then(function(o) {
+            // add history
+
+            callback()
+          }).catch(function(err) {
+            callback(err)
+          })
 
         }, function(err) {
-
+          if(err){
+            next(err)
+          }else{
+            next(null)
+          }
         })
       }], function(err) {
 
