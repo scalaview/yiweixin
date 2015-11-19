@@ -271,7 +271,7 @@ function doAffiliate(order, customer, pass){
           var one =  obj.customer
           var confLine = obj.config
 
-          var salary = (parseInt(confLine.percent) / 100) * order.total
+          var salary = (parseInt(confLine.percent) / 100) * dataPlan.value
           one.updateAttributes({
             salary: one.salary + salary
           }).then(function(o) {
@@ -300,6 +300,23 @@ function doAffiliate(order, customer, pass){
   }], function(err) {
 
   })
+}
+
+
+function autoVIP(order, customer, pass) {
+  pass(null, order, customer)
+
+  if(customer.levelId){
+    models.Level.findById(customer.levelId).then(function(level) {
+      if(level.name == '普通用户'){
+
+      }
+    })
+  }
+}
+
+function setVip(customer){
+
 }
 
 module.exports = app;
