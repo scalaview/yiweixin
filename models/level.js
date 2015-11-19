@@ -11,6 +11,9 @@ module.exports = function(sequelize, DataTypes) {
       extend: {
         type: DataTypes.INTEGER,
         defaultValue: 0
+      },
+      code: {
+        type: DataTypes.STRING
       }
   }, {
     classMethods: {

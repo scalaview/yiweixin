@@ -50,7 +50,8 @@ module.exports = function(sequelize, DataTypes) {
           this.setDataValue('ancestryDepth', parseInt(ancestryCustomer.ancestryDepth) + 1 )
         }
       }
-    }
+    },
+    orderTotal: { type: DataTypes.DECIMAL, allowNull: false, defaultValue: 0.0 }
   }, {
     classMethods: _.merge(concern.classMethods, {
       associate: function(models) {

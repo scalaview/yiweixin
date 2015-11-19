@@ -208,7 +208,7 @@ app.use('/paymentconfirm', middleware(initConfig).getNotify().done(function(mess
     }, function(err) {
       next(err)
     })
-  }, doAffiliate], function(err, order, customer){
+  }, doOrderTotal, doAffiliate, autoVIP], function(err, order, customer){
     if(err){
       res.reply(err)
     }else{
@@ -308,15 +308,59 @@ function autoVIP(order, customer, pass) {
 
   if(customer.levelId){
     models.Level.findById(customer.levelId).then(function(level) {
-      if(level.name == '普通用户'){
-
+      if(level.code == 'normal'){
+        setVip(order, customer)
       }
     })
   }
 }
 
-function setVip(customer){
+function setVip(order, customer){
+  models.DConfig.findOne({
+    where: {
+      name: "vipLimit"
+    }
+  }).then(function(dConfig) {
+    if(customer.orderTotal > parseFloat(dConfig.value) ) {
 
+      async.waterfall([function(next) {
+        models.Level.findOne({
+          where: {
+            code: "vip"
+          }
+        }).then(function(level) {
+          if(level){
+            next(null, level)
+          }
+        }).catch(function(err) {
+          next(err)
+        })
+      }, function(level, next) {
+        customer.updateAttributes({
+          levelId: levelId
+        }).then(function(c) {
+          next(null, c)
+        }).catch(function(err) {
+          next(err)
+        })
+      }], function(err, c) {
+        if(err){
+          console.log(err)
+        }
+      })
+    }
+  })
+}
+
+
+function doOrderTotal(order, customer, pass) {
+  next(null, order, customer)
+
+  customer.updateAttributes({
+    orderTotal: customer.orderTotal + order.total
+  }).catch(function(err) {
+    console.log(err)
+  })
 }
 
 module.exports = app;
