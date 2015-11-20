@@ -1,3 +1,19 @@
+<style type="text/css">
+.tg .row {
+  margin-bottom: 20px
+}
+
+.tg p {
+  margin-left: 10px
+}
+.tg .dy-top {
+  margin-top: -10px;
+}
+.tg .hrg {
+  margin-top: 7px
+}
+</style>
+
 <div class="content">
   <div class="form-group">
       <div class="tel-name">充值号码：</div>
@@ -9,15 +25,16 @@
   <div class="form-group">
     <div class="row" id="chooseMoney">
       <div class="col-xs-6">
-        <button type="button" class="btn btn-warning col-xs-12">帐号余额</button>
+        <button type="button" data-id="balance" data-less='{{customer.remainingTraffic}}' class="selected btn btn-warning col-xs-12">帐号余额</button>
       </div>
       <div class="col-xs-6">
-        <button type="button" class="btn btn-default col-xs-12">分销奖励</button>
+        <button type="button" data-id="salary" data-less='{{customer.salary}}' class="btn btn-default col-xs-12">分销奖励</button>
       </div>
     </div>
   </div>
   <div class="form-group">
-      <div class="tel-name" id="balance">选择流量包（您当前可提取流量<span style="color:orange;"> {{customer.remainingTraffic}}  </span>E币）</div>
+      <div class="tel-name tel-title" id="balance">选择流量包（您当前可提取流量<span style="color:orange;"> {{customer.remainingTraffic}}  </span>E币）</div>
+      <div class="tel-name tel-title" style="display: none;" id="salary">选择流量包（您当前可提取流量<span style="color:orange;"> {{customer.salary}}  </span>E币）</div>
       <hr>
       <div class="llb">
       </div>
@@ -27,7 +44,6 @@
       <div class="right">应付E币：<span id="needmyflow" class="orange">0</span>个</div>
   </div>
   <div class="ml">
-      <div class="btn-submit" id="exchanger"><a href="javascript:void(0);">提取流量到手机</a></div>
       <div class="zw-tips"><a href="../about/tiquguize.html">提取规则说明</a></div>
       <div class="inform">
         <p>【有效期】当月有效，月底清零</p>
@@ -36,7 +52,7 @@
         <p>【查询方式】发cxll到10086查询省内通用流量，也可以登录本《孚云》微信公众号查看充值进度</p>
         <p>【使用方式】查询到流量即可使用</p>
         <p>—— 重点注意以下——</p>
-        <p>【常见问题】充值成功后未收到或收不齐短信,属于正常情况,不影响到账,可以发送CXLL到10086查询【特殊情况会延迟到账，一般不超过24小时】或登录本《孚<云》微信公众号查看充值进度</p>
+        <p>【常见问题】充值成功后未收到或收不齐短信,属于正常情况,不影响到账,可以发送CXLL到10086查询【特殊情况会延迟到账，一般不超过24小时】或登录本《孚云》微信公众号查看充值进度</p>
       </div>
   </div>
 </div>
@@ -46,11 +62,21 @@
 
 <script id="trafficplans-template" type="text/x-handlebars-template">
 \{{#each trafficgroups}}
-  <div>
+  <div class="tg">
     <p>\{{name}}</p>
-    <div>
+    <div class="row">
     \{{#each trafficplans}}
-      <a class="mask01" /{{#if @first}} selected {{/if}} data-value="\{{id}}" data-flow='\{{name}}' data-cost="\{{cost}}" >\{{name}}<div class="an"></div></a>
+      <div class="col-xs-12">
+        <div class="col-xs-3 btn btn-info">\{{name}}</div>
+        <span class="col-xs-5 hrg">\{{name}} \{{cost}}E币</span>
+        <div class="col-xs-4">
+          <div class="row dy-top">
+            <a href="javascript:void(0);" class="hide"></a>
+            <a class="col-xs-6 pull-right exchanger" data-value="\{{id}}" data-cost="\{{cost}}" href="javascript:void(0);">提取</a>
+          </div>
+        </div>
+      </div>
+      <hr>
     \{{/each}}
     </div>
   </div>
@@ -61,8 +87,12 @@
 <script type="text/javascript">
 $(function(){
   $("#chooseMoney .btn").click(function(){
-    $("#chooseMoney .btn").removeClass("btn-warning").addClass("btn-default")
-    $(this).removeClass("btn-default").addClass("btn-warning")
+    $("#chooseMoney .btn").removeClass("btn-warning").removeClass('selected').addClass("btn-default")
+    $(this).removeClass("btn-default").addClass("btn-warning").addClass('selected')
+    var $this = $(this),
+        _id = $this.data("id")
+    $(".tel-title").hide()
+    $("#" + _id).show()
   })
 })
 

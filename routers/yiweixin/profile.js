@@ -48,12 +48,20 @@ app.post("/extractFlow", requireLogin, function(req, res){
       }
     })
   }, function(trafficPlan, next) {
-    if(customer.remainingTraffic > trafficPlan.cost){
+    if(req.body.chargetype ===  'balance'){
+      var enough = (customer.remainingTraffic > trafficPlan.cost)
+    }else{
+      var enough = (customer.salary > trafficPlan.cost)
+    }
+
+    if(enough){
       next(null, trafficPlan)
     }else{
       next(new Error("没有足够流量币"))
     }
   }, function(trafficPlan, next){
+    var chargetype = (req.body.chargetype == "balance" ) ? models.Customer.CHARGETYPE.BALANCE : models.Customer.CHARGETYPE.SALARY
+
     models.ExtractOrder.build({
       exchangerType: trafficPlan.className(),
       exchangerId: trafficPlan.id,
@@ -61,7 +69,8 @@ app.post("/extractFlow", requireLogin, function(req, res){
       cost: trafficPlan.cost,
       value: trafficPlan.value,
       bid: trafficPlan.bid,
-      customerId: customer.id
+      customerId: customer.id,
+      chargeType: chargetype
     }).save().then(function(extractOrder) {
       next(null, trafficPlan, extractOrder)
     }).catch(function(err) {

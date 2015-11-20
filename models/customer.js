@@ -98,14 +98,31 @@ module.exports = function(sequelize, DataTypes) {
             next(err)
           })
         }, function(extractOrder, trafficPlan, next){
-          if(customer.remainingTraffic > trafficPlan.cost){
-            customer.updateAttributes({
-                remainingTraffic: customer.remainingTraffic - extractOrder.cost
-              }).then(function(customer){
-                next(null, customer, extractOrder, trafficPlan)
-              }).catch(function(err) {
-                next(err)
-              })
+
+          if(extractOrder.chargeType == models.Customer.CHARGETYPE.BALANCE){
+            var enough = (customer.remainingTraffic > trafficPlan.cost)
+          }else{
+            var enough = (customer.salary > trafficPlan.cost)
+          }
+
+          if(enough){
+            if(extractOrder.chargeType == models.Customer.CHARGETYPE.BALANCE){
+              customer.updateAttributes({
+                  remainingTraffic: customer.remainingTraffic - extractOrder.cost
+                }).then(function(customer){
+                  next(null, customer, extractOrder, trafficPlan)
+                }).catch(function(err) {
+                  next(err)
+                })
+            }else{
+              customer.updateAttributes({
+                  salary: customer.salary - extractOrder.cost
+                }).then(function(customer){
+                  next(null, customer, extractOrder, trafficPlan)
+                }).catch(function(err) {
+                  next(err)
+                })
+            }
           }else{
             next(new Error("剩余流量币不足"))
           }
@@ -126,13 +143,24 @@ module.exports = function(sequelize, DataTypes) {
       refundTraffic: function(models, extractOrder, message,successCallBack, errCallBack) {
         var customer = this
         async.waterfall([function(next) {
-          customer.updateAttributes({
-            remainingTraffic: customer.remainingTraffic + extractOrder.cost
-          }).then(function(customer) {
-            next(null, customer, extractOrder)
-          }).catch(function(err) {
-            next(err)
-          })
+
+          if(extractOrder.chargeType == models.Customer.CHARGETYPE.BALANCE){
+            customer.updateAttributes({
+              remainingTraffic: customer.remainingTraffic + extractOrder.cost
+            }).then(function(customer) {
+              next(null, customer, extractOrder)
+            }).catch(function(err) {
+              next(err)
+            })
+          }else{
+            customer.updateAttributes({
+              salary: customer.salary + extractOrder.cost
+            }).then(function(customer) {
+              next(null, customer, extractOrder)
+            }).catch(function(err) {
+              next(err)
+            })
+          }
         }, function(customer, extractOrder, next) {
           extractOrder.getTrafficPlan().then(function(trafficPlan) {
             extractOrder.trafficPlan = trafficPlan
@@ -281,5 +309,11 @@ module.exports = function(sequelize, DataTypes) {
 
     }
   });
+
+  Customer.CHARGETYPE = {
+    BALANCE: "balance",
+    SALARY: "salary"
+  }
+
   return Customer;
 };

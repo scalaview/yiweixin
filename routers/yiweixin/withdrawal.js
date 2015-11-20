@@ -36,7 +36,7 @@ app.get('/myaccount', requireLogin, function(req, res) {
             ancestry: {
               $or: {
                 $like: ancestryParams,
-                $eq: customer.id
+                $eq: customer.id + ""
               }
             }
           }

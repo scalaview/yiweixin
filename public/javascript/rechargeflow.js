@@ -37,7 +37,7 @@ function givenTo(){
     var amount = 0
     try{
       amount = parseInt(amountStr)
-      debugger
+
       if(isNaN(amount) || amount > total) {
         showDialog("您的E币不足以支出转赠数量")
         return
@@ -174,43 +174,51 @@ function getTrafficplan(source, catName){
 
 function extractConfirm(){
 
-  ///提取流量事件
-  $("#exchanger").click(function() {
-      ///转赠流量
-      var selectedFlow = $(".llb a.selected");
-      //if (selectedFlow.attr('class', 'mask01')) {
-      //    alertMsg("您的余额不足，无法完成此项操作", false);
-      //    return;
-      //}
-      var flowId = selectedFlow.data("value");
-      if (!flowId || flowId == "") {
-          showDialog("请选择流量包");
-          return;
+  $(".llb").on('click', 'a.exchanger', function() {
+    var $this = $(this)
+    $(".dy-top a").removeClass('choose')
+    var choose = $("#chooseMoney .btn.selected")
+    var lessE = choose.data('less')
+
+    if( parseFloat(lessE) < parseFloat($this.data('cost')) ){
+      if(choose.data('id') == 'balance'){
+        showDialog("账户剩余E币不足")
+      }else{
+        showDialog("账户返利E币不足")
       }
+      return
+    }
+    $this.addClass('choose')
 
-      var flow = selectedFlow.data("flow"),
-          phone = $.trim($("#mobile").val())
-      $("#maskflow").html(flow)
-      $("#maskmobile").html(phone)
-      $("#mask").show()
-  });
-
+    phone = $.trim($("#mobile").val())
+    $("#maskflow").html($this.data('cost'))
+    $("#maskmobile").html(phone)
+    $("#mask").show()
+  })
 
   $(".sure").click(function(){
-    var selectedFlow = $(".llb a.selected"),
+    var selectedFlow = $(".dy-top a.choose")
         phone = $.trim($("#mobile").val()),
         flowId = selectedFlow.data("value"),
-        source   = $("#trafficplans-template").html();
+        source   = $("#trafficplans-template").html(),
+        choose = $("#chooseMoney .btn.selected")
+
     if(source === undefined || source == ''){
       return
     }
+
+    if(choose.data('id') === undefined || choose.data('id') == ''){
+      return
+    }
+
     if(isMobile(phone) && flowId !== undefined && flowId !== '' ){
        $.ajax({
         url: '/extractFlow',
         dataType: "JSON",
         data: {
           phone: phone,
-          flowId: flowId
+          flowId: flowId,
+          chargetype: choose.data('id')
         },
         method: "POST"
        }).done(function(data){

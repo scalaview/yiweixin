@@ -126,7 +126,8 @@ module.exports = function(sequelize, DataTypes) {
     value: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
     type: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
     bid: { type: DataTypes.INTEGER, allowNull: true },
-    customerId: { type: DataTypes.INTEGER, allowNull: true }
+    customerId: { type: DataTypes.INTEGER, allowNull: true },
+    chargeType: { type: DataTypes.STRING, allowNull: false, defaultValue: "balance" }
   }, {
     classMethods: {
       associate: function(models) {

@@ -1,7 +1,11 @@
 <style type="text/css">
 .myaccount-title {
+
   background-color: #6F6565;
   padding: 10px;
+}
+.myaccount-title span {
+  margin-left: 20px;
 }
 .myaccount-title span {
   margin-bottom: 10px;
@@ -51,14 +55,14 @@
   </div>
 </div>
 <h5 class="myaccount-title">
-  <span>xxxxxxxxx</span>
+  <span>分销收入： {{ customer.salary }}</span>
 </h5>
 
 <nav id="navbar-example2" class="navbar navbar-default navbar-static">
   <div class="navbar-collapse bs-example-js-navbar-scrollspy collapse in" aria-expanded="true">
     <ul class="nav navbar-nav">
       <li class="col-xs-12">
-        <a href="#fat">
+        <a href="/myticket">
           <span class="pull-left aline">
               <i class="glyphicon glyphicon-th-large"></i>  我的二维码</span>
           <span class="pull-right"><i class='glyphicon glyphicon-menu-right aicon'></i></span>
@@ -116,9 +120,9 @@
       </li>
       <hr>
       <li class="col-xs-12">
-        <a href="#mdo">
+        <a href="/givento">
           <span class="pull-left aline">
-          <i class="glyphicon glyphicon-header"></i>  帮助说明</span>
+          <i class="glyphicon glyphicon-header"></i>  转赠</span>
           <span class="pull-right"><i class='glyphicon glyphicon-menu-right aicon'></i></span>
         </a>
       </li>
