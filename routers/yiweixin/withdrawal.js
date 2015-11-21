@@ -149,4 +149,44 @@ app.get('/myslaves', requireLogin, function(req, res){
   })
 })
 
+app.get('/apply', requireLogin, function(req, res) {
+  var customer = req.customer
+  models.DConfig.findOrCreate({
+    where: {
+      name: "exchangeRate"
+    },
+    defaults: {
+      value: '1'
+    }
+  }).spread(function(dConfig, created) {
+    res.render('yiweixin/withdrawal/apply', { customer: customer, dConfig: dConfig })
+  })
+})
+
+app.post('/apply', requireLogin, function(req, res) {
+  var w = req.body,
+      customer = req.customer
+      params = req.body
+
+      params = _.extend(params, { customerId: customer.id })
+
+  async.waterfall([function(next) {
+    models.Withdrawal.build(params).save().then(function(withdrawal) {
+      if(withdrawal){
+        next(null, withdrawal)
+      }else{
+        next(new Error("提现出错"))
+      }
+    })
+  }], function(err, withdrawal) {
+    if(err){
+      console.log(err)
+      res.redirect('/errmsg')
+    }else{
+      res.redirect('/successmsg')
+    }
+  })
+
+})
+
 module.exports = app;

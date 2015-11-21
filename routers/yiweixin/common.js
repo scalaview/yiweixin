@@ -38,4 +38,13 @@ app.get('/create-menus', function(req, res) {
     })
 })
 
+
+app.get('/successmsg', function(req, res) {
+  res.render('yiweixin/withdrawal/successmsg')
+})
+
+app.get('/errmsg', function(req, res) {
+  res.render('yiweixin/withdrawal/errmsg')
+})
+
 module.exports = app;
