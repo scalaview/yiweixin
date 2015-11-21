@@ -208,7 +208,7 @@ app.use('/paymentconfirm', middleware(initConfig).getNotify().done(function(mess
     }, function(err) {
       next(err)
     })
-  }, doOrderTotal, doAffiliate, autoVIP], function(err, order, customer){
+  }, doOrderTotal, autoVIP, doAffiliate], function(err, order, customer){
     if(err){
       res.reply(err)
     }else{
@@ -308,10 +308,12 @@ function autoVIP(order, customer, pass) {
 
   if(customer.levelId){
     models.Level.findById(customer.levelId).then(function(level) {
-      if(level.code == 'normal'){
+      if( level === undefined ||  level.code == 'normal'){
         setVip(order, customer)
       }
     })
+  }else{
+    setVip(order, customer)
   }
 }
 
@@ -337,7 +339,7 @@ function setVip(order, customer){
         })
       }, function(level, next) {
         customer.updateAttributes({
-          levelId: levelId
+          levelId: level.id
         }).then(function(c) {
           next(null, c)
         }).catch(function(err) {
@@ -354,7 +356,7 @@ function setVip(order, customer){
 
 
 function doOrderTotal(order, customer, pass) {
-  next(null, order, customer)
+  pass(null, order, customer)
 
   customer.updateAttributes({
     orderTotal: customer.orderTotal + order.total
