@@ -7,7 +7,9 @@ var async = require("async")
 var _ = require('lodash')
 
 admin.get('/banners', function(req, res) {
-  models.Banner.findAndCountAll().then(function(banners) {
+  models.Banner.findAndCountAll({
+    offset: helpers.offset(req.query.page, req.query.perPage || 15)
+  }).then(function(banners) {
     result = helpers.setPagination(banners, req)
     res.render('admin/banners/index', { banners: result })
   })

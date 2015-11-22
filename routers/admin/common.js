@@ -197,7 +197,7 @@ admin.get('/syncdata', function(req, res) {
               name: plan.name,
               providerId: getProviderId(plan.spid)
             }
-          }).then(function(trafficgroup) {
+          }).spread(function(trafficgroup) {
               innerNext(null, trafficgroup)
           })
       }, function(err) {

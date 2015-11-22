@@ -8,7 +8,9 @@ var async = require("async")
 
 admin.get('/trafficplans', function(req, res) {
   async.waterfall([function(next) {
-    models.TrafficPlan.findAndCountAll().then(function(trafficPlans) {
+    models.TrafficPlan.findAndCountAll({
+      offset: helpers.offset(req.query.page, req.query.perPage || 15)
+    }).then(function(trafficPlans) {
       next(null, trafficPlans)
     }).catch(function(err) {
       next(err)
@@ -83,7 +85,7 @@ admin.post('/trafficplan', function(req, res) {
   }], function(err, trafficplan) {
     if(err){
       console.log(err)
-      req.flash("info", "update fail")
+      req.flash("err", "update fail")
       res.redirect('/500')
     }else{
       req.flash("info", "update success")

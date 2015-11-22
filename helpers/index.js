@@ -506,6 +506,20 @@ function requireLogin(req, res, next) {
   }
 }
 
+function withdrawalStatus(status, STATUSLIST){
+  switch(status)
+  {
+  case STATUSLIST.APPLY:
+    return "待审核";
+  case STATUSLIST.FAIL:
+    return "拒绝受理";
+  case STATUSLIST.SUCCESS:
+    return "成功";
+  default:
+    return "";
+  }
+}
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -535,3 +549,4 @@ exports.errTips = errTips;
 exports.compact = compact;
 exports.discount = discount;
 exports.requireLogin = requireLogin;
+exports.withdrawalStatus = withdrawalStatus;
