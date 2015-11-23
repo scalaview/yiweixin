@@ -26,9 +26,13 @@ admin.get('/configs', function(req, res) {
         }
       }
 
-      // if(dconfigs[i].name == ''){
-
-      // }
+      if(dconfigs[i].name == 'affiliate'){
+        result['affiliate'] = {
+          name: '分销商限制',
+          key: 'affiliate',
+          value: dconfigs[i].value
+        }
+      }
 
     };
 

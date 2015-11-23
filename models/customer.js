@@ -33,9 +33,6 @@ module.exports = function(sequelize, DataTypes) {
     country: { type: DataTypes.STRING, allowNull: true },
     headimgurl: { type: DataTypes.STRING, allowNull: true },
     levelId: { type: DataTypes.INTEGER, allowNull: true },
-    affiliateId: { type: DataTypes.INTEGER, allowNull: true },
-    secondAffiliateId: { type: DataTypes.INTEGER, allowNull: true },
-    thirdAffiliateId: { type: DataTypes.INTEGER, allowNull: true },
     isSubscribe: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     salary: { type: DataTypes.DECIMAL, allowNull: false, defaultValue: 0 },
     subscribeTime: { type: DataTypes.DATE, allowNull: true },
@@ -51,7 +48,8 @@ module.exports = function(sequelize, DataTypes) {
         }
       }
     },
-    orderTotal: { type: DataTypes.DECIMAL, allowNull: false, defaultValue: 0.0 }
+    orderTotal: { type: DataTypes.DECIMAL, allowNull: false, defaultValue: 0.0 },
+    isAffiliate: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false}
   }, {
     classMethods: _.merge(concern.classMethods, {
       associate: function(models) {

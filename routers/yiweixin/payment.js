@@ -208,7 +208,7 @@ app.use('/paymentconfirm', middleware(initConfig).getNotify().done(function(mess
     }, function(err) {
       next(err)
     })
-  }, doOrderTotal, autoVIP, doAffiliate], function(err, order, customer){
+  }, doOrderTotal, autoVIP, doAffiliate, autoAffiliate], function(err, order, customer){
     if(err){
       res.reply(err)
     }else{
@@ -318,11 +318,15 @@ function autoVIP(order, customer, pass) {
 }
 
 function setVip(order, customer){
-  models.DConfig.findOne({
+  models.DConfig.findOrCreate({
     where: {
       name: "vipLimit"
+    },
+    defaults: {
+      name: 'vipLimit',
+      value: 1
     }
-  }).then(function(dConfig) {
+  }).spread(function(dConfig) {
     if(customer.orderTotal > parseFloat(dConfig.value) ) {
 
       async.waterfall([function(next) {
@@ -354,6 +358,41 @@ function setVip(order, customer){
   })
 }
 
+
+function autoAffiliate(order, customer, pass) {
+  pass(null, order, customer)
+
+  async.waterfall([function(next) {
+    models.DConfig.findOrCreate({
+      where: {
+        name: 'affiliate'
+      },
+      defaults: {
+        name: 'affiliate',
+        value: 1
+      }
+    }).spread(function(dConfig) {
+      next(null, dConfig)
+    }).catch(function(err) {
+      next(err)
+    })
+  }, function(dConfig, next){
+    if(parseFloat(dConfig.value) < customer.orderTotal){
+      customer.updateAttributes({
+        isAffiliate: true
+      }).then(function(customer){
+        next(null)
+      })
+    }else{
+      next(null)
+    }
+  }], function(err) {
+    if(err){
+      console.log(err)
+    }
+    return
+  })
+}
 
 function doOrderTotal(order, customer, pass) {
   pass(null, order, customer)
