@@ -1,0 +1,43 @@
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+          分销返利设置
+      </div>
+      <!-- /.panel-heading -->
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                  <th>等级</th>
+                  <th>返利百分比(%)</th>
+                  <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each affiliateconfigs }}
+                <tr>
+                  <td>{{ level }}</td>
+                  <td>{{ percent }}</td>
+                  <td>
+                    <a href="/admin/affiliateconfigs/{{id}}/edit" class="list-group-item col-xs-6">
+                      <i class="glyphicon glyphicon-pencil"></i>
+                    </a>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+        <!-- /.table-responsive -->
+      </div>
+      <!-- /.panel-body -->
+      <div class="panel-footer">
+          {{pagination affiliateconfigs '/admin/affiliateconfigs' }}
+      </div>
+    </div>
+      <!-- /.panel -->
+  </div>
+</div>

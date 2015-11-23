@@ -23,26 +23,6 @@ admin.use(function(req, res, next){
   next();
 });
 
-var skipUrls = [ '^\/wechat[\/|\?|\#]\?.*', '^\/admin\/login[\/|\?|\#]\?.*', '^\/admin\/register[\/|\?|\#]\?.*']
-
-admin.all("*", function(req, res, next) {
-  var url = req.originalUrl
-  if(req.session.user_id){
-    next()
-    return
-  }else{
-    for (var i = skipUrls.length - 1; i >= 0; i--) {
-      var match = req.originalUrl.match(skipUrls[i]);
-      if(match !== null){
-        next()
-        return
-      }
-    };
-    var encodeUrl = new Buffer(url).toString('base64');
-    return res.redirect("/admin/login?to=" + encodeUrl);
-  }
-})
-
 admin.get('/', function (req, res) {
   res.render('admin/home');
 });

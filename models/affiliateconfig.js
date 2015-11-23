@@ -45,6 +45,9 @@ module.exports = function(sequelize, DataTypes) {
                               },
                               level: {
                                 $lte: maxDepth
+                              },
+                              percent: {
+                                $gt: 0
                               }
                             }
             }
