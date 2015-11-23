@@ -64,8 +64,14 @@ admin.post('/configs', function(req, res) {
           next(err)
         })
       }
-      if(dconfig.name ){
-
+      if(dconfig.name == 'affiliate' ){
+        dconfig.updateAttributes({
+          value: req.body.affiliate
+        }).then(function(dconfig) {
+          next(null, dconfig)
+        }).catch(function(err) {
+          next(err)
+        })
       }
 
     }, function(err, result) {
@@ -75,7 +81,7 @@ admin.post('/configs', function(req, res) {
         res.redirect('/500')
       }else{
         req.flash("info", "update succes")
-        res.redirect('/admin/config')
+        res.redirect('/admin/configs')
       }
     })
 
