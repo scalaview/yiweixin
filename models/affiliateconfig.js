@@ -35,7 +35,7 @@ module.exports = function(sequelize, DataTypes) {
               var params = {
                               dataPlanId: dataPlan.id,
                               level: {
-                                $lt: maxDepth
+                                $lte: maxDepth
                               }
                             }
             }else{
