@@ -239,10 +239,16 @@ function doAffiliate(order, customer, pass){
         configHash[n.level] = n
       }).value();
 
-      var ancestryArr = customer.getAncestry()
-      if(ancestryArr.length <= 0){
+      var ll = customer.getAncestry()
+      if(ll.length <= 0){
         return
       }
+      var ancestryArr = []
+      var end = (ll.length - 3) ? ll.length - 3 : 0
+
+      for (var i = ll.length - 1; i >= end; i--) {
+        ancestryArr.push(ll[i])
+      };
 
       async.waterfall([function(next) {
         models.Customer.findAll({

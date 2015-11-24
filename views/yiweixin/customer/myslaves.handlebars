@@ -7,13 +7,12 @@
       <div class="well well-sm">
         <div class="row">
           <div class="col-xs-4">
-            <img src="http://placehold.it/380x500" alt="" class="img-rounded img-responsive">
+            <img src="{{ headimgurl }}" onError="this.src='http://placehold.it/380x380';" class="img-rounded img-responsive">
           </div>
           <div class="col-xs-8">
-            <h5>{{ id }}</h5>
-            <p><small>关注时间： 2015-10-22</small></p>
-            <p><small>推荐人： xxxo</small></p>
-            <p><small>恭喜你已经成为供应商</small></p>
+            <h5>{{ username }}</h5>
+            <p><small>关注时间： {{ strftime subscribeTime "YYYY-MM-DD" }}</small></p>
+            <p><small>推荐人： {{ ../customer.username }}</small></p>
           </div>
         </div>
       </div>

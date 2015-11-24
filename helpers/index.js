@@ -520,6 +520,10 @@ function withdrawalStatus(status, STATUSLIST){
   }
 }
 
+function excharge(e, exchange){
+  return ( parseFloat(e) / parseFloat(exchange) )
+}
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -550,3 +554,4 @@ exports.compact = compact;
 exports.discount = discount;
 exports.requireLogin = requireLogin;
 exports.withdrawalStatus = withdrawalStatus;
+exports.excharge = excharge;

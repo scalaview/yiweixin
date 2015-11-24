@@ -4,6 +4,7 @@ var lastSubmitdate = new Date().getTime();
 $(document).ready(function () {
   extractConfirm()
   givenTo()
+  withdrawal()
   $(".correct").html("");
   $(".correct").hide();
   var m = $("#mobile").val();
@@ -323,6 +324,39 @@ function paymentConfirm(){
       })
     }else{
       showDialog("请输入电话和选择正确的套餐")
+    }
+  })
+}
+
+
+function withdrawal(){
+  $("#exchangeAmount").blur(function() {
+    var amount = parseFloat($(this).val()),
+        $exchange = $('#exchange'),
+        exchangeValue = $exchange.data("exchange"),
+        total = $exchange.data('total')
+
+    if(!isNaN(amount)){
+      if(amount > parseFloat(total) ){
+        showDialog("你所拥有的E币不足")
+      }
+    }else{
+      showDialog("请输入正确的数目")
+    }
+  })
+
+  $("#exchangeSubmit").click(function(){
+    var list = $("input[type='text']")
+        for (var i = 0; i < list.length; i--) {
+          if(list[i].value == ''){
+            showDialog("请完整填写信息")
+            break;
+          }
+        };
+    if(i < list.length){
+      return true
+    }else{
+      return false
     }
   })
 }

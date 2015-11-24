@@ -102,9 +102,9 @@ function subscribe(message, res){
       // new customer
       var ancestryArr = recommend.getAncestry().push(recommend.id)
 
-      var ancestryStr = (ancestryArr.length > maxDepth) ? recommend.getAncestry().join('/')  : recommend.getAncestry().push(recommend.id).join('/')
+      var ancestryStr = ancestryArr.join('/')
 
-      var ancestryDepth = ((parseInt(recommend.ancestryDepth) + 1) > maxDepth ) ? maxDepth : (parseInt(recommend.ancestryDepth) + 1)
+      var ancestryDepth = parseInt(recommend.ancestryDepth) + 1
 
       models.Customer.build({
         password: '1234567',

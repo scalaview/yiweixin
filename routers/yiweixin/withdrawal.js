@@ -16,7 +16,7 @@ app.get('/myaccount', requireLogin, function(req, res) {
   var customer = req.customer
 
   async.waterfall([function(outnext) {
-    var array = [0, 0, 0]
+    var array = ['一级会员', '二级会员', '三级会员']
     var wrapped = array.map(function (value, index) {
                   return {index: index, value: value};
                 });
@@ -50,12 +50,12 @@ app.get('/myaccount', requireLogin, function(req, res) {
         models.Customer.count({
           where: params
         }).then(function(c) {
-          next(null, c)
+          next(null, { name: item.value, count: c })
         }).catch(function(err){
           next(err)
         })
       }else{
-        next(null, 0)
+        next(null, { name: item.value, count: 0 })
       }
     }, function(err, result){
       if(err){
@@ -64,22 +64,32 @@ app.get('/myaccount', requireLogin, function(req, res) {
         outnext(null, result)
       }
     })
-  }], function(err, result) {
+  }, function(result, next) {
+    var list = customer.getAncestry()
+    if(list.length > 0){
+      models.Customer.findById(list[list.length - 1]).then(function(parent) {
+        next(null, result, parent)
+      })
+    }else{
+      next(null, result, {})
+    }
+
+  }], function(err, result, parent) {
     if(err){
       console.log(err)
       res.redirect('/500')
     }else{
-      res.render('yiweixin/customer/myaccount', { customer: customer, result: result })
+      res.render('yiweixin/customer/myaccount', { customer: customer, result: result, parent: parent })
     }
   })
 })
 
-app.get('/myticket', function(req, res) {
+app.get('/myticket', requireLogin,function(req, res) {
   var customer = req.customer
   async.waterfall([function(next) {
     if(customer.ticket){
       var url = api.showQRCodeURL(customer.ticket);
-      next(null, ticket)
+      next(null, url)
     }else{
       api.createLimitQRCode(customer.id, function(err, data, res){
         if(err){
@@ -102,7 +112,7 @@ app.get('/myticket', function(req, res) {
       console.log(err)
       res.redirect('/myaccount')
     }else{
-      res.redirect(url)
+      res.render('yiweixin/withdrawal/myticket', { url: url } )
     }
   })
 })
@@ -110,7 +120,7 @@ app.get('/myticket', function(req, res) {
 
 app.get('/myslaves', requireLogin, function(req, res){
   var customer = req.customer,
-      depth = req.query.depth
+      depth = parseInt(req.query.depth) + 1 + ( parseInt(customer.ancestryDepth) || 0 )
 
   async.waterfall([function(next) {
     if(customer.ancestry){
@@ -144,7 +154,7 @@ app.get('/myslaves', requireLogin, function(req, res){
       console.log(err)
       res.redirect('/500')
     }else{
-      res.render('yiweixin/customer/myslaves', { customers: customers })
+      res.render('yiweixin/customer/myslaves', { customers: customers, customer: customer })
     }
   })
 })
