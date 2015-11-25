@@ -209,4 +209,19 @@ app.get("/spend", requireLogin, function(req, res){
 })
 
 
+app.get('/salary', requireLogin, function(req, res) {
+  var customer = req.customer
+  models.FlowHistory.findAll({
+    where: {
+      customerId: customer.id,
+      trafficType: models.FlowHistory.TRAFFICTYPE.SALARY
+    }
+  }).then(function(flowhistories) {
+    res.render('yiweixin/flowhistories/salary', { flowhistories: flowhistories })
+  }).catch(function(err) {
+    console.log(err)
+  })
+})
+
+
 module.exports = app;
