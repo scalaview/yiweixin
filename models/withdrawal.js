@@ -44,6 +44,11 @@ module.exports = function(sequelize, DataTypes) {
       associate: function(models) {
         // associations can be defined here
       }
+    },
+    instanceMethods: {
+      className: function(){
+        return "Withdrawal"
+      }
     }
   });
   Withdrawal.STATUS = {

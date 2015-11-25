@@ -211,7 +211,7 @@ app.post('/apply', requireLogin, function(req, res) {
       salary: customer.salary - withdrawal.cost
     }).then(function(customer) {
 
-      customer.takeFlowHistory(models, one, salary, "提取 ￥" + withdrawal.amount + "，花费" + withdrawal.cost + "E币", models.FlowHistory.STATE.REDUCE , function() {
+      customer.takeFlowHistory(models, withdrawal, withdrawal.cost, "提取￥" + withdrawal.amount + "，花费" + withdrawal.cost + "E币", models.FlowHistory.STATE.REDUCE , function() {
             }, function(err) {
             }, models.FlowHistory.TRAFFICTYPE.SALARY)
 
