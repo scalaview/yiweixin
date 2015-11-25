@@ -284,7 +284,7 @@ function doAffiliate(order, customer, pass){
             // add history
             one.takeFlowHistory(models, one, salary, "从" + customer.username + "获得分销奖励 " + salary, models.FlowHistory.STATE.ADD , function() {
             }, function(err) {
-            })
+            }, models.FlowHistory.TRAFFICTYPE.SALARY)
             callback()
           }).catch(function(err) {
             callback(err)

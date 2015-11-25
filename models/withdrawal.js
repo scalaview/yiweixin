@@ -33,6 +33,11 @@ module.exports = function(sequelize, DataTypes) {
     remark: {
         type: DataTypes.TEXT,
         allowNull: true
+    },
+    cost: {
+        type: DataTypes.DECIMAL,
+        allowNull: false,
+        defaultValue: 0.00
     }
   }, {
     classMethods: {

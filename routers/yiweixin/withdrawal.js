@@ -181,12 +181,43 @@ app.post('/apply', requireLogin, function(req, res) {
       params = _.extend(params, { customerId: customer.id })
 
   async.waterfall([function(next) {
-    models.Withdrawal.build(params).save().then(function(withdrawal) {
-      if(withdrawal){
-        next(null, withdrawal)
-      }else{
-        next(new Error("提现出错"))
+    models.DConfig.findOrCreate({
+      where: {
+        name: "exchangeRate"
+      },
+      defaults: {
+        value: '1'
       }
+    }).spread(function(dConfig, created) {
+      next(null, dConfig)
+    })
+  }, function(dConfig, next) {
+    var fix = parseFloat(dConfig.value) * parseFloat(params.amount)
+    params = _.extend(params, { cost: fix })
+    if( parseFloat(customer.salary) >= fix ){
+      models.Withdrawal.build(params).save().then(function(withdrawal) {
+        if(withdrawal){
+          next(null, withdrawal, dConfig)
+        }else{
+          next(new Error("提现出错"))
+        }
+      })
+    }else{
+      next(new Error('not enought'))
+    }
+  },function(withdrawal, dConfig, next) {
+
+    customer.updateAttributes({
+      salary: customer.salary - withdrawal.cost
+    }).then(function(customer) {
+
+      customer.takeFlowHistory(models, one, salary, "提取 ￥" + withdrawal.amount + "，花费" + withdrawal.cost + "E币", models.FlowHistory.STATE.REDUCE , function() {
+            }, function(err) {
+            }, models.FlowHistory.TRAFFICTYPE.SALARY)
+
+      next(null, withdrawal, dConfig, customer)
+    }).catch(function(err) {
+      next(err)
     })
   }], function(err, withdrawal) {
     if(err){

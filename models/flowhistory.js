@@ -15,8 +15,13 @@ module.exports = function(sequelize, DataTypes) {
     source: {
       type: DataTypes.VIRTUAL,
       get: function(){
-        return this.order || this.extractOrder || this.apk
+        return this.order || this.extractOrder || this.apk || this.customer
       }
+    },
+    trafficType:{
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "remainingTraffic"
     }
   }, {
     classMethods: {
@@ -39,7 +44,13 @@ module.exports = function(sequelize, DataTypes) {
           scope: {
             sourceable: 'Apk'
           }
-        })
+        });
+        models.FlowHistory.belongsTo(models.Customer, {
+          foreignKey: 'typeId',
+          scope: {
+            sourceable: 'Customer'
+          }
+        });
       },
       histories: function(options, state, successCallBack, errCallBack){
         FlowHistory.scope(state).findAll(options || {}).then(function(flowHistories) {
@@ -113,5 +124,11 @@ module.exports = function(sequelize, DataTypes) {
     ADD: 1,
     REDUCE: 0
   };
+
+  FlowHistory.TRAFFICTYPE = {
+    REMAININGTRAFFIC: 'remainingTraffic',
+    SALARY: 'salary'
+  };
+
   return FlowHistory;
 };

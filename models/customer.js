@@ -129,7 +129,7 @@ module.exports = function(sequelize, DataTypes) {
               next(null, customer, extractOrder, trafficPlan, flowHistory)
             }, function(err){
               next(err)
-            })
+            }, (extractOrder.chargeType == models.Customer.CHARGETYPE.BALANCE) ? models.FlowHistory.TRAFFICTYPE.REMAININGTRAFFIC : models.FlowHistory.TRAFFICTYPE.SALARY)
         }], function(err, customer, extractOrder, trafficPlan, flowHistory){
           if(err){
             errCallBack(err)
@@ -172,7 +172,7 @@ module.exports = function(sequelize, DataTypes) {
               next(null, customer, extractOrder, flowHistory)
             }, function(err) {
               next(err)
-            })
+            }, (extractOrder.chargeType == models.Customer.CHARGETYPE.BALANCE) ? models.FlowHistory.TRAFFICTYPE.REMAININGTRAFFIC : models.FlowHistory.TRAFFICTYPE.SALARY)
         }], function(err, customer, extractOrder, flowHistory) {
           if(err){
             errCallBack(err)
@@ -181,7 +181,7 @@ module.exports = function(sequelize, DataTypes) {
           }
         })
       },
-      takeFlowHistory: function(models, obj, amount, comment, state, successCallBack, errCallBack){
+      takeFlowHistory: function(models, obj, amount, comment, state, successCallBack, errCallBack, from){
         var customer = this
         if(state !== models.FlowHistory.STATE.ADD && state !== models.FlowHistory.STATE.REDUCE){
           return errCallBack(new Error("Type Error"))
@@ -196,6 +196,11 @@ module.exports = function(sequelize, DataTypes) {
           _.merge(params, {
             type: obj.className(),
             typeId: obj.id
+          })
+        }
+        if(from != undefined) {
+          _.merge(params, {
+            trafficType: from
           })
         }
         models.FlowHistory.build(params).save().then(function(flowHistory){

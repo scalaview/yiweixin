@@ -3,17 +3,17 @@
 module.exports = {
   up: function (queryInterface, Sequelize) {
     return queryInterface.addColumn(
-      'FlowHistories',
-      'trafficType',
+      'Withdrawals',
+      'cost',
       {
-        type: Sequelize.STRING,
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
-        defaultValue: "remainingTraffic"
+        defaultValue: 0.00
       }
     );
   },
 
   down: function (queryInterface, Sequelize) {
-    return queryInterface.removeColumn( "FlowHistories", "trafficType")
+    return queryInterface.removeColumn( "Withdrawals", "cost")
   }
 };

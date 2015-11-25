@@ -121,6 +121,24 @@ admin.post('/withdrawals/:id/reject', function(req, res) {
     }).catch(function(err) {
       next(err)
     })
+  }, function(withdrawal, next) {
+
+    models.Customer.findById(withdrawal.customerId).then(function(customer) {
+      customer.updateAttributes({
+        salary: parseFloat(customer.salary) + parseFloat(withdrawal.cost)
+      }).then(function(customer) {
+
+        customer.takeFlowHistory(models, one, salary, "提取 ￥" + withdrawal.amount + "失败，返回" + withdrawal.cost + "E币", models.FlowHistory.STATE.ADD , function() {
+              }, function(err) {
+              }, models.FlowHistory.TRAFFICTYPE.SALARY)
+
+        next(null, withdrawal, dConfig, customer)
+      }).catch(function(err) {
+        next(err)
+      })
+    })
+
+    next(null, withdrawal)
   }], function(err, withdrawal) {
     if(err){
       console.log(err)
