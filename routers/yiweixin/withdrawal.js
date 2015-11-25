@@ -199,4 +199,10 @@ app.post('/apply', requireLogin, function(req, res) {
 
 })
 
+
+app.get('/slave', requireLogin, function(req, res) {
+  res.render('yiweixin/customer/slave')
+})
+
+
 module.exports = app;

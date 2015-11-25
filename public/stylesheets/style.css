@@ -940,3 +940,71 @@ table{
     padding-top: 10px;
     padding-bottom: 10px;
 }
+
+.myaccount-title {
+
+  background-color: #6F6565;
+  padding: 10px;
+}
+.myaccount-title span {
+  margin-left: 20px;
+}
+.myaccount-title span {
+  margin-bottom: 10px;
+  color: #ffffff;"
+}
+
+.aline {
+  font-size: x-large;
+  margin: 10px;
+}
+.aicon {
+  margin-top: 18px;
+  margin-right: 10px;
+}
+.menu-link li a{
+  margin-left: 35px;
+}
+
+.menu-link a{
+  margin-right: 25px;
+}
+
+.menu-link i {
+  color: #D86949;
+  padding-right: 20px
+}
+
+.orange-bg {
+  background-color: #f0ad4e;
+}
+
+.slaves li {
+  margin-bottom: 10px;
+  margin-left: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.coll-link div {
+  border: 1px solid #eee;
+}
+
+.panel-pl {
+  background-color: #ffffff;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.panel-pl .collapse {
+  margin-bottom: 10px
+}
+
+.slave-detail {
+  border-bottom: 1px solid #eee;
+  background-color: #ffffff;
+  margin-left: 15px;
+  margin-right: 40px;
+  margin-bottom: 5px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
