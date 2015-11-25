@@ -15,56 +15,9 @@ var maxDepth = config.max_depth
 app.get('/myaccount', requireLogin, function(req, res) {
   var customer = req.customer
 
-  async.waterfall([function(outnext) {
-    var array = ['一级会员', '二级会员', '三级会员']
-    var wrapped = array.map(function (value, index) {
-                  return {index: index, value: value};
-                });
-
-    var depth = customer.ancestryDepth
-
-    async.map(wrapped, function(item, next) {
-      var index = item.index
-      var _depth = (parseInt(depth) + parseInt(index) + 1)
-      if (_depth <= wrapped.length){
-        if(customer.ancestry){
-          var ancestryParams = customer.ancestry + '%'
-        }else{
-          var ancestryParams = customer.id + '%'
-        }
-        var params = {
-            ancestry: {
-              $or: {
-                $like: ancestryParams,
-                $eq: customer.id + ""
-              }
-            }
-          }
-
-        if(index < (wrapped.length - 1) ){
-          params = _.extend(params, { ancestryDepth: _depth })
-        }else{
-          params = _.extend(params, { ancestryDepth: { $gte: _depth } })
-        }
-
-        models.Customer.count({
-          where: params
-        }).then(function(c) {
-          next(null, { name: item.value, count: c })
-        }).catch(function(err){
-          next(err)
-        })
-      }else{
-        next(null, { name: item.value, count: 0 })
-      }
-    }, function(err, result){
-      if(err){
-        outnext(err)
-      }else{
-        outnext(null, result)
-      }
-    })
-  }, function(result, next) {
+  async.waterfall([function(next) {
+    next(null, customer)
+  }, getSlaves, function(customer, result, next) {
     var list = customer.getAncestry()
     if(list.length > 0){
       models.Customer.findById(list[list.length - 1]).then(function(parent) {
@@ -232,8 +185,72 @@ app.post('/apply', requireLogin, function(req, res) {
 
 
 app.get('/slave', requireLogin, function(req, res) {
-  res.render('yiweixin/customer/slave')
+  var customer = req.customer
+
+  async.waterfall([function(next) {
+    models.Customer.findById(req.query.id).then(function(one) {
+      next(null, one)
+    })
+  }, getSlaves], function(err, one, result) {
+    if(err){
+      console.log(err)
+      res.redirect('/500')
+    }else{
+      res.render('yiweixin/customer/slave', { customer: customer, one: one, result: result })
+    }
+  })
 })
 
+
+function getSlaves(customer, outnext){
+  var array = ['一级会员', '二级会员', '三级会员']
+    var wrapped = array.map(function (value, index) {
+                  return {index: index, value: value};
+                });
+
+    var depth = customer.ancestryDepth
+
+    async.map(wrapped, function(item, next) {
+      var index = item.index
+      var _depth = (parseInt(depth) + parseInt(index) + 1)
+      if (_depth <= wrapped.length){
+        if(customer.ancestry){
+          var ancestryParams = customer.ancestry + '%'
+        }else{
+          var ancestryParams = customer.id + '%'
+        }
+        var params = {
+            ancestry: {
+              $or: {
+                $like: ancestryParams,
+                $eq: customer.id + ""
+              }
+            }
+          }
+
+        if(index < (wrapped.length - 1) ){
+          params = _.extend(params, { ancestryDepth: _depth })
+        }else{
+          params = _.extend(params, { ancestryDepth: { $gte: _depth } })
+        }
+
+        models.Customer.count({
+          where: params
+        }).then(function(c) {
+          next(null, { name: item.value, count: c })
+        }).catch(function(err){
+          next(err)
+        })
+      }else{
+        next(null, { name: item.value, count: 0 })
+      }
+    }, function(err, result){
+      if(err){
+        outnext(err)
+      }else{
+        outnext(null, customer, result)
+      }
+    })
+}
 
 module.exports = app;
