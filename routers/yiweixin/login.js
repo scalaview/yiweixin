@@ -56,7 +56,7 @@ app.get('/register', function(req, res) {
         wechat: openid
       }
     }).then(function (customer) {
-      if(customer){
+      if(customer && customer.phone != '11111111111' ){
         req.session.customer_id = customer.id
         res.redirect('/profile')
         return
@@ -98,34 +98,66 @@ app.post('/register', function(req, res){
   }
   models.MessageQueue.verifyCode(req.body.phone, req.body.code, 'register', function(messageQueue){
     if(messageQueue){
-      models.Customer.build({
-        password: '1234567',
-        phone: req.body.phone,
-        username: req.session.userInfo.nickname,
-        wechat: req.session.openid,
-        sex: req.session.userInfo.sex + '',
-        city: req.session.userInfo.city,
-        province: req.session.userInfo.province,
-        country: req.session.userInfo.country,
-        headimgurl: req.session.userInfo.headimgurl
-      }).save().then(function(customer){
-        if(customer){
-          customer.updateAttributes({
-            lastLoginAt: new Date()
-          }).then(function(customer){
-          })
-          delete req.session.userInfo
-          delete req.session.openid
-          req.session.customer_id = customer.id
-          res.json({ msg: 'create success', code: 1 })
-        }else{
+
+      async.waterfall([function(next) {
+        models.Customer.findOne({
+          where: {
+            wechat: req.session.openid
+          }
+        }).then(function(one) {
+          if(one && one.phone == '11111111111'){
+
+            one.updateAttributes({
+                phone: req.body.phone,
+                lastLoginAt: new Date()
+              }).then(function(one) {
+                req.session.customer_id = one.id
+                next(null, one)
+              }).catch(function(err) {
+                next(err)
+              })
+          }else{
+            models.Customer.build({
+              password: '1234567',
+              phone: req.body.phone,
+              username: req.session.userInfo.nickname,
+              wechat: req.session.openid,
+              sex: req.session.userInfo.sex + '',
+              city: req.session.userInfo.city,
+              province: req.session.userInfo.province,
+              country: req.session.userInfo.country,
+              headimgurl: req.session.userInfo.headimgurl
+            }).save().then(function(customer){
+              if(customer){
+                customer.updateAttributes({
+                  lastLoginAt: new Date()
+                }).then(function(customer){
+                })
+                delete req.session.userInfo
+                delete req.session.openid
+                req.session.customer_id = customer.id
+                next(null, customer)
+              }else{
+                next({errors: "create fail"})
+              }
+            }).catch(function(err){
+              next(err)
+            })
+          }
+
+        }).catch(function(err) {
+          next(err)
+        })
+
+      }], function(err) {
+        if(err){
           console.log(err)
           res.json({ msg: 'create fail', code: 0, err: err.errors })
+        }else{
+          res.json({ msg: 'create success', code: 1 })
         }
-      }).catch(function(err){
-        console.log(err)
-        res.json({ msg: 'create fail', code: 0, err: err.errors })
       })
+
     }else{
       res.json({ msg: '没有找到验证码或者验证码已经过期', code: 0 })
     }
