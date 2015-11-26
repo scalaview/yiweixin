@@ -21,9 +21,9 @@ var wechatConfig = {
 app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
   var menusKeys = config.menus_keys
   var message = req.weixin;
+  console.log(message)
 
-  if(message.EventKey === 'subscribe') {
-    console.log(message)
+  if(message.Event === 'subscribe' && message.EventKey.indexOf('qrscene_') != -1 ) { // scan and subscribe
     subscribe(message, res)
   }else if (message.EventKey === menusKeys.button1) {
     res.reply('hehe');
@@ -65,10 +65,20 @@ function unsubscribe(message, res) {
 
 }
 
+/*
+{ ToUserName: '',
+  FromUserName: '',
+  CreateTime: '1448544827',
+  MsgType: 'event',
+  Event: 'subscribe',
+  EventKey: 'qrscene_1',
+  Ticket: 'gQEH8DoAAAAAAAAAASxodHRwOi8vd2VpeGluLnFxLmNvbS9xL20wUTlWbnptdzlHNlJ0Q0JoMmp1AAIEX7hWVgMEAAAAAA==' }
+*/
+
 
 function subscribe(message, res){
-  var customerId = message.scene_id,
-      openid = message.openid
+  var customerId = message.EventKey.replace('qrscene_', ''),
+      openid = message.FromUserName
 
   async.waterfall([function(next) {
     models.Customer.findOne({
