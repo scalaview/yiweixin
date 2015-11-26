@@ -125,7 +125,7 @@ function subscribe(message, res){
         province: result.province,
         country: result.country,
         headimgurl: result.headimgurl,
-        subscribeTime: result.subscribe_time,
+        subscribeTime: new Date(parseInt(result.subscribe_time) * 1000),
         isSubscribe: true,
         ancestry: recommend
       }).save().then(function(customer) {
