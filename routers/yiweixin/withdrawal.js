@@ -79,7 +79,7 @@ app.get('/myslaves', requireLogin, function(req, res){
 
     if( (depth - customer.ancestryDepth) == 1 ){
       var params = {
-        ancestry: (customer.ancestry) ? customer.ancestry + '/' + customer.id : customer.id
+        ancestry: (customer.ancestry) ? customer.ancestry + '/' + customer.id : customer.id + ''
       }
     }else{
       var params = {
