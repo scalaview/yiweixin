@@ -5,6 +5,19 @@ var helpers = require("../../helpers")
 var async = require("async")
 
 
+var token = function(callback){
+    if(accessToken != null && !accessToken.isExpired()){
+      callback()
+    }else{
+      myUtil.getAccessToken(function(data){
+        accessToken = data
+        console.log(accessToken)
+        callback()
+      })
+    }
+  }
+
+
 app.get('/send-message', function(req, res) {
   models.MessageQueue.canSendMessage(req.query.phone, req.query.type, function(messageQueue) {
     if(messageQueue){

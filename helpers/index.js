@@ -496,13 +496,13 @@ function requireLogin(req, res, next) {
         req.customer = customer
         next();
       }else{
-        res.redirect("/register");
+        res.redirect("/auth");
       }
     }).catch(function(err){
       console.log(err)
     })
   } else {
-    res.redirect("/register");
+    res.redirect("/auth");
   }
 }
 
