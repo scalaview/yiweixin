@@ -43,7 +43,9 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
       set: function(ancestryCustomer){
         if(ancestryCustomer){
-          this.setDataValue('ancestry', ancestryCustomer.ancestry.push(ancestryCustomer.id).join('/'))
+          var list = ancestryCustomer.ancestry || []
+          list.push(ancestryCustomer.id)
+          this.setDataValue('ancestry', list.join('/'))
           this.setDataValue('ancestryDepth', parseInt(ancestryCustomer.ancestryDepth) + 1 )
         }
       }
