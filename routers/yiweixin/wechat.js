@@ -109,7 +109,7 @@ function subscribe(message, res){
       }
     });
   }, function(result, next) {
-    module.Customer.findById(customerId).then(function(customer) {
+    models.Customer.findById(customerId).then(function(customer) {
       next(null, customer, result)
     })
   }, function(recommend, result, next) {
@@ -142,7 +142,7 @@ function subscribe(message, res){
     if(err){
       console.log(err)
     }else{
-      res.reply('')
+      res.reply('1')
     }
   })
 
