@@ -136,19 +136,76 @@ function subscribe(message, res){
         ancestry: ancestryStr,
         ancestryDepth: ancestryDepth
       }).save().then(function(customer) {
-        next(null, customer)
+        next(null, customer, recommend)
       }).catch(function(err) {
         next(err)
       })
-  }], function(err, newCustomer) {
+  }], function(err, newCustomer, recommend) {
     if(err){
       console.log(err)
+      res.reply('')
     }else{
-      res.reply('1')
+      models.MessageTemplate.findOrCreate({
+        where: {
+          name: "subscribe"
+        },
+        defaults: {
+          content: "您好{{username}}，欢迎成为第{{id}}位用户"
+        }
+      }).spread(function(template) {
+        var content = template.content.format({ username: newCustomer.username, id: newCustomer.id })
+        sendSubscribeNotice(newCustomer, recommend)
+
+        res.reply(content)
+      }).catch(function(err) {
+        res.reply('')
+      })
     }
   })
 
 
+}
+
+
+function sendSubscribeNotice(newCustomer, recommend){
+
+  async.waterfall([function(next) {
+    models.MessageTemplate.findOrCreate({
+        where: {
+          name: "recommendNotice"
+        },
+        defaults: {
+          content: "您推荐{{username}}成为第{{id}}位用户"
+        }
+      }).spread(function(template) {
+        var content = template.content.format({ username: newCustomer.username, id: newCustomer.id })
+        next(null, content)
+      }).catch(function(err) {
+        next(err)
+      })
+  }, function(content, next) {
+    var articles = [
+     {
+       "title":"推荐成功",
+       "description": content,
+       "url": "http://" + config.hostname + '/slave' + (parseInt(recommend.depth) + 1),
+       "picurl": newCustomer.headimgurl
+     }];
+
+    api.sendNews(recommend.wechat, articles, function(err, result) {
+      if(err){
+        next(err)
+      }else{
+        next(result)
+      }
+    });
+  }], function(err, result) {
+    if(err){
+      console.log(err)
+    }else{
+      console.log(result)
+    }
+  })
 }
 
 module.exports = app;
