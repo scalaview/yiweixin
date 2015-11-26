@@ -253,4 +253,22 @@ function getSlaves(customer, outnext){
     })
 }
 
+app.get('/withdrawals', requireLogin, function(req, res) {
+  var customer = req.customer
+
+  models.Withdrawal.findAll({
+    where: {
+      customerId: customer.id
+    },
+    order: [
+      ['createdAt', "DESC"]
+    ]
+  }).then(function(withdrawals) {
+    res.render('yiweixin/withdrawal/index', { withdrawals: withdrawals, Withdrawal: models.Withdrawal })
+  }).catch(function(err) {
+    res.redirect('/500')
+  })
+
+})
+
 module.exports = app;

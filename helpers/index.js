@@ -524,6 +524,31 @@ function excharge(e, exchange){
   return ( parseFloat(e) / parseFloat(exchange) )
 }
 
+
+function bgcolor(Withdrawal, state) {
+  switch(state)
+  {
+  case Withdrawal.STATUS.APPLY:
+    return 'panel-info'
+  case Withdrawal.STATUS.SUCCESS:
+    return 'panel-success'
+  case Withdrawal.STATUS.FAIL:
+    return 'panel-danger'
+  }
+}
+
+function withdrawalState(Withdrawal, state){
+  switch(state)
+  {
+  case Withdrawal.STATUS.APPLY:
+    return '待审核'
+  case Withdrawal.STATUS.SUCCESS:
+    return '成功提取'
+  case Withdrawal.STATUS.FAIL:
+    return '提取失败'
+  }
+}
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -555,3 +580,5 @@ exports.discount = discount;
 exports.requireLogin = requireLogin;
 exports.withdrawalStatus = withdrawalStatus;
 exports.excharge = excharge;
+exports.bgcolor = bgcolor;
+exports.withdrawalState = withdrawalState;
