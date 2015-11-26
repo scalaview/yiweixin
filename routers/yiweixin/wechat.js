@@ -114,7 +114,9 @@ function subscribe(message, res){
     })
   }, function(recommend, result, next) {
       // new customer
-      var ancestryArr = recommend.getAncestry().push(recommend.id)
+      var ancestryArr = recommend.getAncestry()
+
+      ancestryArr.push(recommend.id)
 
       var ancestryStr = ancestryArr.join('/')
 
