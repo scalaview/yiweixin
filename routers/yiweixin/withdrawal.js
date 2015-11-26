@@ -211,7 +211,7 @@ function getSlaves(customer, outnext){
       var _depth = (parseInt(depth) + parseInt(index) + 1)
       if( (_depth - customer.ancestryDepth) == 1 ){
         var params = {
-          ancestry: (customer.ancestry) ? customer.ancestry + '/' + customer.id : customer.id
+          ancestry: (customer.ancestry) ? customer.ancestry + '/' + customer.id : customer.id + ''
         }
       }else{
         var params = {
