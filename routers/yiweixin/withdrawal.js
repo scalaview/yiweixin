@@ -76,24 +76,20 @@ app.get('/myslaves', requireLogin, function(req, res){
       depth = parseInt(req.query.depth) + 1 + ( parseInt(customer.ancestryDepth) || 0 )
 
   async.waterfall([function(next) {
-    if(customer.ancestry){
-      var ancestryParams = customer.ancestry + '%'
+
+    if( (depth - customer.ancestryDepth) == 1 ){
+      var params = {
+        ancestry: (customer.ancestry) ? customer.ancestry + '/' + customer.id : customer.id
+      }
     }else{
-      var ancestryParams = customer.id + '%'
+      var params = {
+        ancestry: {
+          $like: (customer.ancestry) ? customer.ancestry + '/' + customer.id + '/%' : customer.id + '/%'
+        }
+      }
     }
-    var params = {
-            ancestry: {
-              $or: {
-                $like: ancestryParams,
-                $eq: customer.id + ""
-              }
-            }
-          }
-    if(depth < maxDepth ){
-      params = _.extend(params, { ancestryDepth: depth })
-    }else{
-      params = _.extend(params, { ancestryDepth: { $gte: depth } })
-    }
+
+    params = _.extend(params, { ancestryDepth: depth })
 
     models.Customer.findAndCountAll({
       where: params
@@ -213,37 +209,28 @@ function getSlaves(customer, outnext){
     async.map(wrapped, function(item, next) {
       var index = item.index
       var _depth = (parseInt(depth) + parseInt(index) + 1)
-      if (_depth <= wrapped.length){
-        if(customer.ancestry){
-          var ancestryParams = customer.ancestry + '%'
-        }else{
-          var ancestryParams = customer.id + '%'
-        }
+      if( (_depth - customer.ancestryDepth) == 1 ){
         var params = {
-            ancestry: {
-              $or: {
-                $like: ancestryParams,
-                $eq: customer.id + ""
-              }
-            }
-          }
-
-        if(index < (wrapped.length - 1) ){
-          params = _.extend(params, { ancestryDepth: _depth })
-        }else{
-          params = _.extend(params, { ancestryDepth: { $gte: _depth } })
+          ancestry: (customer.ancestry) ? customer.ancestry + '/' + customer.id : customer.id
         }
-
-        models.Customer.count({
-          where: params
-        }).then(function(c) {
-          next(null, { name: item.value, count: c })
-        }).catch(function(err){
-          next(err)
-        })
       }else{
-        next(null, { name: item.value, count: 0 })
+        var params = {
+          ancestry: {
+            $like: (customer.ancestry) ? customer.ancestry + '/' + customer.id + '/%' : customer.id + '/%'
+          }
+        }
       }
+
+      params = _.extend(params, { ancestryDepth: _depth })
+
+      models.Customer.count({
+        where: params
+      }).then(function(c) {
+        next(null, { name: item.value, count: c })
+      }).catch(function(err){
+        next(err)
+      })
+
     }, function(err, result){
       if(err){
         outnext(err)
