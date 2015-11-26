@@ -21,7 +21,11 @@ var wechatConfig = {
 app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
   var menusKeys = config.menus_keys
   var message = req.weixin;
-  if (message.EventKey === menusKeys.button1) {
+
+  if(message.EventKey === 'subscribe') {
+    console.log(message)
+    subscribe(message, res)
+  }else if (message.EventKey === menusKeys.button1) {
     res.reply('hehe');
   }else{
     res.reply([

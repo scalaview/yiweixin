@@ -64,22 +64,6 @@ var token = function(callback){
   }
 
 app.use(express.query());
-app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
-  var menusKeys = config.menus_keys
-  var message = req.weixin;
-  if (message.EventKey === menusKeys.button1) {
-    res.reply('hehe');
-  }else{
-    res.reply([
-      {
-        title: '',
-        description: '新手任务',
-        picurl: 'http://mmbiz.qpic.cn/mmbiz/JkicEhnibw1DDgqib0QzeiaPEqzcpyn6Ak51LFHjlzCL2Xw392Y52pvc7yHYkzg1IeJWCkC2RicTSicicH9fwictAAkrVw/640?wx_fmt=jpeg&tp=webp&wxfrom=5',
-        url: 'http://mp.weixin.qq.com/s?__biz=MzIyNTAxODU2NQ==&mid=207857350&idx=1&sn=103c09576aac256b672659a7205b675f&scene=0#rd'
-      }
-    ])
-  }
-}))
 app.use(cookieParser())
 app.use(urlencodedParser)
 app.use(jsonParser)
