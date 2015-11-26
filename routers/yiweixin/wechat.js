@@ -27,6 +27,8 @@ app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
     subscribe(message, res)
   }else if (message.EventKey === menusKeys.button1) {
     res.reply('hehe');
+  }else if (message.Event === 'unsubscribe') {
+    unsubscribe(message, res)
   }else{
     res.reply([
       {
@@ -41,7 +43,7 @@ app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
 
 
 function unsubscribe(message, res) {
-  var openid = message.openid
+  var openid = message.FromUserName
 
   async.waterfall([function(next) {
     models.Customer.findOne({
@@ -60,7 +62,7 @@ function unsubscribe(message, res) {
       }
     })
   }], function(err) {
-    res.reply('')
+    res.reply('取消关注成功')
   })
 
 }
