@@ -114,13 +114,6 @@ function subscribe(message, res){
     })
   }, function(recommend, result, next) {
       // new customer
-      var ancestryArr = recommend.getAncestry()
-
-      ancestryArr.push(recommend.id)
-
-      var ancestryStr = ancestryArr.join('/')
-
-      var ancestryDepth = parseInt(recommend.ancestryDepth) + 1
 
       models.Customer.build({
         password: '1234567',
@@ -133,8 +126,8 @@ function subscribe(message, res){
         country: result.country,
         headimgurl: result.headimgurl,
         subscribeTime: result.subscribe_time,
-        ancestry: ancestryStr,
-        ancestryDepth: ancestryDepth
+        isSubscribe: true,
+        ancestry: recommend
       }).save().then(function(customer) {
         next(null, customer, recommend)
       }).catch(function(err) {
@@ -188,7 +181,7 @@ function sendSubscribeNotice(newCustomer, recommend){
      {
        "title":"推荐成功",
        "description": content,
-       "url": "http://" + config.hostname + '/slave' + (parseInt(recommend.depth) + 1),
+       "url": "http://" + config.hostname + '/slave?id=' + newCustomer.id,
        "picurl": newCustomer.headimgurl
      }];
 
