@@ -51,6 +51,12 @@ module.exports = function(sequelize, DataTypes) {
             sourceable: 'Customer'
           }
         });
+        models.FlowHistory.belongsTo(models.Withdrawal, {
+          foreignKey: 'typeId',
+          scope: {
+            sourceable: 'Withdrawal'
+          }
+        });
       },
       histories: function(options, state, successCallBack, errCallBack){
         FlowHistory.scope(state).findAll(options || {}).then(function(flowHistories) {
@@ -107,6 +113,8 @@ module.exports = function(sequelize, DataTypes) {
     instanceMethods: {
       getSource: function(conditions){
         if(this.type){
+          console.log(this.id)
+          console.log(this.type)
           return this['get' + this.type].call(this, conditions)
         }
       },
