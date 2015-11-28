@@ -25,19 +25,20 @@ app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
 
   if(message.Event === 'subscribe' && message.EventKey.indexOf('qrscene_') != -1 ) { // scan and subscribe
     subscribe(message, res)
-  }else if (message.EventKey === menusKeys.button1) {
-    res.reply('hehe');
   }else if (message.Event === 'unsubscribe') {
     unsubscribe(message, res)
   }else{
-    res.reply([
-      {
-        title: '',
-        description: '新手任务',
-        picurl: 'http://mmbiz.qpic.cn/mmbiz/JkicEhnibw1DDgqib0QzeiaPEqzcpyn6Ak51LFHjlzCL2Xw392Y52pvc7yHYkzg1IeJWCkC2RicTSicicH9fwictAAkrVw/640?wx_fmt=jpeg&tp=webp&wxfrom=5',
-        url: 'http://mp.weixin.qq.com/s?__biz=MzIyNTAxODU2NQ==&mid=207857350&idx=1&sn=103c09576aac256b672659a7205b675f&scene=0#rd'
+    models.WechatMenu.findOne({
+      where: {
+        key: message.EventKey
       }
-    ])
+    }).then(function(menu) {
+      if(menu){
+        res.reply(menu.url)
+      }else{
+        res.reply('test')
+      }
+    })
   }
 }))
 

@@ -39,10 +39,7 @@ admin.get('/affiliateconfigs', function(req, res) {
         }
       },
       defaults: {
-        level: level,
-        dataPlanId: {
-          $eq: null
-        }
+        level: level
       }
     }).spread(function(aConfig) {
       next(null, aConfig)

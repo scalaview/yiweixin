@@ -549,6 +549,104 @@ function withdrawalState(Withdrawal, state){
   }
 }
 
+
+function wechatMenus(top, menus, idx){
+
+  var html = ['<table class="table table-striped">',
+       '<tbody>',
+          '<tr>',
+             '<td>级别</td>',
+             '<td><strong>类型</strong></td>',
+             '<td><strong>名称</strong></td>',
+             '<td><strong>值</strong></td>',
+          '</tr>',
+          '{{content}}',
+       '</tbody>',
+    '</table>']
+
+    var trl = ['<tr>',
+             '<td>{{title}}</td>',
+             '<td>',
+                '<select name="menu_{{index}}_event">',
+                   '<option value="click" {{#if clicked }} selected="" {{/if}}>click</option>',
+                   '<option value="view" {{#if viewed }} selected="" {{/if}}>view</option>',
+                '</select>',
+             '</td>',
+             '<td>',
+                '<label><input type="text" name="menu_{{index}}_name" value="{{name}}" size="8"></label>',
+             '</td>',
+             '<td>',
+                '<label><input type="text" name="menu_{{index}}_url" value="{{url}}" size="50"></label>',
+             '</td>',
+             '<input type="hidden" name="menu_{{index}}_key" value="{{key}}">',
+          '</tr>']
+
+
+    var tr = ['<tr>',
+             '<td>{{title}}</td>',
+             '<td>',
+                '<select name="menu_{{index}}[event]_{{idx}}">',
+                   '<option value="click" {{#if clicked }} selected="" {{/if}}>click</option>',
+                   '<option value="view" {{#if viewed }} selected="" {{/if}}>view</option>',
+                '</select>',
+             '</td>',
+             '<td>',
+                '<label><input type="text" name="menu_{{index}}[name]_{{idx}}" value="{{name}}" size="8"></label>',
+             '</td>',
+             '<td>',
+                '<label><input type="text" name="menu_{{index}}[url]_{{idx}}" value="{{url}}" size="50"></label>',
+             '</td>',
+             '<input type="hidden" name="menu_{{index}}[key]_{{idx}}" value="{{key}}">',
+             '<input type="hidden" name="menu_{{index}}[sortNum]_{{idx}}" value="{{sortNum}}">',
+          '</tr>']
+
+    if(menus.length < 5){
+      console.log(menus)
+      for (var i = menus.length; i < 5; i++) {
+        menus.push({
+          name: '',
+          event: '',
+          key: '',
+          url: '',
+          sortNum: i,
+          ancestryDepth: '',
+          ancestry: ''
+        })
+      };
+    }
+
+    var menutrs =  menus.map(function (value, index) {
+      return tr.join('').format({
+        title: '二级菜单' + (index + 1),
+        index: (idx + 1),
+        idx: index,
+        clicked: value.event == 'click',
+        viewed: value.event == 'view',
+        name: value.name,
+        url: value.url,
+        key: value.key,
+        sortNum: value.sortNum
+      })
+    }).join('')
+
+
+    var tableHtml = trl.join('').format({
+      title: '一级菜单',
+      index: (idx + 1),
+      clicked: top.event == 'click',
+      viewed: top.event == 'view',
+      name: top.name,
+      url: top.url,
+      key: top.key
+    })
+
+    return html.join('').format({
+      content: (tableHtml + menutrs).htmlSafe()
+    }).htmlSafe()
+}
+
+
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -582,3 +680,4 @@ exports.withdrawalStatus = withdrawalStatus;
 exports.excharge = excharge;
 exports.bgcolor = bgcolor;
 exports.withdrawalState = withdrawalState;
+exports.wechatMenus = wechatMenus;
