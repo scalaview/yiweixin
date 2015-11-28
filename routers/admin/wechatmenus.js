@@ -163,13 +163,26 @@ function buildMenuJSON(tops){
         type: me.event,
         name: me.name
       }
+
     if(children.length > 0) {
       var list = []
       for (var i = 0; i < children.length; i++) {
         list.push(doBuild(children[i], []))
       };
       if(list.compact().length == 0){
-        return
+        if(me.event == models.WechatMenu.EVENT.VIEW && (me.url != null && me.url != undefined && me.url != '' )){
+          pre = _.merge(pre, {
+            url: me.url
+          })
+          return pre
+        }else if(me.event == models.WechatMenu.EVENT.CLICK && (me.url != null && me.url != undefined && me.url != '' )){
+          pre = _.merge(pre, {
+            key: me.key
+          })
+          return pre
+        }else{
+          return
+        }
       }
       pre = _.merge(pre, {
         sub_button: list.compact()
