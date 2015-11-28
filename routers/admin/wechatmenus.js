@@ -233,7 +233,7 @@ function getMenus(tops, pass){
   async.map(tops, function(top, next) {
     models.WechatMenu.findAll({
       where: {
-        ancestry: top.id
+        ancestry: top.id + ''
       },
       order:[
         ['sortNum', "ASC"]

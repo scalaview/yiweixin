@@ -27,6 +27,9 @@ app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
     subscribe(message, res)
   }else if (message.Event === 'unsubscribe') {
     unsubscribe(message, res)
+  }else if (message.MsgType == 'text' ){
+    message.Content
+    res.reply('hehe')
   }else{
     models.WechatMenu.findOne({
       where: {
