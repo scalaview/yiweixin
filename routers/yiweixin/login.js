@@ -28,7 +28,9 @@ app.get('/', function(req, res) {
 })
 
 app.get('/auth', function(req, res) {
-  var url = client.getAuthorizeURL('http://' + config.hostname + '/register', '111111', 'snsapi_userinfo');
+  var encodeUrl = req.query.to
+
+  var url = client.getAuthorizeURL('http://' + config.hostname + '/register' + ( encodeUrl ? ("?to=" + encodeUrl) : "" ), '111111', 'snsapi_userinfo');
   res.redirect(url)
 })
 
