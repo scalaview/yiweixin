@@ -4,8 +4,41 @@ var models  = require('../../models')
 var helpers = require("../../helpers")
 var async = require("async")
 
+// 配置信息
 
-admin.get('/configs', function(req, res) {
+function initDConfig(req, res, pass){
+  var dConfigs = [{
+    name: 'vipLimit',
+    value: 1
+  },{
+    name: 'exchangeRate',
+    value: 1
+  },{
+    name: 'affiliate',
+    value: 1
+  }]
+
+  async.each(dConfigs, function(DC, next) {
+    models.DConfig.findOrCreate({
+      where: {
+        name: DC.name
+      },
+      defaults: DC
+    }).spread(function(one) {
+       next(null, one)
+    }).catch(function(err){
+      next(err)
+    })
+  }, function(err) {
+    if(err){
+      console.log(err)
+    }
+    pass()
+  })
+
+}
+
+admin.get('/configs', initDConfig, function(req, res) {
   models.DConfig.findAll({}).then(function(dconfigs){
     var result = {}
 
