@@ -1,12 +1,12 @@
 var config = {
-                'token': '',
-                'appId': '',
-                'aesKey': '',
-                'appSecret': '',
-                'apikey': '',
-                'yunpian': '',
-                'partnerKey' :''
-                'mchId': '',
+                'token': '',  //公众平台
+                'appId': '',  // 公众平台
+                'aesKey': '',  // 公众平台
+                'appSecret': '',  // 公众平台
+                'apikey': '',  // 短信平台
+                'yunpian': '',  // 短信平台
+                'partnerKey' :'', //微信支付
+                'mchId': '',  // 微信支付
                 'user': '',
                 'pwd' : '',
                 'yunma' : '',
