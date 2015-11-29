@@ -60,8 +60,8 @@ app.get('/register', function(req, res) {
     }).then(function (customer) {
       if(customer && customer.phone != '11111111111' ){
         req.session.customer_id = customer.id
-        if(req.body.to){
-          var backTo = new Buffer(req.body.to, "base64").toString()
+        if(req.query.to){
+          var backTo = new Buffer(req.query.to, "base64").toString()
           res.redirect(backTo)
         }else{
           res.redirect('/profile')
@@ -88,8 +88,8 @@ app.get('/register', function(req, res) {
     if(err){
       console.log(err)
       var url = '/auth'
-      if(req.body.to){
-        url = url + '?to=' + req.body.to
+      if(req.query.to){
+        url = url + '?to=' + req.query.to
       }
       res.redirect(url)
     }else{
