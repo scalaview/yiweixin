@@ -216,7 +216,8 @@ module.exports = function(sequelize, DataTypes) {
         }
         if(from != undefined) {
           _.merge(params, {
-            trafficType: from
+            trafficType: from,
+            ownerId: obj.id
           })
         }
         models.FlowHistory.build(params).save().then(function(flowHistory){
