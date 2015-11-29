@@ -34,7 +34,14 @@ module.exports = function(sequelize, DataTypes) {
     headimgurl: { type: DataTypes.STRING, allowNull: true },
     levelId: { type: DataTypes.INTEGER, allowNull: true },
     isSubscribe: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
-    salary: { type: DataTypes.DECIMAL, allowNull: false, defaultValue: 0 },
+    salary: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+      defaultValue: 0,
+      set: function(val) {
+        this.setDataValue('salary', parseFloat(val))
+      }
+    },
     subscribeTime: { type: DataTypes.DATE, allowNull: true },
     ticket: { type: DataTypes.STRING, allowNull: true },
     ancestryDepth: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
@@ -50,7 +57,14 @@ module.exports = function(sequelize, DataTypes) {
         }
       }
     },
-    orderTotal: { type: DataTypes.DECIMAL, allowNull: false, defaultValue: 0.0 },
+    orderTotal: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+      defaultValue: 0.0,
+      set: function(val) {
+        this.setDataValue('orderTotal', parseFloat(val))
+      }
+    },
     isAffiliate: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false}
   }, {
     classMethods: _.merge(concern.classMethods, {

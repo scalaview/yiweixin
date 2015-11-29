@@ -264,7 +264,7 @@ function RegistEvent() {
         $("#txtPayMoney").removeAttr('style')
         $("#txtPayMoneyDiscount").parent().addClass('hide');
       }
-      $("#txtPayMoney").html(parseInt(flowCount).toFixed(2));
+      $("#txtPayMoney").html(parseFloat(flowCount).toFixed(2));
   });
   $("#buylist a:eq(0)").click()
 }

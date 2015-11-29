@@ -15,7 +15,10 @@ module.exports = function(sequelize, DataTypes) {
     amount: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      defaultValue: 0
+      defaultValue: 0,
+      set: function(val) {
+        this.setDataValue('amount', parseFloat(val))
+      }
     },
     state: {
       type: DataTypes.INTEGER,
@@ -31,13 +34,16 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     remark: {
-        type: DataTypes.TEXT,
-        allowNull: true
+      type: DataTypes.TEXT,
+      allowNull: true
     },
     cost: {
-        type: DataTypes.DECIMAL,
-        allowNull: false,
-        defaultValue: 0.00
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+      defaultValue: 0.00,
+      set: function(val) {
+        this.setDataValue('cost', parseFloat(val))
+      }
     }
   }, {
     classMethods: {

@@ -5,8 +5,22 @@ module.exports = function(sequelize, DataTypes) {
     customerId: { type: DataTypes.INTEGER, allowNull: false },
     dataPlanId: { type: DataTypes.INTEGER, allowNull: false },
     paymentMethodId: { type: DataTypes.INTEGER, allowNull: false },
-    discount: { type: DataTypes.DECIMAL, allowNull: true, defaultValue: 0 },
-    total: { type: DataTypes.DECIMAL, allowNull: false, defaultValue: 0 },
+    discount: {
+      type: DataTypes.DECIMAL,
+      allowNull: true,
+      defaultValue: 0,
+      set: function(val) {
+        this.setDataValue('discount', parseFloat(val))
+      }
+    },
+    total: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+      defaultValue: 0 ,
+      set: function(val) {
+        this.setDataValue('total', parseFloat(val))
+      }
+    },
     transactionId: { type: DataTypes.STRING, allowNull: true },
     stateName: {
       type: DataTypes.VIRTUAL,
