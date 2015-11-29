@@ -34,9 +34,7 @@ admin.get('/affiliateconfigs', function(req, res) {
     models.AffiliateConfig.findOrCreate({
       where: {
         level: level,
-        dataPlanId: {
-          $eq: null
-        }
+        dataPlanId: null
       },
       defaults: {
         level: level
