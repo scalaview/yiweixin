@@ -60,7 +60,12 @@ app.get('/register', function(req, res) {
     }).then(function (customer) {
       if(customer && customer.phone != '11111111111' ){
         req.session.customer_id = customer.id
-        res.redirect('/profile')
+        if(req.body.to){
+          var backTo = new Buffer(req.body.to, "base64").toString()
+          res.redirect(backTo)
+        }else{
+          res.redirect('/profile')
+        }
         return
       }else{
         next(null, accessToken, openid)
@@ -82,7 +87,11 @@ app.get('/register', function(req, res) {
   }], function(err) {
     if(err){
       console.log(err)
-      res.redirect('/auth')
+      var url = '/auth'
+      if(req.body.to){
+        url = url + '?to=' + req.body.to
+      }
+      res.redirect(url)
     }else{
       res.render('register', { layout: 'main' })
     }
