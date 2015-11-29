@@ -138,4 +138,95 @@ admin.post("/customer/traffic/:id", function(req, res) {
   })
 })
 
+admin.get('/contribution', function(req, res) {
+
+  async.waterfall([function(next) {
+
+    var params = {}
+    if(req.query.phone !== undefined && req.query.phone.present()){
+      params = _.merge(params, { phone: { $like: "%{{phone}}%".format({ phone: req.query.phone }) } })
+    }
+    models.Customer.findAndCountAll({
+      where: params,
+      limit: req.query.perPage || 15,
+      offset: helpers.offset(req.query.page, req.query.perPage || 15)
+    }).then(function(customers) {
+      next(null, customers)
+    })
+
+  }, function(customers, pass) {
+
+    async.map(customers.rows, function(customer, next) {
+
+      var list = customer.getAncestry()
+      if(!list || list.length <= 0){
+        next(null, customer)
+        return
+      }
+      models.Customer.findAll({
+        where: [ 'id IN (?)', list ],
+        order: [
+          ["ancestryDepth", "DESC"]
+        ]
+      }).then(function(ancestries) {
+
+        for (var i = 0; i < ancestries.length; i++) {
+          customer['parent_'+i] = ancestries[i]
+        };
+
+        // count
+
+        var reverseList = list.reverse().map(function(value, index) {
+          return {index: index, id: value}
+        })
+        async.each(reverseList, function(map, go) {
+          var index = map.index,
+              id = map.id
+
+          models.FlowHistory.sum('amount', {
+            where: {
+              type: 'Customer',
+              typeId: customer.id,
+              state: models.FlowHistory.STATE.ADD,
+              trafficType: models.FlowHistory.TRAFFICTYPE.SALARY,
+              customerId: id
+            }
+          }).then(function(sum) {
+            customer['parent_sum_'+index] = sum || 0
+            go(null, customer)
+          })
+
+        }, function(err){
+          if(err){
+            next(err)
+          }else{
+            next(null, customer)
+          }
+        })
+
+        // count
+
+      })
+
+    }, function(err, result) {
+      if(err){
+        pass(err)
+      }else{
+        customers.rows = result
+        pass(null, customers)
+      }
+    })
+
+  }], function(err, customers) {
+    if(err){
+      console.log(err)
+      res.redirect('/500')
+    }else{
+      var result = helpers.setPagination(customers, req)
+      res.render('admin/customers/contribution', { customers: result, query: req.query })
+    }
+  })
+
+})
+
 module.exports = admin;

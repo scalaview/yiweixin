@@ -489,7 +489,7 @@ function errTips(err) {
 // ===================login=====================
 
 function requireLogin(req, res, next) {
-  // req.session.customer_id = 6
+  req.session.customer_id = 6
   var url = req.originalUrl
   var encodeUrl = new Buffer(url).toString('base64');
 
