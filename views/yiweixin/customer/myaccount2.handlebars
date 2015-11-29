@@ -1,0 +1,183 @@
+<style type="text/css">
+         .dtb_distribution{
+         margin: 0;
+         font-family: "寰蒋闆呴粦";
+         background: #efeff4;
+         padding-bottom: 100px;
+         padding-top: 10px;
+         padding-right: 0;
+         padding-left: 0;
+         }
+         .dtb_distribution .item{
+         background: #ffffff;
+         margin-top: 10px;
+         border-top: 1px solid #dadada;
+         border-bottom: 1px solid #dadada;
+         }
+         .dtb_distribution .item.uinfo{
+         height: auto;
+         margin-top: 0px;
+         }
+         .dtb_distribution .item.uinfo img{
+         display: block;
+         width: 80px;
+         height: 80px;
+         margin: 10px;
+         float: left;
+         }
+         .dtb_distribution .item.uinfo.info{
+         padding-left: 100px;
+         height: auto;
+         padding: 10px;
+         }
+         .dtb_distribution .item.total{
+         height: 40px;
+         line-height: 40px;
+         font-size: 12px;
+         }
+         .dtb_distribution .item.total div{
+         float: left;
+         text-align:center;
+         }
+         .dtb_distribution .item h3{
+         margin: 0;
+         height: 50px;
+         line-height: 50px;
+         font-size: 15px;
+         color: #000000;
+         border-bottom: 1px solid #dadada;
+         padding-left: 60px;
+         background: url('../images/u_j.png') no-repeat left center;
+         background-size: 18px 18px;
+         background-position: 25px;
+         position: relative;
+         }
+         .dtb_distribution .item h3 em{
+         width: auto;
+         height: 24px;
+         line-height: 24px;
+         font-size: 14px;
+         background: #f95e49;
+         color: #ffffff;
+         padding-left: 10px;
+         padding-right: 10px;
+         position: absolute;
+         right: 10px;
+         top: 13px;
+         border-radius: 15px;
+         }
+         .dtb_distribution .item ul{
+         margin: 0;
+         margin-left: 40px;
+         overflow: hidden;
+         height: 0px;
+         }
+         .dtb_distribution .item ul li{
+         margin: 0;
+         height: 40px;
+         line-height: 40px;
+         position: relative;
+         border-bottom: 1px solid #dadada;
+         padding-left: 50px;
+         background: url('../images/user.png') no-repeat left;
+         background-position: 20px;
+         background-size: 13px 13px;
+         color: #000000;
+         }
+      </style>
+      <div class="container dtb_distribution">
+        <div class='row'>
+           <div class="item uinfo col-xs-12">
+              <img src="{{ customer.headimgurl }}" onError="this.src='http://placehold.it/380x380';" class="img-rounded img-responsive">
+              <div class="info">
+                 <h5>{{ customer.username }}</h5>
+                 <p><small>关注时间： {{ strftime customer.subscribeTime "YYYY-MM-DD" }}</small></p>
+                 <p><small>推荐人： {{ parent.username }}</small></p>
+                 {{#if customer.isAffiliate }}<p><small style='color:red'>恭喜你已经成为供应商</small></p>{{/if}}
+              </div>
+           </div>
+         </div>
+         <div class='row'>
+           <div class="item total col-xs-12">
+              <div style="width:100%;">
+                 <div style="width:50%;">分销收入：{{ customer.salary }}E币</div>
+                 <div style="width:50%;">账户余额：{{ customer.remainingTraffic }}E币</div>
+              </div>
+           </div>
+         </div>
+         <div class='row'>
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+           <div class="item col-xs-12">
+              <h3>我的会员<em>0人</em></h3>
+            </div>
+          </a>
+          <div id="collapseOne" class="item col-xs-12 panel-collapse collapse">
+              <ul>
+                 <li>
+                    <i class="glyphicon glyphicon-cog"></i>
+                       <p>我的会员</p>
+                       <em>0人</em><span></span>
+                    </a>
+                 </li>
+                 <li>
+                    <a href="javascript:link_to('distribute.php?act=member&amp;level=2')">
+                       <p>浜岀骇浼氬憳</p>
+                       <em>1浜�</em><span></span>
+                    </a>
+                 </li>
+                 <li class="last">
+                    <a href="javascript:link_to('distribute.php?act=member&amp;level=3')">
+                       <p>涓夌骇浼氬憳</p>
+                       <em>1浜�</em><span></span>
+                    </a>
+                 </li>
+              </ul>
+           </div>
+          </div>
+         <div class="item count">
+            <h3>鎴戠殑鎺ㄥ箍<em>0浜�</em></h3>
+            <ul>
+               <li>
+                  <a href="#here">
+                     <p>鐐瑰嚮閲�</p>
+                     <em>0浜�</em><span></span>
+                  </a>
+               </li>
+               <li>
+                  <a href="#here">
+                     <p>鍏虫敞閲�</p>
+                     <em>0浜�</em><span></span>
+                  </a>
+               </li>
+               <li class="last">
+                  <a href="#here">
+                     <p>鎴愪负鍒嗛攢鍟�</p>
+                     <em>0浜�</em><span></span>
+                  </a>
+               </li>
+            </ul>
+         </div>
+         <div class="item order">
+            <h3>鎴戠殑鏀跺叆<em>锟�0</em></h3>
+            <ul>
+               <li>
+                  <a href="#here">
+                     <p>鏈敓鏁�(鍒嗛攢)鏀跺叆</p>
+                     <em>锟�0</em>
+                  </a>
+               </li>
+               <li>
+                  <a href="#here">
+                     <p>宸茬敓鏁�(鍒嗛攢)鏀跺叆</p>
+                     <em>锟�0</em>
+                  </a>
+               </li>
+            </ul>
+         </div>
+         <div class="item apply">
+            <h3><a href="#here" onclick="javascript:link_to('user.php?act=account_raply');">鐢宠鎻愮幇<span></span></a></h3>
+         </div>
+         <div class="item sqcode" onclick="link_to('distribute.php?act=qr_show')">
+            <h3><a href="javascript:link_to('distribute.php?act=qr_show')">鎺ㄥ箍浜岀淮鐮�<span></span></a></h3>
+         </div>
+      </div>
