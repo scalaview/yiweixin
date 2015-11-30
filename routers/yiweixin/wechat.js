@@ -58,7 +58,7 @@ app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
         console.log(err)
         res.reply('欢迎使用')
       }else{
-        res.reply(reply)
+        res.reply(reply.content)
       }
     })
 
