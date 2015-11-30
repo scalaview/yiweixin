@@ -7,8 +7,10 @@ var config = require("../../config")
 var _ = require('lodash')
 var WechatAPI = require('wechat-api');
 var requireLogin = helpers.requireLogin
-
+var images = require("images");
 var api = new WechatAPI(config.appId, config.appSecret);
+var request = require("request")
+var fs        = require('fs');
 
 var maxDepth = config.max_depth
 
@@ -43,6 +45,11 @@ app.get('/myaccount', requireLogin, function(req, res) {
 
 app.get('/myticket', requireLogin,function(req, res) {
   var customer = req.customer
+  if(customer.myticket){
+    res.render('yiweixin/withdrawal/myticket', { url: customer.myticket })
+    return
+  }
+
   async.waterfall([function(next) {
     if(customer.ticket){
       var url = api.showQRCodeURL(customer.ticket);
@@ -64,12 +71,40 @@ app.get('/myticket', requireLogin,function(req, res) {
         }
       });
     }
+  }, function(url, next) {
+    var filename = customer.id + (Math.round((new Date().valueOf() * Math.random()))) +'.png'
+    var tmp_file = __dirname + "/../../public/uploads/tmp/" + filename
+    var save_file_path =  __dirname + "/../../public/uploads/tickets/" + filename
+    console.log(tmp_file)
+    var file = fs.createWriteStream(tmp_file)
+
+    request(url).pipe(file)
+    file.on('finish', function() {
+      images(__dirname + "/../../public/images/myticket-bg.JPG").draw(images(tmp_file).size(211), 82, 177).save(save_file_path, {quality : 30 });
+
+      fs.unlink(tmp_file, function(err) {
+          if (err){
+            next(err)
+          }else{
+            next(null, filename)
+          }
+      });
+    });
+
+  }, function(myticket, next) {
+    customer.updateAttributes({
+      myticket: myticket
+    }).then(function(customer){
+      next(null, myticket, customer)
+    }).catch(function(err) {
+      next(err)
+    })
   }], function(err, url) {
     if(err){
       console.log(err)
       res.redirect('/myaccount')
     }else{
-      res.render('yiweixin/withdrawal/myticket', { url: url } )
+      res.render('yiweixin/withdrawal/myticket', { url: url })
     }
   })
 })

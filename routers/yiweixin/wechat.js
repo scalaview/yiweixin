@@ -32,7 +32,8 @@ app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
     async.waterfall([function(next) {
       models.WechatReply.findOne({
         where: {
-          key: message.Content
+          key: message.Content,
+          isActive: true
         }
       }).then(function(reply){
         if(reply){

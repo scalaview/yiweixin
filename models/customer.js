@@ -1,6 +1,7 @@
 'use strict';
 var _ = require('lodash')
 var async = require("async")
+var config = require("../config")
 
 module.exports = function(sequelize, DataTypes) {
   var concern = require('./concerns/profile_attributes')
@@ -75,6 +76,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false
+    },
+    myticket: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     classMethods: _.merge(concern.classMethods, {
