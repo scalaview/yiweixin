@@ -23,6 +23,7 @@ app.get('/tasks/:id', function(req, res) {
 
 app.get('/givento', requireLogin, function(req, res) {
   var customer = req.customer
+
   res.render('yiweixin/orders/givento', { customer: customer})
 })
 
@@ -30,6 +31,11 @@ app.get('/givento', requireLogin, function(req, res) {
 app.post('/givento', requireLogin, function(req, res) {
   var customer = req.customer,
       otherId = req.body.otherId
+
+  if(!customer.allowGiven){
+    res.json({ code: 0, msg: "抱歉，您的转赠功能被限制，请联系客服咨询，对您的不便我们深表抱歉"})
+    return
+  }
 
   async.waterfall([function(next) {
     models.Customer.findOne({

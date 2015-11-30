@@ -29,8 +29,17 @@
         </div>
 
         <div class="form-group">
-          <label>wechat</label>
-          <input class="form-control" placeholder="input wechat" name="wechat"  disabled value="{{ customer.wechat }}">
+          <div class="col-lg-6">
+            <label>wechat</label>
+            <input class="form-control" placeholder="input wechat" name="wechat"  disabled value="{{ customer.wechat }}">
+          </div>
+          <div class="col-lg-6">
+            <div class="checkbox" style="padding-top: 20px;">
+              <label>
+                  <input type="checkbox" name="allowGiven" {{ isChecked customer.allowGiven  }} >允许转赠
+              </label>
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -40,7 +49,6 @@
 
       </div>
     </div>
-
 
     <div class="row">
 
@@ -74,7 +82,7 @@
     </div>
   </form>
 </div>
-
+<hr>
 <div class='container-fluid'>
   <div class="row">
     <div class="col-lg-6">

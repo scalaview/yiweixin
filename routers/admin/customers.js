@@ -76,8 +76,16 @@ admin.post("/customer/:id", function(req, res) {
       next(err)
     })
   }, function(customer, next) {
+
+    if(req.body.allowGiven !== undefined && req.body.allowGiven.present()){
+      var allowGiven = true
+    }else{
+      var allowGiven = false
+    }
+
     customer.updateAttributes({
-      levelId: req.body.levelId
+      levelId: req.body.levelId,
+      allowGiven: allowGiven
     }).then(function(customer) {
       next(null, customer)
     }).catch(function(err) {

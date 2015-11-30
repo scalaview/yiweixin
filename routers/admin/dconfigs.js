@@ -9,13 +9,13 @@ var async = require("async")
 function initDConfig(req, res, pass){
   var dConfigs = [{
     name: 'vipLimit',
-    value: 1
+    value: '1'
   },{
     name: 'exchangeRate',
-    value: 1
+    value: '1'
   },{
     name: 'affiliate',
-    value: 1
+    value: '1'
   }]
 
   async.each(dConfigs, function(DC, next) {

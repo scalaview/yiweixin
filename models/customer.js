@@ -65,7 +65,12 @@ module.exports = function(sequelize, DataTypes) {
         this.setDataValue('orderTotal', parseFloat(val))
       }
     },
-    isAffiliate: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false}
+    isAffiliate: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
+    allowGiven: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
+    }
   }, {
     classMethods: _.merge(concern.classMethods, {
       associate: function(models) {
