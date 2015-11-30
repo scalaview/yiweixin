@@ -46,7 +46,7 @@ app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
               content: "欢迎使用"
             }
           }).spread(function(template) {
-            var content = template
+            var content = template.content
             next(null, content)
           }).catch(function(err) {
             next(err)
@@ -80,7 +80,7 @@ app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
             content: "欢迎使用"
           }
         }).spread(function(template) {
-          var content = template
+          var content = template.content
           res.reply(content)
         }).catch(function(err) {
           res.reply('欢迎使用')
