@@ -58,7 +58,7 @@ app.get('/register', function(req, res) {
         wechat: openid
       }
     }).then(function (customer) {
-      if(customer && customer.phone != '11111111111' ){
+      if(customer){
         req.session.customer_id = customer.id
         if(req.query.to){
           var backTo = new Buffer(req.query.to, "base64").toString()
@@ -117,7 +117,6 @@ app.post('/register', function(req, res){
           }
         }).then(function(one) {
           if(one){
-
             one.updateAttributes({
                 phone: req.body.phone,
                 lastLoginAt: new Date()
