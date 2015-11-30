@@ -32,7 +32,11 @@ app.get('/myaccount', requireLogin, function(req, res) {
       console.log(err)
       res.redirect('/500')
     }else{
-      res.render('yiweixin/customer/myaccount', { customer: customer, result: result, parent: parent })
+      var sum = 0
+      for (var i = result.length - 1; i >= 0; i--) {
+        sum = sum + parseInt(result[i].count)
+      };
+      res.render('yiweixin/customer/myaccount', { customer: customer, result: result, parent: parent, sum: sum })
     }
   })
 })

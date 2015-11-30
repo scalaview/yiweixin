@@ -27,7 +27,6 @@ admin.all("*", function(req, res, next) {
 })
 
 
-
 admin.get('/affiliateconfigs', function(req, res) {
 
   async.map([1, 2, 3], function(level, next) {
