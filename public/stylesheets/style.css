@@ -980,8 +980,9 @@ table{
 }
 
 .slaves li {
-  margin-bottom: 10px;
-  margin-left: 10px;
+  margin-left: 20px;
+  background-color: #ffffff;
+  padding: 10px;
   border-bottom: 1px solid #eee;
 }
 
@@ -1008,3 +1009,90 @@ table{
   padding-top: 10px;
   padding-bottom: 10px;
 }
+
+.dtb_distribution{
+ margin: 0;
+ background: #efeff4;
+ padding-bottom: 100px;
+ padding-top: 10px;
+ padding-right: 0;
+ padding-left: 0;
+ }
+ .dtb_distribution .item{
+ background: #ffffff;
+ margin-top: 10px;
+ border-top: 1px solid #dadada;
+ border-bottom: 1px solid #dadada;
+ }
+ .dtb_distribution .item.uinfo{
+ height: auto;
+ margin-top: 0px;
+ }
+ .dtb_distribution .item.uinfo img{
+ display: block;
+ width: 80px;
+ height: 80px;
+ margin: 10px;
+ float: left;
+ }
+ .dtb_distribution .item.uinfo.info{
+ padding-left: 100px;
+ height: auto;
+ padding: 10px;
+ }
+ .dtb_distribution .item.total{
+ height: 40px;
+ line-height: 40px;
+ font-size: 12px;
+ }
+ .dtb_distribution .item.total div{
+ float: left;
+ text-align:center;
+ }
+ .dtb_distribution .item h3{
+ margin: 0;
+ height: 50px;
+ line-height: 50px;
+ font-size: 15px;
+ color: #000000;
+ border-bottom: 1px solid #dadada;
+ padding-left: 20px;
+ background-size: 18px 18px;
+ background-position: 25px;
+ position: relative;
+ }
+.dtb_distribution .item h3 i{
+  padding-right: 10px;
+}
+ .dtb_distribution .item h3 em{
+ width: auto;
+ height: 24px;
+ line-height: 24px;
+ font-size: 14px;
+ background: #f95e49;
+ color: #ffffff;
+ padding-left: 10px;
+ padding-right: 10px;
+ position: absolute;
+ right: 10px;
+ top: 13px;
+ border-radius: 15px;
+ }
+ .dtb_distribution .item ul{
+ margin: 0;
+ margin-left: 40px;
+ overflow: hidden;
+ height: 0px;
+ }
+ .dtb_distribution .item ul li{
+ margin: 0;
+ height: 40px;
+ line-height: 40px;
+ position: relative;
+ border-bottom: 1px solid #dadada;
+ padding-left: 50px;
+ background: url('../images/user.png') no-repeat left;
+ background-position: 20px;
+ background-size: 13px 13px;
+ color: #000000;
+ }

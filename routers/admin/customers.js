@@ -4,7 +4,9 @@ var models  = require('../../models')
 var helpers = require("../../helpers")
 var async = require("async")
 var _ = require('lodash')
+var config = require("../../config")
 
+var maxDepth = config.max_depth
 
 admin.get('/customers', function(req, res) {
   var params = {}
@@ -158,11 +160,18 @@ admin.get('/contribution', function(req, res) {
 
     async.map(customers.rows, function(customer, next) {
 
-      var list = customer.getAncestry()
-      if(!list || list.length <= 0){
+      var originList = customer.getAncestry()
+      if(!originList || originList.length <= 0){
         next(null, customer)
         return
       }
+      var list = []
+      for (var i = 0; i < maxDepth; i++) {
+        list.push( originList[i] )
+      };
+
+      list = list.compact()
+
       models.Customer.findAll({
         where: [ 'id IN (?)', list ],
         order: [
