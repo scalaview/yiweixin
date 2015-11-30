@@ -58,7 +58,7 @@ app.get('/register', function(req, res) {
         wechat: openid
       }
     }).then(function (customer) {
-      if(customer){
+      if(customer && customer.bindPhone){
         req.session.customer_id = customer.id
         if(req.query.to){
           var backTo = new Buffer(req.query.to, "base64").toString()
@@ -119,7 +119,8 @@ app.post('/register', function(req, res){
           if(one){
             one.updateAttributes({
                 phone: req.body.phone,
-                lastLoginAt: new Date()
+                lastLoginAt: new Date(),
+                bindPhone: true
               }).then(function(one) {
                 req.session.customer_id = one.id
                 next(null, one)
@@ -136,7 +137,8 @@ app.post('/register', function(req, res){
               city: req.session.userInfo.city,
               province: req.session.userInfo.province,
               country: req.session.userInfo.country,
-              headimgurl: req.session.userInfo.headimgurl
+              headimgurl: req.session.userInfo.headimgurl,
+              bindPhone: true
             }).save().then(function(customer){
               if(customer){
                 customer.updateAttributes({
