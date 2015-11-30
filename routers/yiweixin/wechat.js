@@ -28,8 +28,40 @@ app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
   }else if (message.Event === 'unsubscribe') {
     unsubscribe(message, res)
   }else if (message.MsgType == 'text' ){
-    message.Content
-    res.reply('hehe')
+
+    async.waterfall([function(next) {
+      models.WechatReply.findOne({
+        where: {
+          key: message.Content
+        }
+      }).then(function(reply){
+        if(reply){
+          next(null, reply)
+        }else{
+          models.MessageTemplate.findOrCreate({
+            where: {
+              name: "defaultReply"
+            },
+            defaults: {
+              content: "欢迎使用"
+            }
+          }).spread(function(template) {
+            var content = template
+            next(null, content)
+          }).catch(function(err) {
+            next(err)
+          })
+        }
+      })
+    }], function(err, reply) {
+      if(err){
+        console.log(err)
+        res.reply('欢迎使用')
+      }else{
+        res.reply(reply)
+      }
+    })
+
   }else{
     models.WechatMenu.findOne({
       where: {
@@ -39,7 +71,20 @@ app.use('/wechat', wechat(wechatConfig, function (req, res, next) {
       if(menu){
         res.reply(menu.url)
       }else{
-        res.reply('test')
+
+        models.MessageTemplate.findOrCreate({
+          where: {
+            name: "defaultReply"
+          },
+          defaults: {
+            content: "欢迎使用"
+          }
+        }).spread(function(template) {
+          var content = template
+          res.reply(content)
+        }).catch(function(err) {
+          res.reply('欢迎使用')
+        })
       }
     })
   }
@@ -123,7 +168,7 @@ function subscribe(message, res){
 
       models.Customer.build({
         password: '1234567',
-        phone: "11111111111",
+        phone: Math.round((new Date().valueOf() * Math.random())) + '',
         username: result.nickname,
         wechat: result.openid,
         sex: result.sex + '',

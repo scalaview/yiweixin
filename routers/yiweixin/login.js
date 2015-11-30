@@ -116,7 +116,7 @@ app.post('/register', function(req, res){
             wechat: req.session.openid
           }
         }).then(function(one) {
-          if(one && one.phone == '11111111111'){
+          if(one){
 
             one.updateAttributes({
                 phone: req.body.phone,
