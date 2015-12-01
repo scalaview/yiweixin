@@ -96,20 +96,39 @@ function syncData(data, res){
 
   async.map(packages, function(pg, pass) {
     var params = {
-      providerId: getProviderType(pg.Type),
-      value: getValue(pg.Name),
-      name: pg.Name,
-      cost: pg.Price * 100,
-      type: 2,
-      bid: pg.Package
-    }
+          providerId: getProviderType(pg.Type),
+          value: getValue(pg.Name),
+          name: pg.Name,
+          cost: pg.Price * 100,
+          type: 2,
+          bid: pg.Package
+        }
     console.log(params)
-    models.TrafficPlan.build(params).save().then(function(plan) {
-      pass(null, plan)
-    }).catch(function(err) {
-      pass(err)
-    })
+    models.TrafficPlan.findOne({
+      where: {
+        providerId: getProviderType(pg.Type),
+        type: 2,
+        bid: pg.Package
+      }
+    }).then(function(plan){
+      if(plan){
 
+        plan.updateAttributes(params).then(function(plan){
+          pass(null, plan)
+        }).catch(function(err) {
+          next(err)
+        })
+
+      }else{
+
+        models.TrafficPlan.build(params).save().then(function(plan) {
+          pass(null, plan)
+        }).catch(function(err) {
+          pass(err)
+        })
+
+      }
+    })
   }, function(err, result) {
     if(err){
       console.log(err)
