@@ -192,7 +192,7 @@ function extractConfirm(){
     $this.addClass('choose')
 
     phone = $.trim($("#mobile").val())
-    $("#maskflow").html($this.data('cost'))
+    $("#maskflow").html($this.data('name'))
     $("#maskmobile").html(phone)
     $("#mask").show()
   })
