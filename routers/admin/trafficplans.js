@@ -9,6 +9,7 @@ var async = require("async")
 admin.get('/trafficplans', function(req, res) {
   async.waterfall([function(next) {
     models.TrafficPlan.findAndCountAll({
+      limit: req.query.perPage || 15,
       offset: helpers.offset(req.query.page, req.query.perPage || 15)
     }).then(function(trafficPlans) {
       next(null, trafficPlans)
@@ -120,7 +121,7 @@ admin.get('/trafficplans/:id/edit', function(req, res) {
       var providerOptions = { name: "providerId", class: 'select2 col-lg-12 col-xs-12' },
           providerCollection = [ [0, '中国移动'], [1, '中国联通'], [2, '中国电信'] ],
           typeOptions = { name: "type", class: 'select2 col-lg-12 col-xs-12' },
-          typeCollection = [ [0, '非正式'], [1, '正式']],
+          typeCollection = [ [0, '非正式'], [1, '空中平台'], [2, '华沃流量']],
           trafficgroupsOptions = { name: "trafficGroupId", class: 'select2 col-lg-12 col-xs-12', includeBlank: true }
 
       res.render('admin/trafficplans/new', {

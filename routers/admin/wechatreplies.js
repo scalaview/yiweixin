@@ -9,6 +9,7 @@ var async = require("async")
 
 admin.get("/wechatreplies", function(req, res) {
   models.WechatReply.findAndCountAll({
+    limit: req.query.perPage || 15,
     offset: helpers.offset(req.query.page, req.query.perPage || 15),
     order:[
       ['updatedAt', "DESC"]

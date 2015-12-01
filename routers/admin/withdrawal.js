@@ -13,6 +13,7 @@ var api = new WechatAPI(config.appId, config.appSecret);
 admin.get("/withdrawals", function(req, res) {
   async.waterfall([function(next) {
     models.Withdrawal.findAndCountAll({
+      limit: req.query.perPage || 15,
       offset: helpers.offset(req.query.page, req.query.perPage || 15),
       order:[
         ['updatedAt', "DESC"]

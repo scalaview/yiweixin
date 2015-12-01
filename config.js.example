@@ -43,7 +43,10 @@ var config = {
                 'upload_path': '/public/uploads/',
                 'hostname': '',
                 'maxfileuploadsize': 10240000, // 10m
-                'max_depth': 3
+                'max_depth': 3,
+                'huawo_account': '',
+                'huawo_api_key': '',
+                'huawo_hostname': ''
               };
 
 module.exports = config;

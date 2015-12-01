@@ -4,10 +4,12 @@ var request = require("request")
 var async = require("async")
 var helpers = require("../helpers")
 var config = require("../config")
-var querystring = require("querystring");
 var crypto = require('crypto')
 
+
+// [0, '非正式'], [1, '空中平台'], [2, '华沃流量']
 var Recharger = function(phone, value){
+  // type = 0 or null
   this.phone = phone
   this.value = value
 
@@ -60,6 +62,7 @@ var Recharger = function(phone, value){
 }
 
 var DefaultRecharger = function(phone, bid, orderId){
+  // type = 1
   this.phone = phone
   this.bid = bid
   this.orderId = orderId
@@ -93,6 +96,71 @@ var DefaultRecharger = function(phone, bid, orderId){
   }
 
  this.do = function(){
+
+  var inerSuccessCallback = this.successCallback;
+  var inerErrCallback = this.errCallback;
+
+  request(this.options, function (error, res) {
+    if (!error && res.statusCode == 200) {
+      if(inerSuccessCallback){
+        var data = JSON.parse(res.body)
+        inerSuccessCallback.call(this, res, data)
+      }
+     }else{
+      if(inerErrCallback){
+        inerErrCallback.call(this, error)
+      }
+     }
+   });
+
+   return this
+ }
+ return this
+}
+
+var HuawoRecharger = function(phone, bid, orderId){
+  // type = 2
+  this.phone = phone
+  this.bid = bid
+  this.orderId = orderId
+
+  this.account = config.huawo_account
+  this.huawo_api_key = config.huawo_api_key
+  var host = 'http://' + config.huawo_hostname
+  var params = {
+    account: this.account,
+    mobile: this.phone,
+    package: this.bid
+  }
+  var keys = Object.keys(params)
+  keys = keys.sort()
+  var sign_params = []
+  for(var i = 0; i < keys.length; i++) {
+    sign_params.push( keys[i] + "=" + params[keys[i]] )
+  }
+  sign_params.push("key=" + this.huawo_api_key)
+  params['v'] = '1.1'
+  params['action'] = 'charge'
+  params['range'] = 0
+  params['sign'] = crypto.createHash('md5').update(sign_params.join('&'), 'utf8').digest("hex")
+
+  this.options = {
+    uri: host,
+    method: 'GET',
+    qs: params
+  }
+
+  this.then = function(callback){
+    this.successCallback = callback
+    return this
+  }
+
+  this.catch = function(callback){
+   this.errCallback = callback
+   return this
+  }
+
+  this.do = function(){
 
   var inerSuccessCallback = this.successCallback;
   var inerErrCallback = this.errCallback;
@@ -171,9 +239,11 @@ module.exports = function(sequelize, DataTypes) {
           return "失败"
         }
       },
-      autoRecharge: function(){
-        if(this.bid){
+      autoRecharge: function(trafficPlan){
+        if(trafficPlan.type == 1){
           return new DefaultRecharger(this.phone, this.bid, this.id)
+        }else if(trafficPlan.type == 2){
+          return new HuawoRecharger(this.phone, this.bid, this.id)
         }else{
           return new Recharger(this.phone, this.value)
         }

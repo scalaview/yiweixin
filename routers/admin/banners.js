@@ -8,6 +8,7 @@ var _ = require('lodash')
 
 admin.get('/banners', function(req, res) {
   models.Banner.findAndCountAll({
+    limit: req.query.perPage || 15,
     offset: helpers.offset(req.query.page, req.query.perPage || 15)
   }).then(function(banners) {
     result = helpers.setPagination(banners, req)

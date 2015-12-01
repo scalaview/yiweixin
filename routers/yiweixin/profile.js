@@ -77,9 +77,9 @@ app.post("/extractFlow", requireLogin, function(req, res){
       next(err)
     })
   }, function(trafficPlan, extractOrder, next) {
-    extractOrder.autoRecharge().then(function(res, data) {
+    extractOrder.autoRecharge(trafficPlan).then(function(res, data) {
       console.log(data)
-      if(trafficPlan.bid){  // 正规空中充值
+      if(trafficPlan.type == 1){  // 正规空中充值
         if(data.status == 1 || data.status == 2){
           next(null, trafficPlan, extractOrder)
         }else{
@@ -87,6 +87,21 @@ app.post("/extractFlow", requireLogin, function(req, res){
             state: models.ExtractOrder.STATE.FAIL
           })
           next(new Error(data.msg))
+        }
+      }else if(trafficPlan.type == 2){
+        if(data.Code == 0 && data.TaskID != 0){
+          extractOrder.updateAttributes({
+            state: models.ExtractOrder.STATE.SUCCESS
+          }).then(function(extractOrder){
+            next(null, trafficPlan, extractOrder)
+          }).catch(function(err) {
+            next(err)
+          })
+        }else{
+          extractOrder.updateAttributes({
+            state: models.ExtractOrder.STATE.FAIL
+          })
+          next(new Error(data.Message))
         }
       }else{
         if(data.state == 1){

@@ -66,7 +66,7 @@ app.get("/taskconfirm/:id", function(req, res) {  //流量任务confirm接口
       next(err)
     })
   }, function(seller, flowtask, trafficPlan, extractOrder, next) {
-    extractOrder.autoRecharge().then(function(res, data) {
+    extractOrder.autoRecharge(trafficPlan).then(function(res, data) {
       console.log(data)
       if(trafficPlan.bid){  // 正规空中充值
         if(data.status == 1 || data.status == 2){
