@@ -241,7 +241,7 @@ function sendSubscribeNotice(newCustomer, recommend){
       if(err){
         next(err)
       }else{
-        next(result)
+        next(null, result)
       }
     });
   }], function(err, result) {

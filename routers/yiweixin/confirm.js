@@ -4,6 +4,9 @@ var models  = require('../../models')
 var helpers = require("../../helpers")
 var async = require("async")
 var requireLogin = helpers.requireLogin
+var config = require("../../config")
+var WechatAPI = require('wechat-api');
+var api = new WechatAPI(config.appId, config.appSecret);
 
 app.get("/taskconfirm/:id", function(req, res) {  //流量任务confirm接口
   var id = req.params.id,
@@ -192,7 +195,7 @@ app.post('/extractflowdefaultconfirm', function(req, res) {
       if(extractorder){
         next(null, extractorder)
       }else{
-        res.send(0)
+        res.send('0')
         return
       }
     }).catch(function(err) {
@@ -216,6 +219,10 @@ app.post('/extractflowdefaultconfirm', function(req, res) {
     }else{
       if(customer){
         customer.refundTraffic(models, extractorder, body.msg, function(customer, extractorder, flowHistory) {
+
+          // send notice
+          sendRefundNotice(customer, extractorder, body.msg)
+
           next(null, extractorder, status)
         }, function(err) {
           next(err)
@@ -265,5 +272,53 @@ app.post('/extractflowdefaultconfirm', function(req, res) {
     }
   })
 })
+
+
+
+function sendRefundNotice(customer, extractOrder, resean){
+
+  async.waterfall([function(next) {
+
+    extractOrder.getTrafficPlan().then(function(trafficPlan) {
+      extractOrder.trafficPlan = trafficPlan
+      next(null, trafficPlan)
+    }).catch(function(err) {
+      next(err)
+    })
+
+  }, function(trafficPlan, next) {
+
+    models.MessageTemplate.findOrCreate({
+        where: {
+          name: "sendRefundNotice"
+        },
+        defaults: {
+          content: "您充值的{{name}}套餐充值失败, 充值号码{{phone}}，原因: {{resean}}。 {{value}}E币已经返回您的账户，感谢您使用, 对您造成的不便我们万分抱歉"
+        }
+      }).spread(function(template) {
+        var content = template.content.format({ name: trafficPlan.name, phone: extractOrder.phone, resean: resean, value: extractOrder.cost })
+        next(null, content)
+      }).catch(function(err) {
+        next(err)
+      })
+
+  }, function(content, next) {
+    api.sendText(customer.wechat, content, function(err, result) {
+      if(err){
+        next(err)
+      }else{
+        next(null, result)
+      }
+    });
+  }], function(err, result) {
+    if(err){
+      console.log(err)
+    }else{
+      console.log(result)
+    }
+  })
+
+
+}
 
 module.exports = app;

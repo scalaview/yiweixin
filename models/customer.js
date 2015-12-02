@@ -198,7 +198,7 @@ module.exports = function(sequelize, DataTypes) {
             next(err)
           })
         },function(customer, extractOrder, trafficPlan, next) {
-          var msg = "提取" + trafficPlan.name + "至" + extractOrder.phone + "失败。原因：" + message + "。流量币已经退还账户，对你造成的不便我们万分抱歉"
+          var msg = "提取" + trafficPlan.name + "至" + extractOrder.phone + "失败。原因：" + message + "。E币已经退还账户，对你造成的不便我们万分抱歉"
           customer.takeFlowHistory(models, extractOrder, extractOrder.cost, msg, models.FlowHistory.STATE.ADD, function(flowHistory){
               next(null, customer, extractOrder, flowHistory)
             }, function(err) {
