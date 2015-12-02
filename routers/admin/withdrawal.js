@@ -7,10 +7,12 @@ var async = require("async")
 
 var config = require("../../config")
 var WechatAPI = require('wechat-api');
+var fs = require('fs')
 // var api = new WechatAPI(config.appId, config.appSecret);
 var api = new WechatAPI(config.appId, config.appSecret, function (callback) {
   // 传入一个获取全局token的方法
-  fs.readFile(process.env.PWD + '/access_token.txt', 'utf8', function (err, txt) {
+  var path = process.env.PWD + '/access_token.txt'
+  fs.readFile(path, 'utf8', function (err, txt) {
     if (err) {return callback(err);}
     callback(null, JSON.parse(txt));
   });
