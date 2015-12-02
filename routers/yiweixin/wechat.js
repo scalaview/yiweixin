@@ -12,7 +12,7 @@ var fs = require('fs')
 // var api = new WechatAPI(config.appId, config.appSecret);
 
 var api = new WechatAPI(config.appId, config.appSecret, function (callback) {
- models.MessageTemplate.findOrCreate({
+ models.DConfig.findOrCreate({
     where: {
       name: "accessToken"
     },
@@ -29,7 +29,7 @@ var api = new WechatAPI(config.appId, config.appSecret, function (callback) {
     callback(err)
   })
 }, function (token, callback) {
-  models.MessageTemplate.findOrCreate({
+  models.DConfig.findOrCreate({
     where: {
       name: "accessToken"
     },
