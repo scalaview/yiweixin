@@ -39,8 +39,8 @@ function givenTo(){
     try{
       amount = parseInt(amountStr)
 
-      if(! (amount % 50 == 0) ){
-        showDialog("转赠数量必须是50的倍数")
+      if(! (amount % 10 == 0) ){
+        showDialog("转赠数量必须是10的倍数")
         return
       }
 
