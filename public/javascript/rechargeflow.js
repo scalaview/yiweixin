@@ -39,6 +39,11 @@ function givenTo(){
     try{
       amount = parseInt(amountStr)
 
+      if(! (amount % 50 == 0) ){
+        showDialog("转赠数量必须是50的倍数")
+        return
+      }
+
       if(isNaN(amount) || amount > total) {
         showDialog("您的E币不足以支出转赠数量")
         return
