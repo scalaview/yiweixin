@@ -12,16 +12,41 @@ var fs = require('fs')
 // var api = new WechatAPI(config.appId, config.appSecret);
 
 var api = new WechatAPI(config.appId, config.appSecret, function (callback) {
-  // 传入一个获取全局token的方法
-  var path = process.env.PWD + '/access_token.txt'
-  fs.readFile(path, 'utf8', function (err, txt) {
-    if (err) {return callback(err);}
-    callback(null, JSON.parse(txt));
-  });
+ models.MessageTemplate.findOrCreate({
+    where: {
+      name: "accessToken"
+    },
+    defaults: {
+      value: "{}"
+    }
+  }).spread(function(accessToken) {
+    if(accessToken.value.present()){
+      callback(null, JSON.parse(accessToken.value))
+    }else{
+      callback(null, {accessToken: "", expireTime: 0})
+    }
+  }).catch(function(err) {
+    callback(err)
+  })
 }, function (token, callback) {
-  // 请将token存储到全局，跨进程、跨机器级别的全局，比如写到数据库、redis等
-  // 这样才能在cluster模式及多机情况下使用，以下为写入到文件的示例
-  fs.writeFile(process.env.PWD + '/access_token.txt', JSON.stringify(token), callback);
+  models.MessageTemplate.findOrCreate({
+    where: {
+      name: "accessToken"
+    },
+    defaults: {
+      value: "{}"
+    }
+  }).spread(function(accessToken) {
+      accessToken.updateAttributes({
+        value: JSON.stringify(token)
+      }).then(function(accessToken) {
+        callback(null, token)
+      }).catch(function(err){
+        callback(err)
+      })
+  }).catch(function(err) {
+    callback(err)
+  })
 });
 
 var maxDepth = config.max_depth
