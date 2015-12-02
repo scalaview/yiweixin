@@ -5,6 +5,7 @@ var moment = require('moment')
 var _ = require('lodash')
 var handlebars = require('handlebars')
 var models  = require('../models')
+var async = require("async")
 
 String.prototype.htmlSafe = function(){
   return new handlebars.SafeString(this.toString())
@@ -648,7 +649,47 @@ function wechatMenus(top, menus, idx){
     }).htmlSafe()
 }
 
+function getSlaves(customer, outnext){
+  var array = ['一级会员', '二级会员', '三级会员']
+    var wrapped = array.map(function (value, index) {
+                  return {index: index, value: value};
+                });
 
+    var depth = customer.ancestryDepth
+
+    async.map(wrapped, function(item, next) {
+      var index = item.index
+      var _depth = (parseInt(depth) + parseInt(index) + 1)
+      if( (_depth - customer.ancestryDepth) == 1 ){
+        var params = {
+          ancestry: (customer.ancestry) ? customer.ancestry + '/' + customer.id : customer.id + ''
+        }
+      }else{
+        var params = {
+          ancestry: {
+            $like: (customer.ancestry) ? customer.ancestry + '/' + customer.id + '/%' : customer.id + '/%'
+          }
+        }
+      }
+
+      params = _.extend(params, { ancestryDepth: _depth })
+
+      models.Customer.count({
+        where: params
+      }).then(function(c) {
+        next(null, { name: item.value, count: c })
+      }).catch(function(err){
+        next(err)
+      })
+
+    }, function(err, result){
+      if(err){
+        outnext(err)
+      }else{
+        outnext(null, customer, result)
+      }
+    })
+}
 
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
@@ -684,3 +725,4 @@ exports.excharge = excharge;
 exports.bgcolor = bgcolor;
 exports.withdrawalState = withdrawalState;
 exports.wechatMenus = wechatMenus;
+exports.getSlaves = getSlaves;

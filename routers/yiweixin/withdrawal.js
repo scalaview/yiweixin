@@ -19,7 +19,7 @@ app.get('/myaccount', requireLogin, function(req, res) {
 
   async.waterfall([function(next) {
     next(null, customer)
-  }, getSlaves, function(customer, result, next) {
+  }, helpers.getSlaves, function(customer, result, next) {
     var list = customer.getAncestry()
     if(list.length > 0){
       models.Customer.findById(list[list.length - 1]).then(function(parent) {
@@ -236,48 +236,6 @@ app.get('/slave', requireLogin, function(req, res) {
   })
 })
 
-
-function getSlaves(customer, outnext){
-  var array = ['一级会员', '二级会员', '三级会员']
-    var wrapped = array.map(function (value, index) {
-                  return {index: index, value: value};
-                });
-
-    var depth = customer.ancestryDepth
-
-    async.map(wrapped, function(item, next) {
-      var index = item.index
-      var _depth = (parseInt(depth) + parseInt(index) + 1)
-      if( (_depth - customer.ancestryDepth) == 1 ){
-        var params = {
-          ancestry: (customer.ancestry) ? customer.ancestry + '/' + customer.id : customer.id + ''
-        }
-      }else{
-        var params = {
-          ancestry: {
-            $like: (customer.ancestry) ? customer.ancestry + '/' + customer.id + '/%' : customer.id + '/%'
-          }
-        }
-      }
-
-      params = _.extend(params, { ancestryDepth: _depth })
-
-      models.Customer.count({
-        where: params
-      }).then(function(c) {
-        next(null, { name: item.value, count: c })
-      }).catch(function(err){
-        next(err)
-      })
-
-    }, function(err, result){
-      if(err){
-        outnext(err)
-      }else{
-        outnext(null, customer, result)
-      }
-    })
-}
 
 app.get('/withdrawals', requireLogin, function(req, res) {
   var customer = req.customer

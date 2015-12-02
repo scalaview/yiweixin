@@ -246,4 +246,55 @@ admin.get('/contribution', function(req, res) {
 
 })
 
+admin.get('/devote', function(req, res) {
+
+  async.waterfall([function(next) {
+
+    var params = {}
+    if(req.query.phone !== undefined && req.query.phone.present()){
+      params = _.merge(params, { phone: { $like: "%{{phone}}%".format({ phone: req.query.phone }) } })
+    }
+    models.Customer.findAndCountAll({
+      where: params,
+      limit: req.query.perPage || 15,
+      offset: helpers.offset(req.query.page, req.query.perPage || 15)
+    }).then(function(customers) {
+      next(null, customers)
+    })
+
+  }, function(customers, pass) {
+
+    async.map(customers.rows, function(customer, next){
+
+      helpers.getSlaves(customer, function(err, customer, result) {
+        if(err){
+          next(err)
+        }else{
+          next(null, { customer: customer, result: result })
+        }
+      })
+
+    }, function(err, map) {
+      if(err){
+        pass(err)
+      }else{
+        customers.rows = map
+        pass(null, customers)
+      }
+    })
+
+
+  }], function(err, customers) {
+    if(err){
+      console.log(err)
+      res.redirect('/500')
+    }else{
+      var result = helpers.setPagination(customers, req)
+      res.render('admin/customers/devote', { customers: result, query: req.query })
+    }
+  })
+
+})
+
+
 module.exports = admin;
