@@ -8,46 +8,9 @@ var OAuth = require('wechat-oauth');
 var config = require("../../config")
 var wechat = require('wechat')
 var WechatAPI = require('wechat-api');
-var fs = require('fs')
 // var api = new WechatAPI(config.appId, config.appSecret);
 
-var api = new WechatAPI(config.appId, config.appSecret, function (callback) {
- models.DConfig.findOrCreate({
-    where: {
-      name: "accessToken"
-    },
-    defaults: {
-      value: "{}"
-    }
-  }).spread(function(accessToken) {
-    if(accessToken.value.present()){
-      callback(null, JSON.parse(accessToken.value))
-    }else{
-      callback(null, {accessToken: "", expireTime: 0})
-    }
-  }).catch(function(err) {
-    callback(err)
-  })
-}, function (token, callback) {
-  models.DConfig.findOrCreate({
-    where: {
-      name: "accessToken"
-    },
-    defaults: {
-      value: "{}"
-    }
-  }).spread(function(accessToken) {
-      accessToken.updateAttributes({
-        value: JSON.stringify(token)
-      }).then(function(accessToken) {
-        callback(null, token)
-      }).catch(function(err){
-        callback(err)
-      })
-  }).catch(function(err) {
-    callback(err)
-  })
-});
+var api = helpers.API
 
 var maxDepth = config.max_depth
 

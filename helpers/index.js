@@ -6,6 +6,7 @@ var _ = require('lodash')
 var handlebars = require('handlebars')
 var models  = require('../models')
 var async = require("async")
+var WechatAPI = require('wechat-api');
 
 String.prototype.htmlSafe = function(){
   return new handlebars.SafeString(this.toString())
@@ -691,6 +692,45 @@ function getSlaves(customer, outnext){
     })
 }
 
+var API = new WechatAPI(config.appId, config.appSecret, function (callback) {
+ models.DConfig.findOrCreate({
+    where: {
+      name: "accessToken"
+    },
+    defaults: {
+      value: "{}"
+    }
+  }).spread(function(accessToken) {
+    if(accessToken.value.present()){
+      callback(null, JSON.parse(accessToken.value))
+    }else{
+      callback(null, {accessToken: "", expireTime: 0})
+    }
+  }).catch(function(err) {
+    callback(err)
+  })
+}, function (token, callback) {
+  models.DConfig.findOrCreate({
+    where: {
+      name: "accessToken"
+    },
+    defaults: {
+      value: "{}"
+    }
+  }).spread(function(accessToken) {
+      accessToken.updateAttributes({
+        value: JSON.stringify(token)
+      }).then(function(accessToken) {
+        callback(null, token)
+      }).catch(function(err){
+        callback(err)
+      })
+  }).catch(function(err) {
+    callback(err)
+  })
+});
+
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -726,3 +766,4 @@ exports.bgcolor = bgcolor;
 exports.withdrawalState = withdrawalState;
 exports.wechatMenus = wechatMenus;
 exports.getSlaves = getSlaves;
+exports.API = API;
