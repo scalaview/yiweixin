@@ -149,7 +149,8 @@ app.get('/getTrafficplans', requireLogin, function(req, res){
           display: true
         },
         order: [
-          'sortNum', 'id'
+          ['sortNum', 'ASC'],
+          ['id', 'ASC']
          ]
       }).then(function(trafficgroups) {
         async.map(trafficgroups, function(trafficgroup, next) {
@@ -157,7 +158,11 @@ app.get('/getTrafficplans', requireLogin, function(req, res){
           trafficgroup.getTrafficPlans({
             where: {
               display: true
-            }
+            },
+            order: [
+              ['sortNum', 'ASC'],
+              ['id', 'ASC']
+            ]
           }).then(function(trafficplans) {
             var data = null
             if(trafficplans.length > 0){
