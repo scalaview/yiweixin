@@ -294,7 +294,7 @@ app.post('/huawoconfirm', function(req, res){
     async.waterfall([function(next) {
       models.ExtractOrder.findOne({
         where: {
-          taskid: report.taskid
+          taskid: report.taskid,
           state: models.ExtractOrder.STATE.INIT
         }
       }).then(function(extractorder) {
@@ -377,6 +377,8 @@ app.post('/huawoconfirm', function(req, res){
           res.json({status:1, msg: "成功"})
         }
     })
+  }else{
+
   }
 
 
