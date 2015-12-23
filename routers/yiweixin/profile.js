@@ -92,6 +92,7 @@ app.post("/extractFlow", requireLogin, function(req, res){
         // { code: 1, msg: '充值提交成功', taskid: 3881 }
         if(data.code == 1 && data.taskid != 0){
           extractOrder.updateAttributes({
+            taskid: data.taskid,
             state: models.ExtractOrder.STATE.SUCCESS
           }).then(function(extractOrder){
             next(null, trafficPlan, extractOrder)
