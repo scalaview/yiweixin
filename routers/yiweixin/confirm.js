@@ -319,7 +319,7 @@ app.post('/huawoconfirm', function(req, res){
       }
     }, function(extractorder, customer, next){
       var status = models.ExtractOrder.STATE.FAIL
-      if(true){ //status
+      if(report.status == 3){ //status
         status = models.ExtractOrder.STATE.SUCCESS
         next(null, extractorder, status)
       }else{

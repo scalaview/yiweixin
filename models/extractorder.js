@@ -144,7 +144,8 @@ var HuawoRecharger = function(phone, packagesize, orderId){
     signTime: helpers.strftime(new Date(), "YYYYMMDDHH"),
     range: 0,
     requestTime: helpers.strftime(new Date(), "YYYYMMDDHHmmss"),
-    sign: this.sign
+    sign: this.sign,
+    returnUrl: "http://" + config.hostname + "/huawoconfirm"
   }
 
   this.options = {
