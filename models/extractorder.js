@@ -145,7 +145,7 @@ var HuawoRecharger = function(phone, packagesize, orderId){
     range: 0,
     requestTime: helpers.strftime(new Date(), "YYYYMMDDHHmmss"),
     sign: this.sign,
-    returnUrl: "http://" + config.hostname + "/huawoconfirm"
+    returnUrl: encodeURIComponent("http://" + config.hostname + "/huawoconfirm")
   }
 
   this.options = {
@@ -153,6 +153,8 @@ var HuawoRecharger = function(phone, packagesize, orderId){
     method: 'GET',
     qs: params
   }
+
+  console.log(this.options)
 
   this.then = function(callback){
     this.successCallback = callback
