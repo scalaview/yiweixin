@@ -491,7 +491,7 @@ function errTips(err) {
 // ===================login=====================
 
 function requireLogin(req, res, next) {
-  // req.session.customer_id = 1
+  req.session.customer_id = 1
   var url = req.originalUrl
   var encodeUrl = new Buffer(url).toString('base64');
 
@@ -730,6 +730,18 @@ var API = new WechatAPI(config.appId, config.appSecret, function (callback) {
   })
 });
 
+function toUnicode(theString) {
+  var unicodeString = '';
+  for (var i=0; i < theString.length; i++) {
+    var theUnicode = theString.charCodeAt(i).toString(16).toLowerCase();
+    while (theUnicode.length < 4) {
+      theUnicode = '0' + theUnicode;
+    }
+    theUnicode = '\\u' + theUnicode;
+    unicodeString += theUnicode;
+  }
+  return unicodeString;
+}
 
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
@@ -767,3 +779,4 @@ exports.withdrawalState = withdrawalState;
 exports.wechatMenus = wechatMenus;
 exports.getSlaves = getSlaves;
 exports.API = API;
+exports.toUnicode = toUnicode;

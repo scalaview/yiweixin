@@ -89,7 +89,8 @@ app.post("/extractFlow", requireLogin, function(req, res){
           next(new Error(data.msg))
         }
       }else if(trafficPlan.type == 2){
-        if(data.Code == 0 && data.TaskID != 0){
+        // { code: 1, msg: '充值提交成功', taskid: 3881 }
+        if(data.code == 1 && data.taskid != 0){
           extractOrder.updateAttributes({
             state: models.ExtractOrder.STATE.SUCCESS
           }).then(function(extractOrder){
