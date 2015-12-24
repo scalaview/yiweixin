@@ -85,6 +85,7 @@ app.use(function(req, res, next){
       try{
         req.rawBody = JSON.parse(data)
       }catch(e){
+        req.rawBody = data
       }
     }
     next();
