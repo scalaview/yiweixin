@@ -74,6 +74,8 @@ app.use(function(req, res, next){
   var contentType = req.headers['content-type'] || ''
     , mime = contentType.split(';')[0];
 
+  console.log("content-type: " + mime)
+
   if (mime != 'text/plain' && mime != 'text/html') {
     return next();
   }
