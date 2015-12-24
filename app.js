@@ -74,22 +74,21 @@ app.use(function(req, res, next){
   var contentType = req.headers['content-type'] || ''
     , mime = contentType.split(';')[0];
 
-  console.log("content-type: " + mime)
+  if (mime != 'text/plain' && mime != 'text/html') {
+    return next();
+  }
 
   var data = "";
   req.on('data', function(chunk){ data += chunk})
   req.on('end', function(){
-    if(data !== '' && (mime == 'text/plain' || mime == 'text/html') ){
+    if(data !== ''){
       try{
         req.rawBody = JSON.parse(data)
       }catch(e){
         req.rawBody = data
       }
     }
-    if(data !== ''){
-      console.log(data)
-    }
-    return next();
+    next();
    })
 })
 
