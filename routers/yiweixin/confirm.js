@@ -288,7 +288,7 @@ app.post('/huawoconfirm', function(req, res){
     return
   }
 
-  var body = JSON.parse(bodyStr.replace("{ '", "").replace("': '' }", "")),
+  var body = JSON.parse(bodyStr),
       code = body.code,
       msg = body.msg,
       reports = body.reports || []
