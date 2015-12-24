@@ -5,6 +5,7 @@ var async = require("async")
 var helpers = require("../helpers")
 var config = require("../config")
 var crypto = require('crypto')
+var _ = require('lodash')
 
 
 // [0, '非正式'], [1, '空中平台'], [2, '华沃流量']
@@ -118,37 +119,42 @@ var DefaultRecharger = function(phone, bid, orderId){
  return this
 }
 
-var HuawoRecharger = function(phone, bid, orderId){
+var HuawoRecharger = function(phone, packagesize, orderId){
   // type = 2
   this.phone = phone
-  this.bid = bid
+  this.packagesize = packagesize
   this.orderId = orderId
 
   this.account = config.huawo_account
-  this.huawo_api_key = config.huawo_api_key
+
   var host = 'http://' + config.huawo_hostname
+
+  this.signTime = helpers.strftime(new Date(), "YYYYMMDDHH")
+
+  var md5Params = '{"username":"'+ helpers.toUnicode(this.account) +'","mobile":"'+ this.phone +'","packagesize":"'+ this.packagesize +'","password":"'+ config.huawo_pwd +'","signTime":"'+ this.signTime +'"}'
+
+  this.sign = crypto.createHash('md5').update(md5Params).digest("hex")
+  console.log(this.sign)
+
   var params = {
-    account: this.account,
+    username: this.account,
     mobile: this.phone,
-    package: this.bid
+    packagesize: this.packagesize + "",
+    password: config.huawo_pwd,
+    signTime: helpers.strftime(new Date(), "YYYYMMDDHH"),
+    range: 0,
+    requestTime: helpers.strftime(new Date(), "YYYYMMDDHHmmss"),
+    sign: this.sign,
+    returnUrl: encodeURIComponent("http://" + config.hostname + "/huawoconfirm")
   }
-  var keys = Object.keys(params)
-  keys = keys.sort()
-  var sign_params = []
-  for(var i = 0; i < keys.length; i++) {
-    sign_params.push( keys[i] + "=" + params[keys[i]] )
-  }
-  sign_params.push("key=" + this.huawo_api_key)
-  params['v'] = '1.1'
-  params['action'] = 'charge'
-  params['range'] = 0
-  params['sign'] = crypto.createHash('md5').update(sign_params.join('&'), 'utf8').digest("hex")
 
   this.options = {
     uri: host,
     method: 'GET',
     qs: params
   }
+
+  console.log(this.options)
 
   this.then = function(callback){
     this.successCallback = callback
@@ -168,6 +174,7 @@ var HuawoRecharger = function(phone, bid, orderId){
   request(this.options, function (error, res) {
     if (!error && res.statusCode == 200) {
       if(inerSuccessCallback){
+        console.log(res.body)
         var data = JSON.parse(res.body)
         inerSuccessCallback.call(this, res, data)
       }
@@ -195,7 +202,8 @@ module.exports = function(sequelize, DataTypes) {
     type: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
     bid: { type: DataTypes.INTEGER, allowNull: true },
     customerId: { type: DataTypes.INTEGER, allowNull: true },
-    chargeType: { type: DataTypes.STRING, allowNull: false, defaultValue: "balance" }
+    chargeType: { type: DataTypes.STRING, allowNull: false, defaultValue: "balance" },
+    taskid: { type: DataTypes.INTEGER, allowNull: true }
   }, {
     classMethods: {
       associate: function(models) {
@@ -243,7 +251,7 @@ module.exports = function(sequelize, DataTypes) {
         if(trafficPlan.type == 1){
           return new DefaultRecharger(this.phone, this.bid, this.id)
         }else if(trafficPlan.type == 2){
-          return new HuawoRecharger(this.phone, this.bid, this.id)
+          return new HuawoRecharger(this.phone, this.value, this.id)
         }else{
           return new Recharger(this.phone, this.value)
         }

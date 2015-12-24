@@ -276,6 +276,124 @@ app.post('/extractflowdefaultconfirm', function(req, res) {
 })
 
 
+app.post('/huawoconfirm', function(req, res){
+  console.log(req.rawBody)
+  console.log(req.body)
+  var bodyStr = req.rawBody || req.body
+
+  if(!bodyStr){
+    res.json({status: 0, msg: "error"})
+    return
+  }
+
+  var body = JSON.parse(bodyStr.replace("{ '", "").replace("': '' }", "")),
+      code = body.code,
+      msg = body.msg,
+      reports = body.reports || []
+      console.log(body)
+  if(code === undefined || reports.length <= 0 ){
+    res.json({status: 0, msg: "error"})
+    return
+  }
+
+  async.each(reports, function(report, pass) {
+    confirmOrder(report, pass)
+  }, function(err){
+    if(err){
+      console.log(err)
+    }
+    res.json({status: 1, msg: "success"})
+  })
+})
+
+
+function confirmOrder(report, pass){
+    async.waterfall([function(next) {
+      models.ExtractOrder.findOne({
+        where: {
+          taskid: report.taskid,
+          state: models.ExtractOrder.STATE.INIT
+        }
+      }).then(function(extractorder) {
+        if(extractorder){
+          next(null, extractorder)
+        }else{
+          pass(null)
+          return
+        }
+      }).catch(function(err) {
+        next(err)
+      })
+    }, function(extractorder, next){
+      if(extractorder.customerId){  // 正规充值
+        extractorder.getCustomer().then(function(customer) {
+          next(null, extractorder, customer)
+        }).catch(function(err) {
+          next(err)
+        })
+      }else{  // 流量任务奖励
+        next(null, extractorder, null)
+      }
+    }, function(extractorder, customer, next){
+      var status = models.ExtractOrder.STATE.FAIL
+      if(report.status == 3){ //status success  fail 4
+        status = models.ExtractOrder.STATE.SUCCESS
+        next(null, extractorder, status)
+      }else{
+        if(customer){
+          customer.refundTraffic(models, extractorder, report.msg, function(customer, extractorder, flowHistory) {
+
+            // send notice
+            sendRefundNotice(customer, extractorder, report.msg)
+
+            next(null, extractorder, status)
+          }, function(err) {
+            next(err)
+          })
+        }else{
+          next(null, extractorder, status)
+        }
+      }
+    }, function(extractorder, status, next) {
+      extractorder.updateAttributes({
+        state: status
+      }).then(function(extractorder) {
+        next(null, extractorder)
+      }).catch(function(err) {
+        next(err)
+      })
+    }, function(extractorder, next) {
+      extractorder.getExchanger().then(function(exchanger) {
+        if(exchanger.className() === 'TrafficPlan'){
+          next(null, extractorder, exchanger)
+        }else{
+          exchanger.getTrafficPlan().then(function(trafficPlan) {
+            next(null, extractorder, trafficPlan)
+          }).catch(function(err) {
+            next(err)
+          })
+        }
+      }).catch(function(err) {
+        next(err)
+      })
+    }, function(extractorder, trafficPlan, next) {
+      if(extractorder.status === models.ExtractOrder.STATE.SUCCESS){
+        models.MessageQueue.sendRechargeMsg(models, trafficPlan, extractorder.phone, function(messageQueue) {
+          next(null, extractorder)
+        }, function(err) {
+          next(err)
+        })
+      }else{
+        next(null, extractorder)
+      }
+    }], function(err, extractorder){
+        if(err){
+          console.log(err)
+        }
+        pass(null)
+    })
+}
+
 
 function sendRefundNotice(customer, extractOrder, resean){
 
