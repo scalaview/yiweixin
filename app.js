@@ -76,7 +76,9 @@ app.use(function(req, res, next){
 
   console.log("content-type: " + mime)
 
-  if (mime != 'text/plain' && mime != 'text/html') {
+  var excep = (mime == 'multipart/form-data' && req.method == "POST" && req.url == "/huawoconfirm")
+
+  if (mime != 'text/plain' && mime != 'text/html' && !excep) {
     return next();
   }
 
