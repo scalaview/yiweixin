@@ -279,8 +279,10 @@ app.post('/extractflowdefaultconfirm', function(req, res) {
 app.post('/huawoconfirm', function(req, res){
   console.log(req.rawBody)
   console.log(req.body)
-  var bodyStr = req.rawBody || req.body
-
+  var bodyStr = req.rawBody || req.body,
+      startIndex = bodyStr.indexOf("{"),
+      endIndex = bodyStr.lastIndexOf("}"),
+      bodyStr = bodyStr.substring(startIndex, endIndex + 1)
   if(!bodyStr){
     res.json({status: 0, msg: "error"})
     return
