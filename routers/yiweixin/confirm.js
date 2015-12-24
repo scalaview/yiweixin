@@ -279,18 +279,35 @@ app.post('/extractflowdefaultconfirm', function(req, res) {
 app.post('/huawoconfirm', function(req, res){
   console.log(req.rawBody)
   console.log(req.body)
-  var body = req.rawBody,
-      code = body.code,
-      msg = body.msg,
-      reports = body.reports || []
-  if(code === undefined || reports.length <= 0 || reports.length > 1 ){
+  var bodyStr = req.rawBody || req.body
+
+  if(!bodyStr){
     res.json({status: 0, msg: "error"})
     return
   }
 
-  if(code == 3){ // success
-    report = reports[0]
+  var body = JSON.parse(bodyStr.replace("{ '", "").replace("': '' }", "")),
+      code = body.code,
+      msg = body.msg,
+      reports = body.reports || []
+      console.log(body)
+  if(code === undefined || reports.length <= 0 ){
+    res.json({status: 0, msg: "error"})
+    return
+  }
 
+  async.each(reports, function(report, pass) {
+    confirmOrder(report, pass)
+  }, function(err){
+    if(err){
+      console.log(err)
+    }
+    res.json({status: 1, msg: "success"})
+  })
+})
+
+
+function confirmOrder(report, pass){
     async.waterfall([function(next) {
       models.ExtractOrder.findOne({
         where: {
@@ -301,7 +318,7 @@ app.post('/huawoconfirm', function(req, res){
         if(extractorder){
           next(null, extractorder)
         }else{
-          res.send('0')
+          pass(null)
           return
         }
       }).catch(function(err) {
@@ -319,15 +336,15 @@ app.post('/huawoconfirm', function(req, res){
       }
     }, function(extractorder, customer, next){
       var status = models.ExtractOrder.STATE.FAIL
-      if(report.status == 3){ //status
+      if(report.status == 3){ //status success  fail 4
         status = models.ExtractOrder.STATE.SUCCESS
         next(null, extractorder, status)
       }else{
         if(customer){
-          customer.refundTraffic(models, extractorder, body.msg, function(customer, extractorder, flowHistory) {
+          customer.refundTraffic(models, extractorder, report.msg, function(customer, extractorder, flowHistory) {
 
             // send notice
-            sendRefundNotice(customer, extractorder, body.msg)
+            sendRefundNotice(customer, extractorder, report.msg)
 
             next(null, extractorder, status)
           }, function(err) {
@@ -372,17 +389,10 @@ app.post('/huawoconfirm', function(req, res){
     }], function(err, extractorder){
         if(err){
           console.log(err)
-          res.json({status: 0, msg: "fail"})
-        }else{
-          res.json({status:1, msg: "成功"})
         }
+        pass(null)
     })
-  }else{
-
-  }
-
-
-})
+}
 
 
 function sendRefundNotice(customer, extractOrder, resean){
