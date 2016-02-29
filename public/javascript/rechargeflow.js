@@ -209,6 +209,7 @@ function extractConfirm(){
         source   = $("#trafficplans-template").html(),
         choose = $("#chooseMoney .btn.selected")
 
+
     if(source === undefined || source == ''){
       return
     }
@@ -218,6 +219,7 @@ function extractConfirm(){
     }
 
     if(isMobile(phone) && flowId !== undefined && flowId !== '' ){
+      showLoadingToast();
        $.ajax({
         url: '/extractFlow',
         dataType: "JSON",
@@ -228,6 +230,7 @@ function extractConfirm(){
         },
         method: "POST"
        }).done(function(data){
+        hideLoadingToast()
         showDialog(data.msg)
         if(!data.err){
           doDelay(function(){
@@ -235,6 +238,7 @@ function extractConfirm(){
           }, 1)
         }
        }).fail(function(err){
+        hideLoadingToast()
         console.log(err)
         showDialog("服务器繁忙")
        })

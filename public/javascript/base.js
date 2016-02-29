@@ -25,3 +25,19 @@ $(function(){
   })
   $('.fulltext img').addClass('img-responsive')
 })
+
+window.showLoadingToast = function(){
+  var $loadingToast = $('#loadingToast');
+  if ($loadingToast.css('display') != 'none') {
+      return;
+  }
+  $loadingToast.show();
+}
+
+window.hideLoadingToast = function(){
+  var $loadingToast = $('#loadingToast');
+  if ($loadingToast.css('display') == 'none') {
+      return;
+  }
+  $loadingToast.hide();
+}
