@@ -104,6 +104,22 @@ app.post("/extractFlow", requireLogin, function(req, res){
           })
           next(new Error(data.Message))
         }
+      }else if(trafficPlan.type == 3){
+        if(data.retcode == 0){
+          extractOrder.updateAttributes({
+            taskid: data.OrderID,
+            state: models.ExtractOrder.STATE.SUCCESS
+          }).then(function(extractOrder){
+            next(null, trafficPlan, extractOrder)
+          }).catch(function(err) {
+            next(err)
+          })
+        }else{
+          extractOrder.updateAttributes({
+            state: models.ExtractOrder.STATE.FAIL
+          })
+          next(new Error(data.Message))
+        }
       }else{
         if(data.state == 1){
           extractOrder.updateAttributes({

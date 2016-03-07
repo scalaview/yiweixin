@@ -140,4 +140,112 @@ function syncData(data, res){
 }
 
 
+
+admin.get('/syncyiliuliang', function(req ,res) {
+  var url = 'http://' + config.yiliuliang + "/admin.php/Charged/apiproduct"
+
+  var params = {
+        username: config.yiliuliang_user,
+        password: config.yiliuliang_pwd
+      }
+
+  var options = {
+    uri: url,
+    method: 'GET',
+    qs: params
+  }
+
+  request(options, function (error, responce) {
+    if (!error && responce.statusCode == 200) {
+      var data = JSON.parse(responce.body.trim())
+      console.log(data)
+      if(data.status == 1){
+        syncYiliuliangData(data.data, res)
+      }else{
+        res.send(data.info)
+      }
+    }else{
+      res.send(error)
+    }
+  });
+
+})
+
+function syncYiliuliangData(data, res){
+  function getProviderType(type){
+    switch(type)
+    {
+      case "移动":  //1:移动
+        return models.TrafficPlan.Provider['中国移动']
+      case "联通":  //2:联通
+        return models.TrafficPlan.Provider['中国联通']
+      case "电信":  //2:联通
+        return models.TrafficPlan.Provider['中国电信']
+      case "广东移动流量红包":  //1:移动
+        return models.TrafficPlan.Provider['中国移动']
+    }
+  }
+
+  function getValue(string){
+    var y = /[M|G]/,
+        end = y.exec(string)
+    if(end.index + 1 <= string.length){
+      var unit = string.substring(end.index, end.index + 1)
+    }else{
+      var unit = 'M'
+    }
+    var size = string.replace(/[^0-9]/ig,"")
+    if(unit.toLowerCase() == 'g' ){
+      return parseInt(size) * 1024
+    }else{
+      return parseInt(size)
+    }
+  }
+  console.log(data.length)
+  async.map(data, function(pg, pass) {
+    var params = {
+          providerId: getProviderType(pg.TType),
+          value: getValue(pg.TName),
+          name: pg.TType+pg.TName,
+          cost: parseInt(pg.Price * 100),
+          type: 3,
+          bid: pg.TypeID
+        }
+    console.log(params)
+
+    models.TrafficPlan.findOne({
+      where: {
+        providerId: getProviderType(pg.TType),
+        type: 3,
+        bid: pg.TypeID
+      }
+    }).then(function(plan){
+      if(plan){
+        plan.updateAttributes(params).then(function(plan){
+          pass(null, plan)
+        }).catch(function(err) {
+          next(err)
+        })
+      }else{
+
+        models.TrafficPlan.build(params).save().then(function(plan) {
+          pass(null, plan)
+        }).catch(function(err) {
+          pass(err)
+        })
+
+      }
+    })
+
+  }, function(err, result){
+    if(err){
+      console.log(err)
+      res.send("err")
+    }else{
+      res.send("ok")
+    }
+  })
+}
+
+
 module.exports = admin;

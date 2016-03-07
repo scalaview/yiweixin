@@ -47,7 +47,10 @@ var config = {
                 'huawo_account': '',
                 'huawo_pwd': '',
                 'huawo_api_key': '',
-                'huawo_hostname': ''
+                'huawo_hostname': '',
+                'yiliuliang': '',
+                'yiliuliang_user': '',
+                'yiliuliang_pwd': ''
               };
 
 module.exports = config;
