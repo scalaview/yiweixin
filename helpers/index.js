@@ -745,6 +745,20 @@ function toUnicode(theString) {
   return unicodeString;
 }
 
+function flowType(typeId){
+  switch(typeId)
+  {
+    case 0:
+      return "非正式";
+    case 1:
+      return "空中充值"
+    case 2:
+      return "华沃流量";
+    case 3:
+      return "易流量";
+  }
+}
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -782,3 +796,4 @@ exports.wechatMenus = wechatMenus;
 exports.getSlaves = getSlaves;
 exports.API = API;
 exports.toUnicode = toUnicode;
+exports.flowType = flowType;
