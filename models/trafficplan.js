@@ -108,7 +108,9 @@ module.exports = function(sequelize, DataTypes) {
   }
   TrafficPlan.TYPE = {
     '非正式' : 0,
-    '正式' : 1
+    '正式' : 1,
+    '华沃流量': 2,
+    '易流量': 3
   }
 
   return TrafficPlan;
