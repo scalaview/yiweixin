@@ -54,7 +54,6 @@ admin.get('/extractorders/export', function(req, res) {
       state: models.ExtractOrder.STATE.INIT
     }
   }).then(function(extractorders) {
-    console.log(extractorders)
     if(extractorders.length > 0){
       var results = []
       async.map(extractorders, function(extractorder, next) {

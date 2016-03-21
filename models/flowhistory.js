@@ -113,8 +113,6 @@ module.exports = function(sequelize, DataTypes) {
     instanceMethods: {
       getSource: function(conditions){
         if(this.type){
-          console.log(this.id)
-          console.log(this.type)
           return this['get' + this.type].call(this, conditions)
         }
       },

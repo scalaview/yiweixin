@@ -32,7 +32,6 @@ admin.get('/levels/new', function(req, res) {
 })
 
 admin.post('/level', function(req, res) {
-  console.log(req.body)
   models.Level.build(req.body).save().then(function(level) {
     if(level){
       req.flash("info", "update success")

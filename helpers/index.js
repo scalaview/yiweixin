@@ -759,6 +759,13 @@ function flowType(typeId){
   }
 }
 
+function is_admin(user, opts) {
+  if(user.username == "admin")
+    return opts ? opts.fn(this) : true;
+  else
+    return opts ? opts.fn(this) : false;
+}
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -797,3 +804,4 @@ exports.getSlaves = getSlaves;
 exports.API = API;
 exports.toUnicode = toUnicode;
 exports.flowType = flowType;
+exports.is_admin = is_admin;
