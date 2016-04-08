@@ -766,6 +766,12 @@ function is_admin(user, opts) {
     return opts ? opts.fn(this) : false;
 }
 
+function iflt(a, b) {
+  var options = arguments[arguments.length - 1];
+  if (a < b) { return options.fn(this); }
+  else { return options.inverse(this); }
+};
+
 exports.fileUpload = fileUpload;
 exports.fileUploadSync = fileUploadSync;
 exports.isExpired = isExpired;
@@ -805,3 +811,4 @@ exports.API = API;
 exports.toUnicode = toUnicode;
 exports.flowType = flowType;
 exports.is_admin = is_admin;
+exports.iflt = iflt;
