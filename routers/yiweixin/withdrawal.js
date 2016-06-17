@@ -170,7 +170,10 @@ app.post('/apply', requireLogin, function(req, res) {
       params = req.body
 
       params = _.extend(params, { customerId: customer.id })
-
+  if(params.amount <= 0){
+    res.redirect('/errmsg')
+    return
+  }
   async.waterfall([function(next) {
     models.DConfig.findOrCreate({
       where: {
