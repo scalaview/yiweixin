@@ -37,6 +37,11 @@ app.post('/givento', requireLogin, function(req, res) {
     return
   }
 
+  if(parseInt(req.body.amount) <= 0){
+    res.json({ code: 0, msg: "转增数目不能为负数"})
+    return
+  }
+
   async.waterfall([function(next) {
     models.Customer.findOne({
       where: {
